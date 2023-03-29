@@ -1,3 +1,599 @@
 INTRODUCCION A LA ARQUITECTURA BIG DATA
 =======================================
 
+Primero entendamos algunos términos muy básicos para ir alineándonos, vamos a partir de lo más básico y vamos a ir 
+complejizandolo cada vez más. En primer lugar acá hay algunas palabras claves, la palabra ARQUITECTURA, la palabra 
+BIG DATA y la palabra CLOUD COMPUTING. Adicionalmente a esas 3 palabras hay algunos otros términos que también 
+tenemos que saber, vamos a poner algunos adicionales como MACHINE LEARNING y DEEP LEARNING. Ahora qué implica el día 
+de hoy todos estos temas dentro de una empresa, vamos por parte. 
+
+
+ARQUITECTURA
+------------
+
+Primero hablemos de lo que es una Arquitectura. Si hablamos de lo que es una arquitectura en general, es la definición 
+de cómo la infraestructura, los procesos y las tecnologías implementan componentes dentro de una empresa, solo para poner 
+un ejemplo de muy alto nivel. Cuando uno habla de arquitectura puede estar hablando de una vista del siguiente tipo: 
+
+
+VISTA CONCEPTUAL (Arquitectura conceptual) 
+----------------
+
+Primero hay una fuente de datos, queremos extraer las transacciones hechas en los POS de visa y visa tiene su servidor 
+que estará en la empresa visa, ese servidor físicamente vivirá dentro de visa. Ahora lo que vamos a hacer es extraer unas 
+transacciones para construir un modelo que nos indique si una transacción es una transacción verdadera o es un fraude 
+crediticio de alguien que nos clonó la tarjeta, entonces el primer paso sería, vamos a ingestar la tabla de datos que 
+tiene visa, por lo tanto, vamos a tener un componente de ingesta de datos, nos conectaremos a esta tabla y haremos el 
+CTRL + C y  CTRL + V para llevarlo a nuestro propio servidor empresarial. Ok, ya ingestamos los datos, ahora ¿qué queremos 
+hacer? vendría el proceso. Vamos a construir un modelo de Deep Learning, para que con ese modelo podamos decir si una 
+transacción crediticia es un fraude crediticio o no es un fraude crediticio, y si es un fraude crediticio se lanzará un 
+correo, se bloqueará la tarjeta y se alertará a la persona de que alguien está usando su tarjeta de manera fraudulenta, 
+solamente para poner un ejemplo muy simple. ¿Qué es lo que he hecho aquí? he dado una definición conceptual, simplemente 
+estoy diciendo cómo el proceso va a funcionar, hay un servidor origen, hay que ingestar los datos de ese servidor origen 
+y moverlos a nuestro servidor dentro ya de la empresa y luego ya construiremos el modelo de red neuronal, saldrá la red 
+neuronal y luego tendremos un componente que dada la regla que el modelo bote, es fraude o no es fraude, enviará un correo 
+electrónico. Esto, lo que lo que hemos hecho aquí es definir los pasos de procesamiento y adicionalmente definir cuáles 
+son esos componentes que participan en el procesamiento, a esto se le conoce como una ARQUITECTURA CONCEPTUAL, definimos 
+cuáles son los pasos y los componentes necesarios para construir la solución. Aquí no estamos hablando de que este servidor 
+quizá sea un servidor Cobol, esta cajita de ingesta va a ser Sqoop o Data stage, este otro servidor está en la nube y por 
+lo tanto es un S3 de Amazon, esta cajita de procesamiento vamos a hacerlo con Tensorflow y esto va a ser un Micro-servicio 
+implementado en Java. Una ARQUITECTURA CONCEPTUAL, solamente define componentes conceptuales, las cajitas necesarias para 
+implementar el proceso y cómo están ordenadas esas cajitas entre sí.
+
+             ________          ________          ________          ________
+            |        |        |        |        |        |        |        |  
+            |        | -----> |        | -----> |        | -----> |        | ----->  Red neuronal -----> Correo 
+            |________|        |________|        |________|        |________|
+            Servidor          Componente         Servidor           Modelo
+            Externo              de              propio         Red Neuronal
+            Fuente de         Ingesta de        de nuestra
+            Origen              datos            Empresa
+
+
+Una vez que se define la arquitectura conceptual:
+------------------------------------------------- 
+
+¿Qué es lo que el negocio quiere hacer?
+---------------------------------------
+
+Quiere implementar un proceso para detectar fraude en tarjetas de crédito. Siempre se parte de una definición de negocio, 
+el objetivo de definir una buena arquitectura es alinear lo que negocio nos está diciendo para que la arquitectura soporte 
+esos casos de negocio, en resumen en eso se simplifica el hacer una arquitectura. 
+
+
+Y ahora ¿qué significa alinear el negocio en la Arquitectura?
+------------------------------------------------------------- 
+
+Ya hemos visto una parte muy simple, definir la arquitectura conceptual, una vez que definimos cuáles son las cajitas que 
+interactúan entre sí para hallar la solución, definimos la ARQUITECTURA TECNOLÓGICA. La arquitectura tecnológica ya nos dice 
+con qué herramientas tecnológicas vamos a implementar cada una de esas cajitas conceptuales. Ahora, vamos a poner los 
+términos correctos en la terminología de arquitectura, realmente no es una arquitectura conceptual o una arquitectura 
+tecnológica, la arquitectura es ÚNICA, ES TODO lo que vamos a definir. A cada una de estas partes de la arquitectura se le 
+conoce como VISTAS, por tanto, formalmente hablando, nos podemos referir a los conceptos que definimos como VISTA CONCEPTUAL 
+y VISTA TECNOLOGICA. Una arquitectura está definida por muchas vistas arquitectónicas, como mínimo siempre vamos a tener la 
+Conceptual y la Tecnológica, están relacionadas entre sí, porque, primero definimos que existía un origen de datos y que 
+había que capturar ese origen de datos (hay que ingestar) y luego hay que almacenarlo en algún lugar y luego hay que 
+procesarlo de alguna manera y ese procesamiento tiene una resultante y ese resultante se explota de alguna manera por los 
+usuarios de negocio. 
+
+Lo he dibujado de una manera muy burda simplemente para entender los conceptos, por supuesto que en la vida real esto va a 
+ser muchísimo más complejo ya cuando lo estemos definiendo. Ya tenemos la VISTA CONCEPTUAL, también para que lo sepan, 
+formalmente hablando es una vista conceptual de la arquitectura, pero en la jerga técnica del día a día le van a decir igual 
+la arquitectura conceptual, así que podemos usarlos como sinónimos, pero formalmente es una vista arquitectónica.
+
+                                             _____________
+                                            |             |   
+                                            |   NEGOCIO   |  
+                                            |_____________|
+                                                   ˄
+                                                   |  Alinear
+                                           ________|_________
+                                          |                  |   
+                                          |   ARQUITECTURA   |
+                                          |__________________|
+                                                   |                     
+                                ___________________|___________________                    
+                               |                                       |
+                               |                                       |  
+                    ___________˅__________                  ___________˅____________
+                   |                      |                |                        |
+                   |   VISTA CONCEPTUAL   |                |    VISTA TECNOLÓGICA   |
+                   |______________________|                |________________________| 
+
+
+
+¿Para qué nos sirve la VISTA CONCEPTUAL DE UNA ARQUITECTURA? 
+------------------------------------------------------------
+
+las arquitecturas conceptuales nos sirven para poder resolver este primer problema, la alineación de negocio. ¿Negocio que 
+espera? por ejemplo, lo estamos poniendo muy simple, viene negocio y dice: “…quiero un sistema para detectar fraude en 
+tarjetas de crédito en las transacciones y si se detecta un fraude cuando alguien pasa su tarjeta en un POS se bloquea la 
+tarjeta y se dispara una alerta de correo que diga ‘se ha bloqueado su tarjeta porque alguien te ha clonado la tarjeta’…”. 
+Eso es lo qué negocio quiere. Entonces esto lo ponemos en una PPT más bonita con algo ya más de detalle y vendrá una reunión 
+con negocio y le diremos lo siguiente: “…nos vamos a conectar al servidor visa y vamos a ingestar esto dentro de nuestros 
+servidores empresariales y una vez que los tengamos dentro, vamos a hacer un proceso de Deep learning para construir una red 
+neuronal y esta red neuronal al final botará un 1 o un 0, es fraude o no es fraude y si bota 1, vamos a poner un componente 
+para que haga 2 cosas, primero que se conecte al servidor de bloqueo de tarjetas para bloquear la tarjeta y luego que envíe 
+un correo electrónico al dueño de la tarjeta diciendo que su tarjeta se ha bloqueado y que llame a este número para 
+desbloquearla…”. Para eso sirve la arquitectura conceptual, para que negocio entienda lo que se va a desarrollar y qué es lo 
+que podría pasar, y solamente para poner un ejemplo muy simple, negocio te podría decir lo siguiente: “…pero adicionalmente 
+a esto no quiero que se bloquee la tarjeta directamente en el sistema, sino, quiero que en vez de que vaya directamente al 
+sistema que bloquea la tarjeta, le mande un correo primero a alguien de negocio para que analice esa transacción, que vea 
+qué es lo que ha pasado con esa transacción y que él ya decida si bloquea o no bloquea la tarjeta…”. ¿A qué me refiero con 
+esto? negocio puede cuestionar la vista conceptual de la arquitectura, porque, la entiende y el objetivo justamente es esto, 
+como él es el experto de negocio, él nos tiene que ayudar a alinear la vista arquitectónica. 
+
+
+¿Qué significa alinear la vista arquitectónica conceptual? 
+----------------------------------------------------------
+
+Que nos cuestione lo que estamos definiendo. Ahora, negocio también podría decir: “…y adicionalmente a eso también quiero que 
+si bloqueas la tarjeta, no solamente le envíes un correo electrónico a esta persona, sino, que vayas al área de riesgo 
+crediticio y envíes una alerta para que hagan algo más con este sistema y qué sé yo, porque las reglas de negocio del banco 
+son así…”. Pero lo importante es que se cuestiona, eso es lo que queremos obtener con la arquitectura conceptual, que nos la 
+cuestionen, porque, recuerda que nosotros estamos haciendo el rol de arquitecto en este caso y un arquitecto no conoce de 
+negocio o bueno sí lo conoce pero no como el que lo vive en el día a día, la persona que es dueña de este proceso es alguien 
+de negocio, a esta persona se le conoce como el OWNER, el dueño del proceso y él conoce mucho más de la realidad de negocio 
+que nosotros los arquitectos, así que nosotros vamos a tener un punto base siempre, de hecho, van a ver que hay una 
+arquitectura estándar que es nuestro punto de partida y eso ya se particulariza, ese es otro concepto muy importante que 
+tienen que entender. 
+
+A lo largo de las clases vamos a ver diferentes arquitecturas estándar que existen, son estándar porque han demostrado en que 
+las grandes empresas funcionan, entonces bueno tomémoslas como buenos casos de referencia e implementémoslos dentro de la 
+empresa. ¿Pero qué es lo que pasa mucho en la vida real? toman el estándar pero no lo particularizan a la necesidad de la 
+empresa, cada empresa es un mundo diferente incluso aunque sean parte de una misma industria, por ejemplo, digamos que hay un 
+estándar de arquitectura para bancos y no solamente para bancos en general, sino, para el proceso en específico de riesgo 
+crediticio, pero la realidad del banco 1 es muy diferente a la realidad del banco 2, los de negocio del banco 1 querrán 
+agregar algo a esa arquitectura, los de la realidad de otro banco querrán agregar otras cosas y así sucesivamente. Entonces, 
+no solamente es entender el estándar, sino, SABER COMO SE PARTICULARIZA. Y esa PARTICULARIZACIÓN es lo que se conoce como 
+alinear el negocio a la tecnología, alinearlo a la arquitectura, PARA ESO SIRVE LA VISTA CONCEPTUAL. 
+
+Digamos que hay muchas reuniones con la gente de negocio, partimos de una arquitectura estándar y los de negocios la van 
+cuestionando y vamos agregando o quitando componentes y hay un consenso. Bien ya tenemos un consenso de qué es lo que vamos 
+a implementar y negocio nos da el ok. Ya sabemos ahora cómo lo vamos a implementar, entonces, ahí nos dirigimos a otra vista, 
+la VISTA TECNOLÓGICA.
+
+
+VISTA TECNOLÓGICA
+-----------------
+
+Esta es la vista que resuelve el problema a la interrogante ¿qué tecnologías vamos a utilizar para hacer la implementación 
+de la arquitectura conceptual? hay un punto importante aquí, respecto a lo que es la arquitectura tecnológica recuerden que 
+a partir de este punto para nosotros vistas y arquitectura son sinónimos, pero ya sabemos que no es así, la arquitectura 
+está conformada por muchas vistas. La arquitectura tecnológica, una vez que se definió la arquitectura conceptual, ok, ya 
+está alineado lo que el negocio espera con la realidad que se va a implementar, ahora vamos a definir la arquitectura 
+tecnológica, con qué lo vamos a implementar. Tecnológicamente hablando, existen muchísimas cosas, pero en este caso nos vamos 
+a enfocar en ciertos temas tecnológicos, vamos a ver arquitecturas relacionadas a big data, a cloud y a machine learning y 
+deep learning, que es el objetivo de esto, porque, por ejemplo, podríamos hablar también, y de hecho lo vamos a ver, no como 
+implementación, porque escaparía el tema de big data, pero por ejemplo también se utiliza mucho el tema de microservicios o 
+también hay que saber el tema de integración con sistemas legados, porque las arquitecturas no viven por sí solas, están 
+integradas en la empresa y la empresa tiene diferentes modelos arquitectónicos, así que hay que saber cómo se integra. Pero 
+nuestro objetivo a lo largo de las clases va a ser la definición arquitectónica de estos ecosistemas tecnológicos. Lo que 
+hay que saber en este momento es, bien, ya tenemos las cajitas conceptuales que van a hacer el procesamiento, ahora vamos a 
+definir un mix tecnológico para implementar esas cajitas conceptuales. Cuando definamos una arquitectura tecnológica el 
+primer punto de partida es preguntarnos ¿con qué ecosistema tecnológico de big data, cloud y machine learning y deep learning 
+vamos a trabajar? por ejemplo, podríamos trabajar con el ecosistema de HADOOP o podríamos trabajar con el ecosistema de AWS o 
+con el ecosistema de CLOUD o de AZURE o con el ecosistema de GCP o el de HUAWEI o el de DATABRICKS o una integración de 
+DATABRICKS con AWS o una integración de HADOOP con parte AWS o una integración de parte AZURE con su ecosistema de big data 
+propietario una parte y otra parte con el ecosistema de HADOOP. Pero aquí es donde la primera pregunta que debemos de 
+respondernos es ¿con cuál o cuáles ecosistemas tecnológicos implementaremos nuestra arquitectura conceptual? es importante 
+definirlo, porque, lo vamos a poner muy simple, supongamos que escogemos el ecosistema estándar de big data que es HADOOP.
+Vamos a implementar todo lo definido con el ecosistema de HADOOP, ahora va a ser un ecosistema ON-PREMISE o va a ser un 
+ecosistema CLOUD. ¿Esto qué significa? que la infraestructura en donde vamos a instalar todas estas tecnologías van a vivir 
+en servidores que nosotros compraremos y en una oficina dentro de la empresa los desplegamos instalamos los servidores y le 
+instalamos las tecnologías dentro de esos servidores, podría ser ON-PREMISE o esa infraestructura podría ser CLOUD, es decir, 
+seleccionamos AWS, AZURE o GCP y levantamos en una nube en particular los 100 servidores que necesitamos para trabajar, 
+podría ser o podríamos irnos a un nuevo tipo de infraestructura conocido como la INFRAESTRUCTURA HÍBRIDA, que es combinar una 
+parte ON-PREMISE y combinar una parte CLOUD, porque, por ejemplo, solamente para poner un ejemplo de muy alto nivel, hay 
+algunos bancos que por temas de legislación en el país en donde están no pueden subir sus datos a la nube, porque, la ley 
+dice que esos datos tienen que vivir dentro de las oficinas bancarias, en ese caso, entonces un banco tendría que tener su 
+ecosistema en infraestructura ON-PREMISE o si quiere tener parte de nube, pues no va a poder ir toda la nube por temas 
+legales, pero podría crear una arquitectura de infraestructura híbrida, combinar una parte ON-PREMISE y otra parte CLOUD, que 
+por ejemplo, los datos que por ley, que las tarjetas de crédito por ley no pueden salir del banco, los números de tarjeta de 
+crédito, las tablas de tarjetas de crédito se quedan en el mundo ON-PREMISE y el resto de tablas si puede ir a CLOUD, así que 
+formamos una arquitectura híbrida. O un nuevo tipo de arquitectura que también vamos a hablar, las arquitecturas HMC 
+(hybrid multi-cloud) ¿eso que significa? que no solamente tenemos parte ON-PREMISE y parte CLOUD, sino, que tenemos una parte 
+ON-PREMISE y trabajamos una parte en AWS, otra parte en AZURE y otra parte en GCP y otra parte en HUAWEI. Puede darse el caso 
+y eso hay que gobernar, es posible que se usen diferentes nubes. Por ejemplo, en Latinoamérica se estila que la empresa se 
+amarra con una nube en particular y trabaja exclusivamente con esa nube, pero no es recomendable. Ahora de estos temas 
+hablaremos más a detalle en sesiones posteriores. 
+
+
+VISTA DE INFRAESTRUCTURA
+------------------------
+
+Otro tema muy importante, este ecosistema tecnológico que definimos está amarrado a una tercera vista arquitectónica, la 
+VISTA DE INFRAESTRUCTURA. La tecnología que nosotros vamos a utilizar para implementar la vista conceptual tiene que estar 
+desplegado en algún lugar, ¿cuál es esa infraestructura? son estas de cuatro tipos (ON-PREMISE, CLOUD, HIBIRIDO o HMC). La 
+vista tecnológica nos va a dar un ecosistema tecnológico, hemos puesto un ejemplo muy simple, pero existen otros ecosistemas 
+tecnológicos. Independientemente de cuál sea el ecosistema tecnológico que tú decidas, hay que saber en qué infraestructura 
+va a vivir, porque hay algunos ecosistemas tecnológicos que viven bien en Cloud, otros que viven en On-Premise, otros que 
+viven mucho mejor en Híbrido, entonces hay que saber cuál es la mejor estrategia. ¿A qué quiero llegar con esto? LA 
+DEFINICIÓN DE LA VISTA TECNOLÓGICA Y LA DEFINICIÓN DE LA VISTA DE INFRAESTRUCTURA VAN DE LA MANO NUNCA SE DEFINEN POR 
+SEPARADO, SINO, QUE SE DEFINEN A LA VEZ. No puedes primero decir vamos a utilizar el ecosistema Hadoop y utilizaremos Hive, 
+Spark y HBase y luego recién nos enfocamos en donde va a estar la infraestructura, porque dependiendo de ese ecosistema 
+tecnológico hay que hacer tuning de infraestructura para poder hacer que esta infraestructura esté lo mejor preparada posible 
+para el despliegue tecnológico.
+
+                                                         __________________
+                                                        |                  |   
+                                                        | VISTA CONCEPTUAL |  Punto de partida
+                                                        |__________________|
+                                                                  |      
+               ___________________________________________________|______________________________________________
+              |                       |                       |                          |                       |   
+              |                       |                       |                          |                       |   
+     _________˅_________     _________˅_____________    ______˅____________     _________˅__________     ________˅________
+    |                   |   |                       |  |                   |   |                    |   |                 |
+    | VISTA TECNOLÓGICA |   | VISTA INFRAESTRUCTURA |  | VISTA DE GOBIERNO |   | VISTA MODELAMIENTO |   | VISTA SEGURIDAD |   
+    |___________________|   |_______________________|  |___________________|   |____________________|   |_________________|    
+
+
+El punto importante aquí es que la arquitectura conceptual es el punto de partida, porque nos ayuda a obtener el check de 
+negocio, ahora una vez que tenemos el check de negocio, ya no podemos aplicar algo tan simple como “y luego definimos la 
+vista tecnológica y luego definimos la vista de infraestructura y luego definimos la vista de gobierno y luego definimos la 
+vista de modelamiento”, no, la VISTA CONCEPTUAL es el punto de partida y en función de ellas van a empezar a salir muchas 
+otras vistas, la VISTA TECNOLÓGICA, la VISTA DE INFRAESTRUCTURA, la VISTA DE GOBIERNO, que por ejemplo, esto se implementa 
+con un data lake, ya lo veremos en sesiones posteriores, la VISTA DE MODELAMIENTO, que nos dice cómo van a vivir las tablas 
+de datos estructuradas, las colecciones semiestructuradas y los datos no estructurados, todo eso tiene que estar modelado, la 
+VISTA DE SEGURIDAD, la VISTA DE RED, existen muchas vistas. ¿Qué es lo importante aquí? que para la definición de estas 
+vistas, no hay un orden para ir haciéndolas una tras otra, es decir de manera secuencial, todas están cohesionadas entre sí, 
+si tu mueves algo de la vista tecnológica eso puede afectar a la vista de modelamiento, sólo para poner un ejemplo muy símple. 
+Digamos que estamos utilizando una tecnología qué es para hacer consultas de baja latencia llamada HBase para almacenamiento 
+de baja latencia en tiempo real y hay un concepto muy importante en HBase que son las “Keys” que son, digamos que son los 
+campos que aceleran las consultas para que pueda la tabla responder en tiempo real. La forma en cómo se modelan las “Keys” en 
+HBase es muy particular, y digamos que al día siguiente el arquitecto se pone creativo y dice no mejor he visto en internet 
+que hay algo mejor que Hbase, mejor vamos a utilizar Cassandra. Pero la forma en cómo se modela las “Keys” para acelerar las 
+consultas en Cassandra, a pesar de que Cassandra y HBase son bases de datos para baja latencia, hacen lo mismo, pero el 
+modelamiento de los campos para acelerar las consultas es diferente, eso quiere decir que si tú cambias la tecnología puedes 
+afectar a las reglas de modelamiento, de la vista de modelamiento, cuáles son las “Keys” para acelerar esas consultas, pues 
+ya no va a ser la misma, cambió, tendremos que tener otra estrategia de modelamiento de “Keys”. Así que, cambiar algo en una 
+vista arquitectónica puede llegar a afectar a las otras vistas, por eso se dice que un buen arquitecto tiene que tener todo 
+esto cohesionado y tiene que ser coherente y si se hace alguna actualización mientras se va definiendo la arquitectura, hay 
+que ver cómo esa actualización, ese cambio, afecta al resto de vistas arquitectónicas, ese por favor va a hacer un punto muy 
+importante. Estos detalles que acá los estoy aplicando de manera muy general van a ser muy importantes cuando ya nosotros 
+resolvamos los ejercicios y van a ver que un cambio tecnológico afecta fuertemente a las demás vistas y viceversa. 
+
+Digamos que modelamos los campos para acelerar las consultas, empezamos a hacer modelamientos de campos y creamos “Keys” de 
+aceleración de consultas para que la arquitectura pueda responder en tiempo real. Digamos que definimos estrategias y reglas 
+de la “Key”. Pero tenemos una limitante, estas reglas de modelamiento no están bien adaptadas, ni con Cassandra ni con HBase 
+y realmente la tecnología correcta sería Mongodb, solamente para poner un ejemplo. ¿Eso que quiere decir? qué las reglas de 
+modelamiento de las tablas de datos que van a vivir dentro de la arquitectura, también ayudan a definir cuál es la mejor 
+tecnología, no es que primero definimos la parte tecnológica y luego definimos las reglas de modelamiento de las tablas o 
+viceversa no es que primero definimos las reglas de modelamiento de las tablas y luego definimos la tecnología, todo esto es 
+un trabajo en conjunto, hay que tener una visión holística en la parte de arquitectura, a veces nos conviene empezar desde la 
+vista de modelamiento y luego bajar a la vista de arquitectura, a veces nos conviene ir desde la vista tecnológica y luego 
+bajar a la vista de modelamiento y a veces nos conviene hacer una refinación, interactuando entre estas 2 vistas. Esto ya lo 
+vamos a entender en su momento con un ejercicio real, para que en vivo veamos si hacemos cambios en alguna de esas 
+definiciones podemos alterar alguna de esas otras vistas. Por eso se dice que construir una arquitectura es algo que debe de 
+hacerse con mucho cuidado, porque mueves un componente y existe el riesgo de que toda tu definición arquitectónica cambie 
+completamente.
+
+
+¿Qué tenemos hasta el momento? 
+------------------------------
+
+una arquitectura nos ayuda a entender qué es lo que negocio quiere y nos permite tener una alineación tecnológica. Primero 
+partimos de la vista conceptual y negocio nos dará el check, ya tenemos el check de negocio, ya sabemos qué es lo que se 
+tiene que hacer y ahora empezamos de manera paralela a definir las siguientes vistas arquitectónicas. Tradicionalmente se 
+empieza luego con la VISTA TECNOLÓGICA, es decir, con qué ecosistema vamos a implementar todo, cuáles son las tecnologías que 
+usaremos Spark, Hive, Hbase, Java (como lenguaje de programación), entonces la arquitectura tecnológica es definir el 
+ecosistema tecnológico y ese ecosistema tecnológico pues tiene que correr en algún lugar eso es la VISTA DE INFRAESTRUCTURA. 
+Ya sabemos que clásicamente existen cuatro tipos de infraestructura, las ON-PREMISE, las CLOUD, las HIBRIDAS y las HIBIRIDAS 
+MULTI-CLOUD. Adicionalmente a eso hay otras vistas arquitectónicas, otra muy importante es la VISTA DE GOBIERNO, ¿cómo es que 
+los datos se van a procesar dentro de la arquitectura? la vista de gobierno define las etapas estándar de procesamiento 
+dentro de la arquitectura y cómo los dueños de los datos controlan esos procesos. Voy a poner un ejemplo muy simple, por 
+ejemplo, clásicamente toda arquitectura va a tener estos pasos, tenemos la fuente de datos que vamos a procesar, primero hay 
+que ingestar y lo guardamos en alguna base de datos. Luego hay que limpiar esos datos y guardamos la data limpia en una base 
+de datos. Por ejemplo, digamos que aquí tenemos la tabla con un campo ‘edad’ y por ahí hay edades menores a cero, bueno, 
+primero llevémoslo a nuestro ecosistema de big data, tenemos la tabla ‘edad’ con todo y errores. Ahora, hay que aplicar 
+reglas de calidad, hay que eliminar todas aquellas edades que sean menores a cero y listo. Y en otra base de datos tenemos la 
+misma tabla de las personas pero con las edades ya limpias, tenemos solamente los datos correctos. Y ahora sí vamos a hacer 
+una red neuronal para predecir si esta persona nos va a comprar un producto o no nos va a comprar un producto. Clásicamente 
+esas son las etapas de procesamiento en toda arquitectura,  ingestar, limpiar y procesar. Ahora este flujo hay que gobernarlo. 
+Las etapas de ingesta, limpieza y procesamiento, primero hay que ingestar, luego hay que limpiar y finalmente el procesado. 
+Cualquier cosa que tu implementes, sin excepción, va a seguir este patrón de procesamiento, dentro de una empresa, digamos 
+que este es el marco general de procesamiento, ingesta, limpia y has tu solución, por supuesto que esto es más complejo 
+solamente lo estoy poniendo muy a alto nivel para entender el concepto, pero en resumen siempre son esos pasos, ingestar, 
+limpiar y procesar. Realmente esto de limpiar es más complejo, en si es limpiar es preparar la data, por ejemplo, cuando 
+vengan datos semiestructurados, hay que crear vistas estructuradas, cuando vengan datos no-estructurados dependiendo del tipo 
+de data no-estructurada, por ejemplo, las imágenes se ‘tensorizan’ o los textos se ponen en guiones u otro paso. Esto hace 
+esta capa de ‘Limpieza’, prepara la data lista para que las soluciones la puedan procesar. Así que en esencia, siempre 
+cualquier proceso sin excepción, que implementemos dentro de nuestra arquitectura va a seguir estos 3 pasos. 
+
+                             ______________          _____________          ______________
+                            |              |        |             |        |              |  
+                            |   INGESTAR   | =====> |   LIMPIAR   | =====> |   SOLUCIÓN   |  
+                            |______________|        |_____________|        |______________|
+
+
+¿Por qué es importante definir esos 3 pasos? 
+--------------------------------------------
+
+Porque tenemos dividido el proceso en 3 grandes pasos y podemos gobernar cada uno de esos pasos, podemos gobernar la parte 
+de captura de datos, aquí simplemente estamos ingestando la data que vamos a procesar, habrá reglas de gobierno para eso. 
+En el paso de limpieza, ya estamos preparando los datos, por acá digamos para ponerlo siempre, estamos limpiando la data, no 
+estamos poniendo edades que eran menores a cero las estamos eliminando. Ahora hay técnicas de gobierno y acá por ejemplo 
+están las reglas de calidad y hay que ver si estamos cumpliendo con esas reglas de calidad y no es tan simple, porque ¿qué 
+pasa con los registros que no cumplan las reglas de calidad de datos? por ejemplo, que hay una persona que tiene la edad menor 
+a cero, eso hay que reyectar (me imagino que la palabra vendrá de “reject”) en una tabla y tener una sub-zona en la cual vamos 
+a tener datos reyectados, para luego hacer un análisis de qué es lo que está pasando con esos datos reyectados y por ejemplo 
+podríamos tener una métrica, del 100% de los datos que hemos ingresado se han reyectado un 1% y un 99% fueron datos que 
+cumplieron las reglas de calidad y eso está muy bien no o sea siempre van a haber errores en la empresa así que un 99% de 
+registros con buenas reglas de calidad está perfecto. O podríamos descubrir otra cosa, que tenemos un 30% de registros que no 
+cumplen las reglas de calidad, eso probablemente implique que hay un problema en el origen de datos en una parte externa de 
+la arquitectura. Lo importante es que esta capa nos ayude a encontrar estos numeritos que son muy importantes y podemos 
+aplicar técnicas de gobierno de datos de esta manera, hay números ya para empezar a medir si la calidad se cumple o no. Otro 
+punto importante aquí es que, ok, tenemos las tablas de datos limpias y listas para ser procesadas y aquí, en el paso de 
+procesamiento, es donde ya vienen las soluciones. Ahora, las soluciones ¿de qué tipo pueden ser? y aquí es donde varía, al 
+momento de ingestar los datos, podemos ingestar cualquier cosa, tablas estructuradas, colecciones de datos que son datos 
+semiestructurados o datos no estructurados, un archivo de imagen, por ejemplo. Hay diferentes niveles de estructura, además 
+hay diferentes niveles de captura de datos, podemos capturar esa data en real time o podemos capturarla en batch. Para no 
+complicar tanto la explicación, vamos a omitir esa parte de la velocidad de captura, porque, ya se empezaría a complicar, así 
+que hablemos que todo esto es un procesamiento batch, es decir, esta es la fuente de datos y vamos a capturar la data 
+estructurada, semiestructurada, no estructurada, le damos al botón y este proceso se queda pensando 2 o 3 horas y listo 
+capturamos los datos con los que vamos a trabajar. El real time es otro mundo diferente, pero por ahora no vamos a hablar de 
+real time para no complicarnos tanto. Así que simplemente tenemos un proceso que captura los datos y nos los deja en una capa 
+de la arquitectura listo para empezar a procesarlos. Vamos a empezar a procesar. 
+
+
+¿Con qué tipos de datos nos podemos encontrar en la vida real? 
+--------------------------------------------------------------
+
+Data estructurada, semiestructurada y no estructurada. Ejemplo de datos estructurado, podría ser una tabla de datos que 
+estamos procesando desde alguna base de datos, ejemplo de datos no-estructurados, podría ser pues estamos haciendo temas de 
+reconocimiento de imágenes y estamos gestando fotografías o grabaciones de vídeo. Ejemplo de datos semi-estructurado, un 
+archivo json. Lo importante es saber que hay 3 niveles de estructuras, estructurados, semi-estructurados y no-estructurados.
+
+Eso viene en una capa especial dentro de la arquitectura, esa es la CAPA DE INGESTA DE DATOS que vamos a procesar. 
+Ahora, yo les dije que hay una segunda capa en donde se aplican reglas de limpieza, por ejemplo, en una tabla estructurada 
+podemos decir: “…oye vamos a quedarnos con las edades, necesariamente tienen que ser mayores a cero, no puede haber una edad 
+que sea menos 7 años no tiene sentido…”. En paralelo, van a haber 2 vistas arquitectónicas que van a trabajar, esta 
+definición que estamos desarrollando aquí es la VISTA DE GOBIERNO y especificamente estamos gobernando el flujo de 
+procesamiento, primero capturamos los datos. Ahora, vamos a aplicar REGLAS DE CALIDAD, ejemplo muy simple, una regla de 
+calidad es que los registros tienen que tener, si estamos ingestando datos de personal la edad tiene que ser mayor a cero. 
+Acá viene otra vista, la VISTA DE MODELAMIENTO. Tenemos 2 tablas, la tabla Persona, con los datos correctos y la tabla 
+Persona reyectada. Los registros que cumplan con la regla de calidad edad mayor a cero, van a pasar a la tabla Persona y los 
+registros que no cumplan esa regla de calidad van a reyectarse a la tabla Persona reyectada y de esa manera, una vez que el 
+proceso termine, digamos que teníamos 100 registros, 99 aterrizaron en la tabla Persona y uno no cumplió la regla de calidad 
+y listo, ya sabemos que el 99% de nuestros datos cumple la regla de calidad, tenemos data de calidad o lo que les expliqué, 
+podría ser que solamente el 70% cumple esas reglas y hay un problema con el 30% de los datos y eso ya sería un alerta. 
+
+Otro punto importante es que ¿qué campos tienen que tener esas tablas? eso es MODELAR. Modelar implica definir cuáles son los 
+campos que van a tener estas tablas, esa es la vista de modelamiento. Para poner un ejemplo muy simple, digamos que la fuente 
+de datos al momento de capturar los datos nos entrega el nombre, el apellido, la dirección y la edad de la persona, pero por 
+necesidad de negocio solamente nos interesa el nombre, el apellido y la edad, no la dirección. El modelador entonces define 
+que esas 2 tablas van a tener el nombre, el apellido y la edad, solamente tendrán esos campos. Para ponerlo simple, la regla 
+de modelamiento es tendremos 2 tablas, la tabla de los datos que cumplen las reglas de calidad y las que no lo cumplen y cada 
+uno de esas tablas tiene ciertos campos. VEAN ENTONCES CÓMO LA VISTA DE GOBIERNO, LA VISTA DE CALIDAD Y LA VISTA DE 
+MODELAMIENTO ESTÁN INTERACTUANDO ENTRE SÍ, no es que yo primero defino la vista de gobierno por sí sola y luego vamos a las 
+de calidad y luego las de modelamiento, no, una definición arquitectónica implica ir definiendo en conjunto y ver cómo cada 
+vista arquitectónica va creciendo de a poco con más definición. 
+
+                             _________________________________________________________
+                            |   VISTA DE GOBIERNO                                     |  
+                            |                                                         |  
+                            |     ______________________________________________      |  
+                            |    |                                              |     |
+                            |    |               INGESTA DE DATOS               |     |  
+                            |    |______________________________________________|     |  
+                            |    |           LIMPIEZA / PROCESAMIENTO           |     |  
+                            |    |                                              |     |      
+                            |    |   tblPersona    tblPersona_rey               |     |  
+                            |    |______________________________________________|     |  
+                            |    |                                              |     |  
+                            |    |                   SOLUCIÓN             |     |  
+                            |    |______________________________________________|     |  
+                            |                                                         |  
+                            |_________________________________________________________|
+                            |   REGLAS DE CALIDAD        |  VISTA DE MODELAMIENTO     |           
+                            |                            |                            |  
+                            |   edad > 0                 |  Campos: nombre, apellido  | 
+                            |                            |          y edad            |   
+                            |____________________________|____________________________|
+
+
+Ahora por ejemplo otra definición, hablemos ahora de los datos semiestructurados ¿cuál es el estándar aquí? hay que construir 
+procesos que creen vistas estructuradas de los datos y luego sobre esas vistas estructuradas repetimos este proceso, datos que 
+cumplen las reglas de calidad y datos reyectados. Ahora con los datos no estructurados, pasa algo parecido, primero hay que 
+darles una estructura a los datos, los datos semi estructurados y no estructurados hay que estructurarlos. Entonces hay que 
+definir un tipo de modelamiento, por ejemplo, frente a los datos no estructurados depende, si estamos procesando imágenes 
+existe un componente matemático llamado TENSOR y tendríamos que tensorizar los datos y en función de ese tensor tendríamos 
+que crear vistas estructuradas, vean como el objetivo de esta segunda capa del gobierno del proceso, es tener la data lista 
+para ser consultada por medio de las reglas de modelamiento y las reglas de calidad, estamos definiendo cuáles son los datos 
+ya listos para que sean procesados. Una buena capa de ordenamiento de datos sobre el gobierno del proceso tiene como 
+resultante data estructurada, porque, la data estructurada es fácilmente procesable, así que EL OBJETIVO DE ESTA SEGUNDA 
+CAPA ES DEJAR LOS DATOS ESTRUCTURADOS PARA QUE LA SOLUCIÓN LUEGO LA PUEDA EMPLEAR. Por ejemplo, que es lo que podríamos hacer 
+y acá es donde vamos a estudiar diferentes tipos de soluciones, la solución más simple que existe es un proceso de REPORTE. 
+Vamos a hacer un reporte con algunas de estas tablas ya estructuradas o podríamos hacer un proceso funcional, es decir, 
+agarrar un lenguaje de programación e implementar un proceso de negocio muy particular que ya no tiene que ver con un reporte 
+o podríamos hacer una solución de machine learning o podríamos hacer una solución de Deep learning o podríamos hacer una 
+solución de integración para conectarnos desde temas de microservicios hasta visualizar los datos en una página web o qué sé 
+yo, ya es donde vienen las soluciones.
+
+
+¿Qué queremos hacer con esos datos que cumplieron las reglas de calidad y ya están modelados?
+---------------------------------------------------------------------------------------------
+
+Ahora sí esa es la solución, esta última capa es la que le aporta valor al negocio y existen diferentes tipos de soluciones 
+y dependiendo de ese esos tipos de soluciones, pues acá nos convendrá cierto ecosistema tecnológico, aquí nos convendrá otro 
+cierto ecosistema tecnológico y así sucesivamente. Entonces aquí también podemos ver que está a la vista tecnológica, vean 
+cómo todo esto está cohesionado entre sí, no hay un orden para ir definiendo todo esto, se va definiendo y en función de eso 
+van saliendo las definiciones que alteran otras definiciones que tenemos en otras vistas. Creo que a muy alto nivel se 
+entiende, pero ahora ¿cómo hacemos todo esto? esa es la cuestión, ya cuando lo veamos en ejemplos más reales creo que va a 
+quedar más claro, pero ahora llevémonos solamente la parte conceptual para entender de qué va todo esto. 
+
+         __________________________________________________________________________________________________________
+        |                                                                                                          | 
+        |   ¿Qué es lo que tenemos entonces hasta el momento?                                                      | 
+        |   -------------------------------------------------                                                      | 
+        |                                                                                                          | 
+        |   Ya sabemos que el negocio tiene necesidades, esas necesidades se alinean a una arquitectura            | 
+        |   y ¿qué es alinear a una arquitectura? definir una vista conceptual de cómo se van a hacer las          | 
+        |   soluciones, cuáles son los pasos de procesamiento. Tenemos la vista conceptual y este es el            | 
+        |   contrato con negocio, que nos dice eso es lo que quiero que implementes, lo cuestionará y              | 
+        |   listo, estaremos 2 o 3 semanas definiendo bien esa arquitectura conceptual y ya está terminamos        |            
+        |   y vamos a implementar. Ahora vienen las demás vistas, el ecosistema tecnológico, la                    | 
+        |   infraestructura (on-premise, cloud, multi-cloud, híbrido multi-cloud), la vista de gobierno que        | 
+        |   nos dice primero hay que ingestar, luego hay que preparar y luego hacemos ya la solución. Ya           | 
+        |   sabemos que podemos ingresar datos estructurados, semiestructurados o no estructurados y               | 
+        |   dependiendo de la naturaleza del dato hay que aplicar técnicas de modelamiento. El modelamiento        | 
+        |   define cómo se va a construir esta segunda capa en el flujo de gobiernos y adicionalmente a eso        | 
+        |   está la vista de calidad que también está relacionada con esta segunda capa, hay que definir           | 
+        |   cuáles son las tablas de datos, cómo se crean esas tablas de datos, por ejemplo, en datos no           | 
+        |   estructurados esas tablas se crean tensorizando y cómo se preparan los datos para que estén limpios.   | 
+        |   Y luego es donde vienen las soluciones, que pueden ser desde reportería hasta temas de deep learning   | 
+        |   y redes neuronales, programación funcional, etc.                                                       |
+        |                                                                                                          |                      
+        |__________________________________________________________________________________________________________|
+                                                          _____________
+                                                         |             |        
+                                                         |   NEGOCIO   | <------------------. 
+                                                         |_____________|                    |
+                                                                ˄                           |
+                                                                |  Alinear                  |    
+                                                        ________|_________                  |
+                                                       |                  |                 |
+                                                       |   ARQUITECTURA   |                 |
+                                                       |__________________|                 |
+                                                                |                           |
+                                                                |                           |
+                                                        ________˅_________                  |    
+                                                       |                  |                 |
+                                                       | VISTA CONCEPTUAL |  Contrato ------'
+                                                       |__________________|
+                                                                |      
+               _________________________________________________|_______________________________________________
+              |                       |                       |                          |                       |   
+              |                       |                       |                          |                       |   
+     _________˅_________     _________˅_____________    ______˅____________     _________˅__________     ________˅________
+    |                   |   |                       |  |                   |   |                    |   |                 |
+    | VISTA TECNOLÓGICA |   | VISTA INFRAESTRUCTURA |  | VISTA DE GOBIERNO |   | VISTA MODELAMIENTO |   |  VISTA CALIDAD  |   
+    |___________________|   |_______________________|  |___________________|   |____________________|   |_________________| 
+                                                                                         |                       |                               
+         Ecosistema               On-premise            Etapas:                          |                       |       
+         Tecnologico              Cloud                  ● Ingestar:                     |                       |       
+                                  Multi Cloud               - Estructurado               |                       |       
+                                  Hibrido Multi Cloud       - Semi Estructurado          |                       |
+                                                            - No Estructurado            |                       |       
+                                                         ● Procesar   <------------------' <---------------------' 
+                                                         ● Soluciones:
+                                                            - Reporteria
+                                                            - Rede Neuronal
+                                                            - Deep Learning            
+
+
+Ahora también hay otras vistas, porque, por ejemplo, este flujo que estamos procesando hay que asegurarlo, también existe 
+la VISTA DE SEGURIDAD. Ahora también hay que saber que ESTE FLUJO PUEDE TENER 2 VELOCIDADES, PUEDE SER UN PROCESAMIENTO BATCH 
+O PUEDE SER UN PROCESO EN REAL TIME, es decir, le damos al botón para ejecutar el proceso y esto se queda pensando varias 
+horas, porque, negocio puede esperar varias horas o no, negocio quiere que a lo más esté en 1 segundo, entonces, habría una 
+velocidad de tiempo real y ahí tendríamos que interactuar con la vista tecnología y con la vista de infraestructura para 
+garantizar si esto va a ser una velocidad batch o va a ser una velocidad real time y ya se empieza a complicar cada vez más.  
+Pero quiero que vean como todo esto está relacionado. En sí este pequeño resumen que les he puesto aquí es definir la 
+arquitectura, en esto consiste. Ahora ¿y cómo la definimos? esa va a ser la cuestión, hay muchísimas recomendaciones, siempre 
+vamos a partir de los estándares y en función de esos estándares vamos a ir particularizando a ejemplos reales para ver cómo 
+en la vida real se hace esa definición. 
+
+Bien, digamos que este es negocio y estamos varias semanas con la gente de negocios definiendo las vistas arquitectónicas y 
+al final ya tenemos la arquitectura definida con todas las vistas arquitectónicas y ahora sí ya podemos implementar la 
+arquitectura para que los desarrolladores comiencen y ya puedan trabajar sobre esa arquitectura. 
+
+
+¿Generalmente la arquitectura cómo se representa? 
+-------------------------------------------------
+
+Son documentos en Word, en PDF, en PPT, al final ese va a ser el output de una definición arquitectónica. Ahora se despliega 
+la arquitectura y listo, viene el día uno y los equipos de trabajo empiezan a trabajar y ¿qué es lo que hacen? pues desconocen 
+que existe todo esto y cada desarrollador se pone a trabajar como mejor crea y nadie respeta la arquitectura empresarial 
+definida y empiezan a salir problemas, los códigos no funcionan o van muy lentos o colapsan la memoria RAM o los servidores o 
+se supone que algo que antiguamente demoraba 1 hora y querían mejorarlo para que se haga en 10 minutos ahora se demora 
+10 horas y pasan estas cosas, porque, ¿qué es lo que pasa en la vida real? las arquitecturas que definamos van a estar muy 
+bonitas en las PPTs y en los Words, pero no le van a hacer caso, porque, los desarrolladores cada quien va a hacer lo que 
+mejor crea el momento de implementar, esto pasa en la vida real. Ahora, ¿por qué pasa esto? porque generalmente los 
+desarrolladores quieren ir e implementar código o están orientados a codificar y ponerles documentos, explicar todo esto, que 
+hay una vista conceptual y luego hay una vista tecnológica y mira que si mueves esto de acá va a afectar lo de aquí y hay 
+20 componentes que si no lo respetan y no lo van a hacer, no lo van a hacer, los desarrolladores no van a respetar la 
+arquitectura, si tienes suerte van a leer los documentos, van a tener una idea general pero luego lo van a olvidar, cuando 
+estén desarrollando va a pasar algo y dicen bueno lo voy a hacer rápido, porque lo conozco y le van a dar el botón y que 
+funcione como tiene que funcionar y te rompe el esquema arquitectónico y no lo sientes ese día de despliegue pero pasa 1 año 
+y hay otro proceso que depende de ese otro proceso que se implementó hace 1 año y va muy lento y tienes que ver qué es lo que 
+pasaba en ese proceso y descubres que no respetaron la arquitectura y todo esto es un desastre. Eso es lo que pasa en las 
+empresas en la vida real, ¿cómo se soluciona esto? los desarrolladores, sería algo muy ingenuo realmente pensar que los 
+desarrolladores le van a hacer caso a tu definición arquitectónica, no la van a hacer, al menos el 90% no le va a hacer caso 
+a esa definición arquitectónica, vas a tener documentos muy bonitos que nadie le va a hacer caso. 
+
+
+¿Cuál es el patrón de diseño para evitar el problema de que los desarrolladores no respeten el diseño de arquitectura?
+----------------------------------------------------------------------------------------------------------------------
+
+HAY UN PATRÓN DE DISEÑO ARQUITECTÓNICO QUE ES TRADUCIR LA ARQUITECTURA A COMPONENTES LLAMADOS "ARQUETIPOS DE CÓDIGO". Habrá 
+por ejemplo un arquetipo de código que es una especie de plantilla para poder hacer ingesta de datos estructurados con cierta 
+tecnología, habrá otro arquetipo de código para poder hacer ingesta de datos estructurados con otra cierta tecnología y así 
+dependiendo de cuántas tecnologías de ingesta haya definido tu arquitectura, ahora habrá otro tipo de código para hacer 
+ingesta de datos semiestructurados con otra cierta tecnología y digamos que utilizas otra tecnología también de procesamiento 
+semiestructurada, entonces, también hay que tener hay que tener un arquetipo de códigos semiestructurado con esta cuarta 
+tecnología y así, ingesta de imágenes, de videos o lo que tengamos, ARQUETIPOS DE CÓDIGO. 
+
+
+¿Qué es un arquetipo?
+---------------------
+
+Una especie de plantilla que el desarrollador toma y dentro de esta plantilla está la traducción de la arquitectura por medio 
+de patrones de diseño. Los patrones de diseño son las buenas prácticas al momento de codificar y si una arquitectura ha 
+definido, pues, que se yo, tantos componentes conceptuales tecnológicos, reglas de modelamiento, de calidad y muchas otras 
+cosas, estos documentos hay que tomarlos y traducirlos a patrones de diseño, habrá patrones de diseño para ingestar datos 
+estructurados con Hbase, con Cassandra, habrá patrones de diseño para Spark, etc. Diferentes patrones de diseños para todas 
+las tecnologías y lo que quieras hacer con esas tecnologías, para ingestar, para preparar la data y para hacer las soluciones.
+
+         ___________________________________________________________________________________________________________
+        |                                                                                                           |    
+        |   Y ESTE VA A SER EL PUNTO DE PARTIDA DE LOS DESARROLLADORES, AL CONJUNTO DE ESTOS ARQUETIPOS DE CÓDIGO,  |    
+        |   arquetipo de códigos es plantilla de código, por ahora lo puedes tomarlo así, SE LE CONOCE COMO EL      |    
+        |   FRAMEWORK EMPRESARIAL DE DESARROLLO.                                                                    |    
+        |___________________________________________________________________________________________________________|
+
+
+Es el punto de partida para que cuando un desarrollador diga: “…hay un proyecto que va a ser una ingesta de datos 
+semiestructurados con Hbase…”, oye, no partas desde cero, eso ya lo hemos definido en la arquitectura y en el framework de 
+desarrollo empresarial, pues, es este arquetipo que está versionado en nuestro versionador de código así que descárgalo y hay 
+un pequeño ejemplo de cómo funciona ese arquetipo, analízalo y tómalo cómo base para que tú codifiques.
+
+
+¿Cuál es la ventaja de definir este framework de desarrollo empresarial por medio de arquetipos de código? 
+----------------------------------------------------------------------------------------------------------
+
+Es que dentro tú ya defines, por ejemplo, temas de tuning computacional, temas de estándares de desarrollo, temas de buenas 
+prácticas, ya está dentro del arquetipo, es codigo y los desarrolladores toman ese arquetipo y codifican sobre él y ya no se 
+ponen creativos y ya estás controlando que respeten la arquitectura. Así que después de haber definido una buena arquitectura 
+y hayamos visto todas las reglas de definición las buenas prácticas, estándares arquitectónicos y cómo se particularizan a 
+cada empresa, ya tenemos los documentos, está muy bonito para el arquitecto, pero no va a servir en la vida real para los 
+desarrolladores, hay que darle todo ya listo, masticadito. ¿Que implica eso? Pues darle arquetipos de códigos y todos esos 
+arquetipos conforman el framework empresarial. Ahora también hay reglas para esto, porque, no hay que arquetipar todo, hay 
+que arquetipar lo que puede industrializarse, por ejemplo, los procesos de ingesta es algo que siempre vamos a hacer, eso 
+puede industrializarse en un arquetipo de código o los procesos de limpieza, ahora en las soluciones, por ejemplo, ¿cómo se 
+hace una red neuronal? bueno eso ya depende del científico de datos, por ejemplo, eso ya no se va a poder arquetipar. Pero 
+del 100% de procesos que la empresa implemente sobre la arquitectura en la gran mayoría de casos un 80% puede estar 
+industrializada en arquetipos de codigo y el 20% restante, bueno pues ya ahí ya tendremos que ponernos creativos y la empresa 
+tendrá que gastar el conocimiento técnico de los desarrolladores para hallar una solución, pero ya solamente se van a enfocar 
+en ese 20% , el 80% de los procesos arquitectónicos ya los tenemos controlados. Esa es la importancia de hacer la traducción 
+de la arquitectura a arquetipos de código, a un framework de desarrollo empresarial. 
+
+Cuando el arquitecto defina estos arquetipos de código y tenga el framework de desarrollo empresarial, ahí terminó su trabajo 
+y este va a ser el input para empezar a trabajar y ya los desarrolladores tomarán esos arquetipos y ya respetarán los 
+estándares y si no los respetan, bueno, hay algo llamado revisión de pares que se tomara y dirán no mira el arquetipo de 
+código dice que la ingesta se hace con el 10% de la potencia del servidor y tú lo has puesto al 50%, entonces, ese es un 
+error y ya tenemos algo en que basarnos para saber si se está codificando bien o no se está codificando bien y sabemos si se 
+respetó o no se respetó la arquitectura. Este sería el último paso de una definición arquitectónica. 
+
+Y acá viene otra observación, nuestro rol como arquitecto, nuestras responsabilidades son el de definir la ARQUITECTURA 
+(en el diagrama segundo recuadro después de NEGOCIO) en documentos, en PPTs, en todo lo que tengamos que definir. Ahora lo 
+ideal sería que nosotros sepamos codificar en todas las tecnologías de big data, de cloud, de machine learning, deep learning, 
+en todas las nubes que existan, que el arquitecto pueda codificarlo, pero no es realista. En el mejor de los casos el 
+arquitecto dominará un ecosistema tecnológico, pero si esto tiene otro ecosistema tecnológico para una solución que no conoce, 
+pues, no lo va a poder codificar como un arquetipo. Esta capa de de framework de desarrollo empresarial no necesariamente la 
+implemente del arquitecto, ahí es donde vienen los Data Engineers Seniors o los Data Scientist Seniors y el arquitecto 
+simplemente los dirige y el equipo senior de data engineers y data scientists se enfocan en hacer la traducción de la 
+arquitectura a arquetipos de código, el arquitecto simplemente supervisa que se esté haciendo una traducción correcta y de 
+esta manera tenemos el framework de desarrollo empresarial, así que no es que el arquitecto lo haga, el solamente válida que 
+se está haciendo bien y ya en los especialistas en cada tecnología en particular ellos son los que implementan. Así que este 
+último punto, es que son tantas tecnologías también que sería irreal que una persona pudiera hacer todo esto. 
