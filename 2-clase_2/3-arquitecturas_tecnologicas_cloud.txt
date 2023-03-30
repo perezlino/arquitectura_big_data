@@ -1,0 +1,12 @@
+================================
+ARQUITECTURAS TECNOLÓGICAS CLOUD
+================================
+
+SERVICIOS CLOUD
+---------------
+
+Los servicios cloud pues existen muchísimos servicios diferentes, nosotros solamente nos vamos a enfocar en los servicios de 
+procesamiento de Big data. Para la parte de arquitectura solamente nos enfocaremos en los ecosistemas de Big data de cada 
+nube. 
+
+-----------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,345 @@
+=========================
+DEFINICION ARQUITECTONICA
+=========================
+
+Ahora hablemos de lo que es la definición arquitectónica. Recordemos que en las clases de arquitectura tenemos que sacarnos 
+de la mente el chip de desarrollador y debemos de pensar como arquitectos. Un arquitecto debe tener una visión holística, 
+¿eso qué significa? es como si fuera un malabarista que tiene que sostener varias cosas a la vez, porque, si falla en una de 
+ellas, todo se cae. Lo que les voy a mostrar el día de hoy, se los voy a mostrar de manera lineal solamente para entender 
+los conceptos, pero no es la forma en cómo se define la arquitectura, que quede clarísimo, es solo para entender los conceptos. 
+Recién mañana en vivo vamos a definir una arquitectura para que vean cómo se construye. 
+
+En primer lugar hay que saber cuáles son las VISTAS ARQUITECTÓNICAS con las cuales vamos a trabajar. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTAS ARQUITECTÓNICAS
+----------------------
+
+Vista conceptual
+================
+
+Ya hemos explicado una de ellas, la VISTA CONCEPTUAL que define las cajitas. Tenemos una fuente de datos, vamos a hablar de 
+manera muy genérica, digamos que estamos interesados en ingestar los comentarios de Facebook, entonces, hay que tener una 
+herramienta de ingesta que se conecte a Facebook y en algún repositorio tiene que colocar esos datos. También sabemos que los 
+comentarios de Facebook se generan en tiempo real, alguien puede comentar algo a las 3:00 de la tarde o a las 3:00 de la 
+mañana, entonces, este flujo de captura de datos va a ser en real time y tenemos que tener una base de datos de baja latencia, 
+es decir, que permita escrituras de cientos y cientos de comentarios por segundos al momento, se genera el comentario, lo que 
+ingestamos y lo guardamos, eso por ejemplo es una base de datos de baja latencia. Y luego probablemente queremos hacer un 
+procesamiento de real time analítico, para descubrir si están hablando bien o mal de nuestros productos y si alguien está 
+hablando mal del producto buscamos el identificador de esa persona en la base de datos y le enviamos un correo electrónico 
+diciendo: “… oye tienes un descuento del 10%... “ y de esa manera digamos que resolvemos un caso de negocio. Esto es lo que es 
+una vista conceptual de la arquitectura, solamente defino las cajitas que necesito, las velocidades y el tipo de tecnologías 
+que vamos a utilizar. La vista conceptual siempre va a ser nuestro punto de partida para la definición arquitectónica y ya 
+sabemos que negocio tiene que intervenir en esta definición, porque, negocio puede decir: “ … oye pero también quiero agregar 
+una regla de negocio, si está hablando bien de nuestro producto, quiero que le envíes un correo diciéndole que estamos felices 
+de tenerlo como cliente, pero a él no le envíes el descuento, el descuento solamente envíaselos a los que hablan mal del 
+producto, para qué ahora hablen bien del producto … “,  negocio te cuestiona la arquitectura. El objetivo de la vista 
+conceptual justamente era ese, que salgan las reglas de negocio y que las definamos y que esté en los planos arquitectónicos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista tecnológica
+=================
+
+Una vez que negocio nos da el visto bueno, ahora viene el trabajo pesado, la VISTA TECNOLÓGICA define el ecosistema con el que 
+vamos a implementar todo esto, por ejemplo, podemos ingestar esto con el API oficial de Facebook y programar en Python.  
+La base de datos de baja latencia podría ser Cassandra, el procesamiento al vuelo podría ser con Spark streaming, pero como 
+tenemos que construir un modelo predictivo, previamente tenemos que construir un modelo de red neuronal y eso lo podemos hacer 
+con Tensorflow y ya nos ponemos creativos y vemos cuáles son las mejores tecnologías que implementen cada una de estas cajitas.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista de patrones de diseño
+===========================
+
+Ya tenemos las tecnologías ya sabemos con qué vamos a programar ahora definamos los patrones de diseño. Aquí está muy bonito 
+cómo se hace la ingesta, pero una cosa es ingestar datos estructurados, otra muy diferente es ingestar datos semi-estructurados, 
+otra muy diferente es ingestar datos no-estructurados y dentro de los datos no-estructurados, por ejemplo, ¿cómo se capturan 
+las imágenes o los vídeos o los audios o los documentos Word, PDF o de texto enriquecido? ya hay patrones de diseño para eso, 
+así que dependiendo de la naturaleza de los datos y de la velocidad del dato tendremos que escoger cuáles son esos mejores 
+patrones de diseño para capturar y procesar los datos.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista de infraestructura
+========================
+
+Ya tenemos la vista de patrones. Pero toda esta parte tecnológica y las definiciones de patrones tienen que ejecutarse en una 
+infraestructura, eso lo resuelve la VISTA DE INFRAESTRUCTURA. Necesitaremos acaso un Clúster de Big data de solo 5 servidores 
+o quizá de 10 o de 20 o de 30, o tal vez, no necesitamos solamente servidores de Big data, porque, también vamos a requerir de 
+microservicios para explotar modelos de Deep learning o tal vez servidores de Gateway o servidores de Fileserver. Entonces, 
+hay mucho detalle de infraestructura que hay que tener en cuenta para ver cómo capturar los datos y procesarlos y eso también 
+hay que definirlo, esa definición va en la vista de infraestructura. Bien, ya sabemos cuál es la potencia del Clúster, cuántos 
+discos duros necesitamos para almacenar, cuánta RAM, CPU y GPU, ya está todo el detalle de infraestructura. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista de gobierno
+=================
+
+¿Ya podemos usar la infraestructura? todavía no, vamos a definir las reglas de gobierno. Por ejemplo, y ¿cómo estos procesos 
+se van a implementar? el día de hoy les voy a mostrar el concepto de manera muy general de lo que es un Data lake, pero dentro 
+de un Data lake es donde se colocan los patrones de diseños para que los flujos estén gobernados y el Data lake tiene que 
+tener como mínimo la definición de ingesta de todos los tipos de datos que se van a definir, por ejemplo, si vamos a trabajar 
+con datos estructurados, datos semi-estructurados y datos no-estructurados, que sean también, archivos de imágenes y vídeos, 
+entonces, hay que dibujar cómo se va a gobernar eso en un Data lake para saber cómo se hacen los pases entre las diferentes 
+capas. Va a haber una capa de captura de datos, una capa de modelamiento de datos y una capa de explotación de datos y no 
+todos los datos se definen de la misma manera. Van a ver que los datos semiestructurados tendremos que crearlos en vista, van 
+a ver que las imágenes las tendremos que tensorizar, los audios vamos a tener que primero convertirlos a texto plano y luego 
+insertar ese texto plano a tablas estructuradas y bueno, pues hay técnicas de cómo los flujos se ordenan. Ya sabemos cómo los 
+flujos de procesamiento van a ir uno tras otro. ¿Qué más implica gobernar? hay que gobernar la infraestructura, hay que poner 
+una regla, lo voy a poner muy simple el día de hoy, del 100% de la potencia del Clúster la regla de gobierno nos dice que los 
+desarrolladores a lo más pueden utilizar el 2% y de esa manera sabemos que puede haber hasta 50 desarrolladores y ya tenemos 
+una forma de gobernar cuántos recursos puede tomar cada desarrollador. Por ejemplo, si sabemos que cada proceso solamente toma 
+el 2% de la potencia del Clúster, eso significa que el Clúster puede tener hasta 50 procesos ejecutándose de manera paralela, 
+si le agregas un proceso 51 no lo va a ejecutar. Esto que parece una obviedad pasa mucho en la vida real, no definen las en la 
+parte de gobierno cómo se va a usar la infraestructura y no saben cuáles son los límites de su Clúster y ahí es donde se 
+produce un anti-patrón llamado ANARQUÍA DE PROCESOS que en pocas palabras se definen que cada desarrollador implementa como 
+quiera y toma la potencia que quiera y en el peor de los casos ni siquiera tunean sus códigos y a veces lo que pasa es que por 
+flojera  un desarrollador puede decir: “ … dame el 100% de la potencia del Clúster … “ y el resto de desarrolladores no pueden 
+trabajar, así que, hay que tener esa vista de gobierno. Hay algunas otras cosas adicionales que hay que hablar de gobierno 
+pero ya lo veremos cuando lo vayamos definiendo. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista de seguridad
+==================
+
+Luego, también está la vista de seguridad, lo que explicamos, los procesos que vamos a implementar alguien puede interceptar 
+esa cadena de procesos o las resultantes finales que quedaron en disco duro, alguien se lleva el servidor y ve los datos, así 
+que, hay que encriptar los datos que se mueven en el flujo de proceso y las resultantes que se almacenan en disco duro. Para 
+lo que es flujo de procesamiento, por ejemplo, lo que mencionamos anteriormente, tenemos 2 casos de negocio que que la empresa 
+va a implementar, uno que va a ser analítica de sentimientos con comentarios en Facebook y otro que se va a conectar a los 
+servidores visa para ir capturando las transacciones en tiempo real y en esencia tenemos que ingestar los datos, eso va a hacer 
+lo mismo para ambos casos, luego los tendremos que guardar en una base de datos y luego tendremos que procesar esos datos. 
+Para el caso de Facebook, por ejemplo, nos dirá: hizo un buen comentario (1) o hizo un mal comentario (0). Para el caso de las 
+transacciones de Visa, por ejemplo, esto nos puede decir: es fraude crediticio (1) o no es fraude crediticio (0). De manera 
+muy simple lo definimos así. Respecto a la seguridad ¿qué es lo que va a importar aquí? Para el caso de Facebook, la 
+información es pública, así que no tiene sentido montar un canal de VPN seguro ¿para qué? si alguien intercepta un comentario 
+público en Facebook, pues, da igual, está público en Facebook, es data libre, pero si estamos ingestando transacciones Visa 
+tendremos que definir una red de VPN para asegurar que si alguien intercepta los datos solamente va a haber información basura, 
+a menos claro que tenga ya las claves de desencriptación, que eso se puede obtener por ingeniería social, o sea, te enteras de 
+quién es el responsable de las claves y se las robas, eso pasa también en las empresas. Acá, por ejemplo, si se justifica que 
+haya un canal seguro de comunicación. Y luego hay un almacenamiento de datos, ya sabemos que si alguien se lleva el disco duro 
+y ve los comentarios de Facebook, bueno pues nos da igual, pero los datos de transacción bancarios no, esto tiene que estar 
+encriptado. El nivel de encriptación mínimo que se recomienda el día de hoy es el AES-206 es lo que se utiliza actualmente el 
+departamento de defensa de Estados Unidos y es el estándar en el mundo empresarial, menos que eso no se puede poner. Y por 
+último, ¿que podría pasar respecto a lo que es la seguridad? al momento de que se están procesando los datos, los datos se 
+procesan en la memoria RAM y hay técnicas de hacking que pueden interceptar las zonas de memoria RAM y sacar esos datos ya 
+desencriptados, porque, se desencripta en la memoria RAM para empezar a procesarse. ¿Cómo protegemos eso? con servicios que 
+estén “kerberizados”, es decir, que estas zonas de memoria de procesamiento están aisladas y si alguien trata de acceder a
+ellas no va a poder a menos que tenga las claves de acceso. Quiero que vean también lo siguiente, la VPN en esencia tiene una 
+clave de acceso, el AS-256 tiene su clave de encriptación y el Kerberos también tiene una clave que se genera, esto es lo 
+mínimo que tenemos que definir en una vista de seguridad de la arquitectura, pero eso no significa que el sistema que estamos 
+definiendo no pueda hackearse, si se puede hackear. Porque recordemos que hay alguien que tiene esas llaves y por medio de 
+ingeniería social se puede obtener esas llaves. En esencia, de manera de muy alto nivel esa es la vista de seguridad.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Vista de modelamiento
+=====================
+
+Luego hay otras vistas adicionales, la vista de modelamiento. En donde tenemos que definir las reglas de calidad para definir 
+las tablas que vamos a empezar a procesar. Eso está asociado con las reglas o la vista de pases a producción y bueno, hay 
+muchas otras vistas que iremos definiendo mientras las vamos construyendo. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ARQUITECTURA CONCEPTUAL GENERAL DE BIG DATA
+-------------------------------------------
+
+Veamos solamente algunas definiciones, por ejemplo, aquí tenemos un ejemplo de lo que podría ser una arquitectura conceptual. 
+Tenemos una CAPA DE FUENTES DE DATOS, pueden ser FUENTES DE BATCH, puede ser un servidor empresarial que al final del día a 
+las 6:00 de la tarde te deja un archivo con todas las transacciones que se hizo en ese servidor o puede ser una FUENTE EN 
+TIEMPO REAL, datos de comentarios que estas ingestando de Facebook. Entonces, hay que tener diferentes herramientas de ingesta, 
+herramientas para INGESTAR EN BATCH y herramientas para INGESTAR EN REAL TIME. Eso que estamos ingestando hay que guardarlo y 
+tenemos una CAPA DE ALMACENAMIENTO y luego hay que procesarlo con alguna CAPA DE PROCESAMIENTO. Finalmente, una vez que esté 
+procesado hay que explotar esa data, por ejemplo, hay que colocarlo en un dashboard de visualización para que negocio lo pueda 
+entender, ver la resultante final. Y todo esto tiene que estar GOBERNADO y ASEGURADO. Digamos que esto es una definición muy 
+vaga de cómo sería una vista conceptual es solamente para llevarnos una idea. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ARQUITECTURA TECNOLÓGICA
+------------------------
+
+Digamos, ok, tenemos todos los mapas que definen la vista conceptual para todos los tipos de proceso. Ya tenemos la vista 
+conceptual definida y negocio nos da su Ok y ya podemos empezar a procesar y sobre esa vista conceptual colocaremos las 
+tecnologías con las que vamos a hacer la implementación. Acá por ejemplo estamos viendo una arquitectura tecnológica basada 
+en el ecosistema de Hadoop, podría ser también una basada en AWS o en AZURE, en GCP, en HUAWEI,  hay muchos ecosistemas 
+tecnológicos. Pero también les adelanto, este diagrama que estamos viendo aquí está bonito para que negocio lo entienda, pero, 
+la traducción ya a la vista tecnológica detallada es otra cosa, así que, esto sigue siendo un diagrama de negocio algo para 
+que negocio sepa cuales son las capas de procesamiento y las tecnologías.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTAS DE UNA ARQUITECTURA DE BIG DATA
+--------------------------------------
+
+Una vez que negocio nos dice, Ok, tiene sentido lo que has definido, eso es lo que queremos implementar y ¿qué es lo que sigue 
+ahora? empezar a construir la arquitectura definiendo de manera simultánea todas las vistas que hemos visto hace un momento. 
+Por ejemplo, podríamos empezar definiendo una vista arquitectónica basada en patrones de diseño y a la vez como esos patrones 
+de diseños van a vivir dentro de un flujo de procesamiento en un Data lake para saber cómo se ordenan los patrones de diseño, 
+primero hay que ingestar, pero para ingestar ¿qué es lo que quieres ingestar? data estructurada, semiestructurada, no 
+estructurada, los 3, una combinación de ambas, entonces, en función de eso salen los patrones de diseños y luego hay que 
+colocar esos patrones de diseños en el orden correcto. Es obvio que primero se ingesta, luego se procesa y luego se explota. 
+Hay patrones de ingesta, de almacenamiento y de procesamiento, pero ¿cómo conectamos en una arquitectura esos patrones? ahí es 
+donde viene el concepto del Data lake, que ya mañana en vivo mientras lo construimos lo vamos a entender mucho mejor. Luego, 
+ya tenemos los patrones de diseño, pero esto ¿dónde va a vivir? en una infraestructura, en donde tendremos que definir qué tan 
+potente es esta infraestructura, 10 servidores, 20 servidores 20, 100 servidores. Y van a ver que no todos los servidores son 
+del mismo tipo, hay diferentes roles para los servidores, hay que definir bien cada rol para que esto esté garantizado en su 
+ejecución, por ejemplo, cuando veamos en la infraestructura para real time son 2 infraestructuras aisladas una de captura de 
+datos y una de procesamiento de datos, si lo colocas todo en una misma infraestructura eso va a terminar colapsando. Van a ver 
+que eso no se ve en un diagrama de Data lake, pero, sí se ve en el diagrama de infraestructura.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTA CONCEPTUAL CON PATRONES DE DISEÑO DE BIG DATA
+---------------------------------------------------
+
+Así que algo así es ya una verdadera definición conceptual. Esto lo vamos a construir el día de mañana y de hecho lo que les 
+estoy mostrando aquí es todavía es una simplificación, lo he simplificado para que entre en una PPT, porque las verdaderas 
+arquitecturas conceptuales no entran en una PPT, son varios documentos. De manera muy simple, ¿qué es lo que tenemos que 
+definir? cómo vamos a procesar lo que sea Batch, cómo vamos a procesar lo que sea en tiempo real y cómo vamos a procesar la 
+parte analítica. Eso siempre hay que tenerlo en cuenta el momento de definir la arquitectura. Existen diferentes tipos de 
+procesos, para cada tipo de proceso hay diferentes patrones de diseños y para esos patrones de diseños hay recomendaciones de 
+cómo se orquesta y en función de esos tipos de patrones hay infraestructuras que tenemos que aislar, por ejemplo, el real time 
+se separa en 2 infraestructuras diferentes. Vean cómo es que todo está relacionado entre sí, ya no hay un orden lógico para ir 
+definiendo las vistas, sino, que mientras vamos definiendo una vista, saltamos a otra, regresamos a la anterior, vamos a una 
+nuevamente, regresamos a la anterior y vamos haciendo modificaciones. Esto ya lo vamos a hacer con calma el día de mañana 
+cuando estudiemos un caso de negocio. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+¿Es recomendable en una organización tener una arquitectura con core tradicional y otra de Big data o se debe escoger pasar 
+todo? 
+----------------------------------------------------------------------------------------------------------------------------
+
+Hablemos del mundo ideal, lo ideal sería que todos los procesos de la empresa estén basados en un core de big data, pero, eso 
+es irreal, porque, por ejemplo los grandes bancos al día de hoy ya tienen infraestructuras de big data y están migrando muchos 
+de sus procesos a ese tipo de infraestructuras, pero,  también siguen usando sus sistemas legados. ¿Por qué? en los bancos, 
+por ejemplo, se utiliza mucho Cobol y dentro de esos servidores de Cobol hay procesos extremadamente complejos que podríamos 
+migrarlos a entornos de Big data y eso mejoraría la performance de procesamiento, el problema es que hay un costo y el costo 
+es muy alto. En primer lugar, a lo largo de los años cuántos procesos en cobol habrá ahí, migrarlos pues basta que te 
+equivoques en una línea de código y es algo sensible, es core del negocio, del banco, te equivocas y el banco ese día no 
+trabaja y puede perder millones de dólares y es peligrosísimo. Así que ese coste en riesgo es demasiado alto, además esa 
+infraestructura de legacy, así se llama, la infraestructura tradicional, está funcionando como se supone que debe de funcionar, 
+así que, si está funcionando no lo toquen. Y además si está funcionando en el tiempo que debe de funcionar no tiene sentido 
+pasar a un entorno de Big data. Eso también pasa mucho en la vida real, por ejemplo, en lo que es los procesos de 
+transformación digital, es definir del 100% del core empresarial, cuánto vamos a migrarlo en un core de Big data, generalmente 
+los procesos críticos que son muy antiguos se dejan en los servidores tradicionales y los procesos que son de fácil migración 
+o son relativamente recientes o no son críticos, eso sí se migran al core de Big data. Así que resumiendo, sí es recomendable
+tener el core tradicional y el core Big data de manera simultánea, porque, hay cosas que es mejor no migrarlas. Pero por 
+supuesto si van a dar muchísimas otras cosas que sí. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTA DE INFRAESTRUCTURA
+------------------------
+
+Respecto a lo que es la vista de infraestructura esto ya lo vamos a trabajar a detalle la próxima semana y no es tan simple 
+como decir, bien dame 10 servidores o 20 servidores o 100 servidores o lo que necesitemos, es cierto que hay maneras 
+matemáticas que vamos a aprender para saber cuántos servidores necesitaremos según la necesidad de negocio, pero también hay 
+que entender que esos servidores no van a estar aislados, dentro de la empresa hay, por ejemplo, servidores como Cobol que son 
+muy antiguos y tendremos que sacar en algún momento datos de Cobol para procesarlos en los entornos de Big data y las 
+resultantes finales ponerlas en un Dashboard. O por ejemplo, también va a haber infraestructura para microservicios, porque, 
+cuando terminemos de procesar digamos un modelo de Deep learning, eso tiene que ir en un microservicio para que pueda ser 
+consultado desde una página web o desde un API. Así que al hablar de infraestructura no solamente deberemos tener en cuenta la 
+infraestructura del Clúster de Big data, sino, como esa infraestructura se va a comunicar con el resto de arquitectura de 
+infraestructura que tenga la empresa. A eso se le llama hacer una INTEGRACIÓN DE INFRAESTRUCTURA. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTA DE GOBIERNO
+-----------------
+
+Ahora la otra vista también muy importante es la de gobierno. En primer lugar, hay que entender el concepto de un Data lake. 
+¿Qué es lo que pasa al momento de procesar los datos? Vamos a hablar al menos el día de hoy solamente de datos estructurados. 
+Digamos, tenemos una base de datos Oracle en donde hay una tabla de datos de transacciones de los clientes y negocio nos ha 
+puesto un caso en donde quiere encontrar y quiere construir un modelo de red neuronal para que nos diga si una transacción es 
+fraudulenta o no es fraudulenta, para detectar transacciones fraudulentas y si alguien te clona la tarjeta de crédito, pues, 
+se activa esa red neuronal y te bloquea la tarjeta antes de que se ejecute la operación. Entonces, negocio nos ha pedido eso. 
+Ok, el primer paso es capturar los datos, ¿como los movemos? no es simplemente decir esto va a la base de datos en Hadoop o en 
+AWS, pero ¿cómo se hace ese movimiento? lo voy a definir a muy alto nivel para entender. Primero tenemos que construir un 
+proceso que exporte los datos de la tabla Oracle a algún servidor temporal para que viva como un archivo de texto plano 
+separado por comas, por pipes, por tabulaciones, puntos y comas, o cualquier otro tipo de delimitador. Hay que hacer una 
+exportación a alguna infraestructura. A estos servidores en donde se exportan los datos se les conoce como Fileserver. Segundo 
+paso, luego hay que hacer un proceso para mover esos datos a otro servidor que es la puerta de entrada del clúster a ese 
+servidor se le conoce como un Getway, básicamente es mover el archivo a otro server. El gateway es el servidor desde el cual 
+recién vamos a poder subir el archivo a nuestro entorno de Big data. Como es una tabla estructurada que provino de Oracle, ya 
+que, estamos trabajando en el ecosistema de Hadoop, por ejemplo, podríamos subir ese archivo de datos a una tabla Hive, para 
+no verlo como archivo, sino verlo como tabla. Aquí, por ejemplo, hemos hecho una captura de datos. Estos ya son los pasos 
+exactos que tiene que implementarse, esto está muy fácil porque es data estructurada y por ejemplo aquí es donde vienen las 
+adaptaciones. ¿Es necesario que estos 2 servidores (el Fileserver y el Getway) sean diferentes? no necesariamente, pueden ser 
+el mismo servidor y nos ahorramos este paso, pero eso es peligrosísimo, porque, el Getway es la puerta de entrada al Clúster 
+y si el que nos está exportando los datos de Oracle al Gateway hace algo que no debe de hacer y colapse el Gateway, pues, ya 
+nada puede entrar al Clúster de Big data, porque, en la vida real va a haber otro proyecto de Big data que va a estar 
+ingestando otra tabla de datos desde MySQL, por ejemplo, tiene que dejarlo en un Fileserver y también tenemos que hacer este 
+movimiento al Getway y desde el Gateway empezamos a subir los datos. Si el dueño del proceso de exportación desde la base de 
+datos Oracle dejase directamente el archivo en el Gateway y lo colapsase, pues, perdimos el acceso al Clúster y nadie más va 
+a poder dejar archivos.
+
+         ______________________________________________________________________________________________________________
+        |                                                                                                              | 
+        |   Por eso es que el patrón de diseño para ingestar los datos se basa en tener Fileservers diferentes al      | 
+        |   Getway, porque, si alguien colapsa su Fileserver, porque, cometió un error al exportar los datos y llenó   |  
+        |   el disco duro, bueno, pues se perderá ese proceso pero el resto de procesos de la empresa seguirán         | 
+        |   funcionando.                                                                                               | 
+        |______________________________________________________________________________________________________________|
+
+
+                  Oracle                   Fileserver                 Getway                     Hive
+                 ________                  ________                  ________                  ________
+                |        |       __       |        |       __       |        |       __       |        | 
+                |        | ---> |__| ---> |        | ---> |__| ---> |        | ---> |__| ---> |        | 
+                |________|    Exportamos  |________|     Movemos    |________|     Subimos    |________|  
+                                datos                     datos          ˄        los datos   
+                                                                         |       
+                  MySQL                    Fileserver                    |   
+                 ________                  ________                      |   
+                |        |       __       |        |       __            |   
+                |        | ---> |__| ---> |        | ---> |__| ----------' 
+                |________|    Exportamos  |________|     Movemos    
+                                datos                     datos        
+
+
+Hay que cuidar bastante el Getway. De eso también hablaremos el día de mañana y quiero que vean cómo la definición de 
+infraestructura está asociada a la definición del flujo de procesamiento, por eso les digo, a la vez acabamos de ver la vista 
+de patrones de diseño y la vista de infraestructura, vivenen cohesionadas, no se pueden definir de manera separada. También 
+quiero que este ejemplo les sirva para que entiendan que los patrones de diseño no están para que se vean bonitos, todo tiene 
+una justificación técnica, el hecho de que los Fileservers sean diferentes al Getway es para evitar que si alguien comete un 
+error y lo colapsa, pues el Gateway sigue funcionando. Así que todos los patrones van a tener una justificación, no es para 
+que se vea bonita en la PPT.
+
+Ahora todo ese proceso que les he explicado ¿dónde se implementa? en una capa conocida como LANDING, aquí es donde se hace 
+toda esa implementación. Básicamente, la CAPA LANDING de un Data lake es la encargada de capturar los datos que vamos a 
+procesar. Una vez que hemos capturado los datos, todavía no los podemos procesar, hay que aplicarles las reglas de calidad. 
+Eso se hace en la CAPA UNIVERSAL y ya sabemos que pueden haber reglas de calidad contradictorias entre sí, el área de cobranzas 
+entiende la tabla ‘Persona’ de una manera, el área de marketing entiende la tabla ‘Persona’ de otra manera y en cada área de la 
+empresa entiende el concepto de ‘Persona’ de manera diferente. Así que vamos a tener que definir dentro de UNIVERSAL, una capa 
+de DATA MESH, porque, por ejemplo, ingestamos la tabla ‘Persona’ y como mínimo no pueden haber registros nulos, por ejemplo, 
+eso es una regla común para todas las soluciones, tiene sentido no, pues si viene todo un registro nulo pues no se puede 
+procesar. Pero luego tenemos que definir esa tabla ‘Persona’ nuevamente, ya para cada solución. ¿Dónde viven las soluciones? 
+en una capa llamada SMART. Por ejemplo, existen las soluciones de reportería o soluciones funcionales o soluciones de 
+programación o soluciones de Machine learning o Deep learning, que pueden ser de real time o pueden ser de batch y que pueden 
+procesar datos estructurados, semi-estructurados y no-estructurados. Ahí es donde nos ponemos a programar ya la solución que 
+negocio nos haya pedido. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+VISTA TECNOLÓGICA
+-----------------
+
+Una vez que tengamos todo bien definido, hay que colocar tecnologías en cada una de esas cajitas y aquí es donde viene la 
+pregunta ¿qué ecosistema tecnológico vamos a utilizar? para entender cómo se hace la traducción de los patrones a arquetipos 
+de código, vamos a utilizar el ecosistema basado en Hadoop. Una vez que hayamos aprendido cómo los patrones se traducen a 
+código, que ya sean arquetipos que puedan usarse en la vida real, lo siguiente es particularizarlo a alguna nube. Lo haremos 
+sobre AWS y de esa manera aprenderemos los patrones de Cloud, iremos lento para ver cómo es que hay patrones de Cloud sobre 
+AWS. Una vez que hayamos entendido cómo los patrones Cloud se implementan, los patrones son agnósticos a la nube donde se 
+implementen, así que, esos mismos patrones los podemos adaptar para AZURE, GCP o HUAWEI. Por supuesto, que ver cada una de 
+estas nubes nos tomaría muchísimo tiempo, lo importante es entender la traducción tecnológica de los patrones Cloud al menos a 
+alguna nube y de ahí solamente hacer un repaso tecnológico de cómo sería esa arquitectura basada en las otras herramientas de 
+la nube. 
+
+-----------------------------------------------------------------------------------------------------------------------------

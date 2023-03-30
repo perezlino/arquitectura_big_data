@@ -1,0 +1,294 @@
+==============================
+BIG DATA APLICADO A LA EMPRESA
+==============================
+
+Resumen Clase 1
+---------------
+
+En la sesión anterior que fue nuestra primera sesión habíamos revisado de manera general en la pizarra los conceptos a muy 
+alto nivel para darnos la idea general de cómo es que se define una arquitectura. A manera de muy gran resumen en esencia 
+lo que dijimos fue lo siguiente, desde una necesidad que tiene negocio respecto a casos de uso, soluciones que quiere 
+implementar, el arquitecto tiene que alinear esas necesidades desde un punto de vista tecnológico y ahí es donde hace una 
+arquitectura. ¿Pero qué era hacer una arquitectura? una arquitectura habíamos definido que tiene diferentes vistas, la 
+primera de todas ellas, que es con la que se parte siempre, es la VISTA CONCEPTUAL en donde definimos las cajitas que 
+necesitamos para ingestar, almacenar, procesar, explotar, gobernar y asegurar la data. Y en función de estas, ya salen otras 
+vistas, pusimos en pizarra de manera muy general, la vista tecnológica, la vista de gobierno, la vista de modelamiento, la 
+vista de infraestructura, la vista de seguridad y otras vistas. ¿Qué era lo importante aquí? que el check (aprobación) de 
+negocio que nos daban en la vista conceptual era como una especie de contrato en donde negocio entendía qué es lo que se iba 
+a implementar y como esto iba a solucionar sus casos de negocio. Y por último dijimos, es cierto que luego de eso ya podemos 
+empezar a seleccionar un ecosistema tecnológico, vamos con Hadoop, con AWS, con GCP, con AZURE o con cierto tipo de 
+ecosistema. También dijimos que no es lineal, no es que primero se define una vista, luego la otra, luego la otra, luego la 
+otra, no funciona así, sino, que estas vistas se van definiendo en paralelo y cuando vamos refinando una vista eso va a ir 
+afectando a otras vistas. De manera muy general habíamos revisado esto, de a manera de introducción. Ahora todos estos 
+conceptos que vimos en la pizarra, el día de hoy los vamos a aterrizar ya formalmente y el día de mañana vamos a empezar ya a 
+hacer una definición conceptual, de esta manera la próxima semana ya estaremos haciendo las primeras implementaciones y van a
+ver que HAY 2 PARTES IMPORTANTES AL MOMENTO DE DEFINIR LA ARQUITECTURA: INGESTA Y MODELAMIENTO. Eso va a ser crucial 
+dependiendo de qué es lo que queramos procesar. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+¿Big data aplicado a las empresas?
+==================================
+
+Lo primero que hay que entender es que todas las técnicas que vamos a aprender de aquí en adelante van a estar aplicadas a 
+entornos empresariales, este va a ser nuestro alcance siempre. Solo aquello que pueda ser aplicado dentro de una empresa y 
+todo esto se va a basar en estándares, por ejemplo, en sesiones posteriores veremos lo que es la ARQUITECTURA LAMBDA y LA 
+ARQUITECTURA KAPPA, que es un estándar y veremos cómo eso se traduce en una implementación. Y es importante entender esto, 
+porque como vimos en pizarra en la sesión anterior, la parte académica está muy interesante para hacer papers de investigación 
+y estudios de publicaciones, pero, no aporta la parte empresarial. ¿Que implica que un concepto arquitectónico pueda ser 
+usado dentro de la empresa? que ya existe una tecnología madura que lo implemente, por ejemplo, si hablamos de procesos 
+batcheros, es decir, tenemos un proceso, lo ejecutamos y este proceso se queda pensando varias horas, incluso varios días, 
+eso lo podemos hacer con Spark o eso lo podemos hacer con Hive o también lo podemos hacer con MapReduce o con alguna de 
+nuestras tecnologías favoritas, ya tecnológicamente hablando es posible. Igual con el real time, hasta hace poco tiempo, por 
+ejemplo, no se podían hacer temas de Machine learning y Deep learning en entornos de Big data, solo en entornos clásicos. Al 
+día de hoy ya existen tecnologías maduras, aquí un punto muy importante: si el día de mañana sale una nueva tecnología que es 
+mucho mejor que, por ejemplo, Spark, que lo hace todo 10 veces más rápido, está muy bien para ver cómo funciona, pero, no lo 
+podemos incluir en el ecosistema tecnológico, puesto que el simple hecho de tener una tecnología que ya salió de su beta no 
+implica que ya existan estándares y patrones de diseño para usar esa tecnología, por ejemplo, el día de mañana vamos a 
+aprender que cuando procesamos datos no estructurados, las imágenes hay que tensorizarlas, los vídeos hay que convertirlos a 
+fotogramas para el modelamiento, lo que son audios hay que crear un ‘Speech to text’ y luego hay que colocarlo en una tabla 
+estructurada, lo que es, por ejemplo, procesos semiestructurados hay que estructurarlo y luego hay que aplicar las reglas de 
+calidad, entonces, digamos que ya hay un estándar bien definido de cómo se procesan esos datos y ya tenemos patrones de 
+diseños, así que, estas tecnologías no es que tú te pongas a desarrollar a ver qué es lo que sale, sino que, primero vamos a 
+definir los estándares y los patrones de diseño para hacer un buen uso de esa tecnología y eso tiene que estar reflejado en 
+la arquitectura. Además gracias a esos estándares y patrones de diseño, una vez que hagamos la definición el día de mañana de 
+una primera parte de la arquitectura, luego, hay que hacer la traducción a código que es lo que va a servir en la vida real, 
+como dijimos también en la pizarra la semana pasada, vamos a hacer PPTs con patrones de diseños muy interesantes que son muy 
+útiles, pero si eso no se traduce a código no va a servir en la vida real dentro de la empresa, así que EL OUTPUT DE TODA 
+ARQUITECTURA TIENE QUE SER ARQUETIPOS DE CÓDIGO, aunque sean muy simples aunque sean plantillas para que las guardemos en un 
+repositorio las descarguemos y las adapten los desarrolladores, pero, tiene que haber algo en qué basarse, sino, la PPT va a 
+estar muy bonita para que negocio lo entienda, pero, no se va a traducir en una buena implementación, tómenlo siempre en 
+cuenta. En resumen, nos vamos a enfocar en la parte sólo empresarial y vamos a descartar conceptos que aún no tienen un 
+framework de desarrollo empresarial. 
+
+
+¿Que implica que haya un framework de desarrollo empresarial? 
+-------------------------------------------------------------
+
+Implica que los estándares, los patrones y los arquetipos que codifiquemos puedan gobernarse, ejemplo muy simple al menos por
+el momento de gobierno de datos, van a aprender que cuando desarrollemos un proceso, este proceso va a tener asociado una 
+infraestructura, podría ser un clúster de 100 servidores y para poner un número redondo digamos que tenemos 10.000 GB de 
+memoria RAM (10 TB de RAM). Nada le impide al desarrollador poner dentro de su script y decir lo siguiente: “…oye dame el 95% 
+de la potencia del clúster, ¿por qué? porque quiero que mi proceso vaya muy rápido…” el código lo permite, pero no podemos 
+hacer eso, hay que tener una estrategia de buen uso de la infraestructura, ejemplo muy simple, cada desarrollador puede usar 
+a lo más el 5% de la potencia del clúster, que eso se traduciría en 500 GB de memoria RAM. Ahora si un desarrollador 
+requiriese más memoria RAM pues habríaque ver si realmente su necesidad de negocio requiere esa cantidad de potencia, no el 
+5%, quizá dice: “…oye hecho cálculos, y necesito el 20%...” pero hay que tener una justificación. Si por ejemplo está haciendo 
+un proceso de ETL en donde capturamos los datos y los limpiamos, eso no es algo complejo, pero, si está haciendo una red 
+neuronal o una red convolucional de detección de imágenes probablemente ahí sí hay una buena justificación, eso es tener una 
+estrategia de gobierno de los recursos del clúster. Van a aprender que también hay estrategias de gobierno de los de los 
+flujos de los procesos y también de quién es el dueño del dato, hay que gobernar procesos, datos e infraestructura como 
+mínimo. 
+
+
+¿Qué otra cosa implica tener un framework de empresarial arquitectónicamente hablando?
+-------------------------------------------------------------------------------------- 
+
+La parte de seguridad, en esencia esto se va a clasificar en 3 partes: la seguridad hace referencia a proteger el proceso, lo 
+que estamos ejecutando, los datos que se están ejecutando en ese momento. También para ponerlo muy simple el día de hoy, 
+algún hacker podría ingresar a la memoria RAM de lo que estamos procesando y llevarse las tarjetas de crédito si estamos en 
+un banco y conocer los números y eso sería peligroso, entonces, hay que aislar esa zona de memoria, debe estar protegida y 
+eso por ejemplo se hace con “Kerberos”. Otro aspecto de seguridad, ¿qué más podría pasar? pues, si tenemos servidores 
+On-premise dentro de las oficinas alguien podría venir a abrir ese servidor, llevarse el disco duro, conectarlo con un USB a 
+su a su computadora y ver los datos, entonces, eso es peligrosísimo. Hay que proteger, así como protegemos los datos en 
+movimiento, también los datos en reposo, por ejemplo, eso se hace con encriptación AES-256. Otro ejemplo de seguridad, la 
+transferencia de datos, digamos que estamos ingestando las transacciones de tarjetas de créditos de los servidores de visa, 
+si alguien intercepta esa comunicación va a saber cuáles son esas transacciones y eso también es peligrosísimo, ¿cómo se 
+soluciona? pues ya hay una solución, una VPN para un canal seguro de comunicaciones. Las capas de seguridad van a agregar 
+lentitud en el procesamiento, por ejemplo, encriptar los discos duros con AES-256 que es el nivel de encriptación más alto 
+que se recomienda el día de hoy, hacen un 20% más lento cualquier proceso que procese esos datos, eso quiere decir, que si 
+el proceso el más simple de todos, un proceso de ETL tomaba 100 minutos ahora va a tomar 120 minutos, se agrega un tiempo 
+adicional. ¿Por qué es importante también entender esto? porque no es necesario asegurar todos los datos, solo aquello que 
+se hace en sensible. Un buen arquitecto, por ejemplo, entendería la diferencia entre los datos de comentarios públicos de 
+Facebook que podríamos estar ingestando en tiempo real, entonces, si un hacker intercepta eso pues es información pública que 
+está en Facebook o en Twitter o en Instagram o desde donde estemos ingestando, así que eso, por ejemplo, no tiene una 
+justificación de que vaya en una VPN, ahora si son tarjetas de crédito ahí sí está muy bien justificado. Por lo tanto, las 
+capas de seguridad deben de aplicarse con buen criterio, no necesariamente a todo, solo lo que sea extremadamente sensible. 
+
+
+¿Qué otro aspecto también debemos que tener en cuenta?
+------------------------------------------------------  
+
+Calidad, por ejemplo, el día de mañana vamos a hablar mucho de gobierno y calidad mientras vamos definiendo los flujos 
+estándares de procesos Batch, Real time, para ingesta, almacenamiento, modelamiento y gobierno. Calidad es un punto muy 
+importante en el sentido de que las soluciones que vamos a implementar tienen que tener datos coherentes que cumplan reglas 
+de calidad, el ejemplo más simple de todos y acá también quiero que se lleven un concepto que es relativamente reciente, el 
+día de mañana van a aprender que al momento que definamos un Data lake ya con todas las capas y subcapas que existen, el 
+Data lake que tiene un gran problema, que es el de la coherencia de los datos. Digamos que tenemos una tabla en un servidor 
+de la empresa que es la tabla ‘Persona’, que es de hecho lo que vamos a trabajar el día de mañana y esa tabla tiene muchos 
+campos y hay uno de ellos que es el campo ‘edad’, ahora desde un punto de vista lógico una buena regla de calidad sería que 
+la ‘edad’ tiene que ser mayor a cero, eso es obvio, no hay edades negativas. Uno podría decir: “… ya tenemos una regla de 
+quality, una regla de calidad, eso quiere decir que cuando movamos los datos del servidor tenemos que implementar esta regla 
+de calidad para hacer lo siguiente, tendremos la tabla ‘Persona’ con los datos limpios y tendremos la tabla ‘Persona reyectada’ 
+con los registros que no cumplan las reglas de calidad. Si ingestamos, voy a poner un número redondo para entender el concepto, 
+100 registros, en la tabla ‘Persona’  tenemos 99 registros buenos y 1 registro malo en la tabla ‘Persona reyectada’, entonces 
+estamos viendo que es data de calidad, porque, un 1% es algo mínimo. Hasta ahí es lo ideal y esto ha servido mucho en las 
+empresas, pero hay un gran problema, tiene mucho sentido esta definición, que la edad sea mayor a cero pero recordemos que 
+dentro de una tabla de datos hay otros campos, digamos que también está la estatura, es obvio que también tiene que ser mayor 
+a cero, ahora digamos que hay 2 áreas de la empresa que van a ser 2 soluciones diferentes con la tabla ‘Persona’, las soluciones 
+trabajan con datos limpios. Esta primera solución define lo siguiente: “…quiero segmentar mis clientes por edad…”, entonces, 
+tiene mucho sentido que el campo edad esté limpio, porque, si hay edades menores a cero no va a segmentar bien sus datos. Pero 
+digamos que la otra solución está analizando las estaturas de las personas y le da igual el campo edad, eso quiere decir que si 
+el registro que se reyectó (ubicado en la tabla ‘Persona reyectada’) no cumplió la regla de calidad que la edad tiene que ser 
+mayor a cero, pero sí cumplió la regla de calidad que la estatura tiene que ser mayor a cero, la segunda solución está perdiendo 
+un registro con un campo que sí le es de interés, porque, a esa solución le da igual el campo edad. Esto es un conflicto que hay 
+al día de hoy en las empresas, los modeladores no pueden definir de antemano una única tabla que cumpla con todos los 
+requerimientos que la empresa va a tener para sus soluciones, por ejemplo, el reyectar las edades menores a cero, vamos a 
+quitarles registros a la solución que está trabajando con las estaturas, si es una tienda de ropa para ver qué tipo de clientes 
+les da más ingresos y va a enfocarse en producir ropa para ese tipo de estaturas, por ejemplo. Así que no es tan simple esto de 
+las reglas de calidad. Ahora hay un concepto llamado DATA MESH que justamente define lo siguiente: aquí tenemos la tabla 
+‘Persona’ y en un futuro las soluciones van a utilizar una tabla ‘Persona’ que cumpla las reglas de calidad. En primer lugar no 
+podemos definir reglas de calidad para todas las soluciones, porque, la calidad es entendida diferente para cada solución, pero 
+lo que sí podemos hacer es definir algunas reglas de calidad genéricas muy simples, por ejemplo, que no haya registros nulos o 
+que todos los campos tengan al menos 1 un valor coherente, entonces, sí es posible definir algunas reglas de calidad que sean 
+transversales a todas la soluciones. Pero luego, cada solución va a tener su propia definición en donde va a implementar sus 
+reglas de calidad para entender qué significa una tabla ‘Persona’ limpia. Digamos que a la solución 1, por ejemplo, significa 
+que las edades tienen que ser mayor a cero pero las estaturas les da igual. Para la solución 2, la regla de calidad significa 
+que las estaturas tienen que ser mayores a ceros y la edad le da igual. Esta implementación es lo que se conoce como un 
+DATA MESH y es una técnica de gobierno de los procesos, cada solución va a gobernar las reglas de calidad que entienda para que 
+pueda implementar su solución y de esa manera ya se evitan las incoherencias entre las diferentes soluciones. ¿A qué quiero 
+llegar con todo esto? que la parte de la arquitectura en la vista de calidad no es tan simple como decir: “… a ver vamos a ver 
+las edades tienen que ser mayor a cero, las estaturas mayores de a ceros, los identificadores no pueden ser nulos y listo, se 
+programan esas reglas de limpieza y ya tenemos tablas listas para ser analizadas… “. Así no funciona, tendremos que factorizar 
+algunas reglas comunes y en un DATA MESH colocar ya reglas particulares para cada solución. 
+
+Con respecto a lo que es el DevOps, aquí, por ejemplo, hay que saber cómo automatizar lo más que se pueda los pases a 
+producción. Cuando un desarrollador trabaja en los entornos de Big data va a trabajar exactamente igual que en los entornos 
+clásicos, va a tener un entorno de un Clúster de desarrollo, va a tener un entorno de un Clúster QA y va a tener un entorno de 
+infraestructura de un Clúster productivo, los desarrolladores trabajarán en el Clúster de desarrollo y cuando tengan el proceso 
+listo lo pasarán a QA para ver si realmente está bien. Acá hay reglas genéricas, por ejemplo, que la volumetría de los datos que 
+debe trabajar el desarrollador debe ser el 33% como mínimo de la data real que va a ejecutar en producción, por ejemplo, si en 
+producción se van a procesar 3 millones de registros como mínimo el desarrollador tiene que trabajar con un millón de registros, 
+no va a poder trabajar con una muestra más pequeña, ¿por qué? porque si no el tuning computacional no va a ser exacto. Cuando 
+hablemos de tuning van a ver que una vez que hagamos el tuning para que el proceso se ejecute como debe de ejecutarse en el 
+tiempo esperado, lo siguiente es multiplicar los valores de tuning por 3, porque, sabemos que estamos trabajando con el 33% de 
+los datos. Dentro de QA, por ejemplo, también podemos hacer las pruebas con el 33% de los datos. Adicionalmente a eso, que los 
+entornos de desarrollo y de QA se recomienda que sean mucho más pequeños que el entorno productivo, porque, son entornos de paso. 
+Cuando un desarrollador trabaja su proceso en el entorno de desarrollo, termina, lo prueban en QA, está ok y ya ese proceso se 
+queda de manera permanente en producción, pero ya se liberó de desarrollo y de QA. El entorno de producción es el entorno que va 
+a estar creciendo en el tiempo desde el punto de vista de infraestructura, desarrollo y QA, no, va a depender del porcentaje de 
+potencia que asignemos a los desarrolladores, ejemplo muy simple, digamos que la regla de gobierno de la infraestructura es que 
+cada developer puede tomar a lo más el 5% de la potencia del Clúster, eso significa que en la infraestructura de desarrollo a lo 
+más pueden haber 20 desarrolladores, si viene el desarrollador 21, pues ya no va a tener potencia el Clúster de desarrollo y 
+vamos a tener que aumentar más servidores, ¿cuántos? hay una manera matemática de poder saberlo, tendríamos que saber qué 
+significa el nuevo 100% y empezar a reasignar recursos. Lo que trato de decir aquí es que estas técnicas que están relacionadas 
+al procesamiento de DevOps, están también muy relacionadas al tamaño de su infraestructura. La siguiente semana cuando ya 
+hablemos de infraestructura, vamos a ver cómo definir cada una de estas capas de infraestructura y cómo un proceso de DevOps 
+tiene que hacer lo más automáticamente posible los pases entre los diferentes ambientes. Les adelantó también que al día de hoy 
+es muy difícil automatizar los pases entre los ambientes de desarrollo, QA y producción cuando hacemos procesos de Big data, 
+pero hay algunas partes que sí podemos automatizar. 
+
+Como pueden ver entonces no es tan simple como me pongo a programar y ya, sino, que es cierto que hay que basarnos en estándares 
+patrones y tener arquetipos guía, pero al momento de hacer esa definición hay que tener todos estos aspectos en cuenta y de 
+manera simultánea, no es que en un momento primero hago gobierno, luego seguridad, luego calidad, así no funciona. Mañana que lo 
+construyamos desde cero van a ver que todo está cohesionado entre sí y mientras vamos definiendo una vista de la arquitectura, 
+otra vista se va a ir alterando y la vamos a tener que ir redefiniendo. ¿Por qué hacemos todo esto? porque nuestro objetivo 
+final es tener soluciones empresariales, soluciones que puedan ser escalables en el tiempo, que puedan ser mantenibles, que 
+puedan ser gobernables, que tengan trazabilidad, si el proceso falla en algún momento tenemos que saber en qué punto falló. 
+Recordemos que estamos en una empresa, así que estas soluciones tienen que poder integrarse dentro del ecosistema empresarial. 
+Si son soluciones aisladas, están muy bonitas para una prueba de concepto, pero, no es algo que vas a poder desplegar dentro de 
+la empresa. Así que vamos a enfocarnos en todo esto. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Concepción de un proyecto Big data
+==================================
+
+El día de hoy vamos a entender los conceptos en limpio de cómo vamos a empezar a hacer estas definiciones. De hecho, van a ver 
+que esta parte de definición nos va a tomar entre el día de hoy y el día de mañana, porque, hay muchas cosas que tenemos que 
+definir antes de empezar a programar. Lo primero es entender cómo es que estas arquitecturas nacen. GENERALMENTE, LA CONCEPCIÓN 
+DE ESTOS PROYECTOS DE BIG DATA NACEN DE UNA MIGRACIÓN. Nosotros sabemos que muchas empresas al día de hoy están pasando por 
+procesos de transformación digital. Lo que es la transformación digital implica muchísimas cosas, de hecho, hasta podría ser un 
+curso orientado exclusivamente a transformación digital, pero uno de esos aspectos es la parte tecnológica, tener un motor que 
+permita resolver cualquier necesidad de negocio de manera rápida y que se integre dentro de la arquitectura empresarial. PARTE 
+DE LOS DE LOS PROYECTOS DE TRANSFORMACIÓN DIGITAL QUE TIENEN LAS EMPRESAS AL DÍA DE HOY ES HACER LA MIGRACIÓN DE TECNOLOGÍAS 
+CLÁSICAS A TECNOLOGÍAS DE BIG DATA. ¿A qué se refiere esto? por ejemplo, vamos a poner muy simple esto, hablemos primero de la 
+parte de infraestructura, generalmente se trabajan con servidores y dentro de un server es donde ejecutas los programas que la 
+empresa necesita, estas soluciones pueden ser de BI, de ETL, procesos de tiempo real, procesos de machine learning o de deep 
+learning, procesos de reportería, de dashboard visuales, etc. El problema es que tienen limitantes, por ejemplo, digamos que 
+tienen un proceso de BI que funciona en un servidor de 100 GB de RAM y el día de hoy están procesando un archivo de 50 GB, no 
+hay ningún problema, ese servidor lo va a poder procesar, pero qué pasa si el día de mañana crece la necesidad en volumetría de 
+negocio y ahora le mandan un archivo de 500 GB a ser procesado, el server con 100 GB de RAM pues no lo va a poder procesar no 
+tiene la potencia suficiente. ¿Qué es lo que se hace en ese caso? dentro del proceso que tú implementes podríamos hacer lo 
+siguiente, vamos a partir el archivo en 5 partes y se lo pasamos al server parte por parte para que lo vaya evaluando, pero, 
+hacer esa implementación toma tiempo y depende de lo que estés implementando, digamos que estás implementando un reporte con 
+SQL, eso tal vez se pueda hacer por partes, pero si estás haciendo una red neuronal, ¿cómo procesas por partes una red neuronal? 
+o si estás haciendo programación funcional de una solución específica que te han pedido que implementes, tienes que pensar en 
+cómo hacer esa solución para que se haga por partes, porque, tienes una limitante de potencia de infraestructura, la 
+infraestructura no es suficiente. ¿Cuál era la otra solución que se hacía? Se levantaba un clúster de varios servidores, 
+entonces, para que todo esto se procese de manera paralela, en lugar de enviarlo parte por parte a un servidor, vamos a 
+enviárselo a 5 servidores cada una de las partes para que lo procese de manera paralela y de que funciona, funciona, pero la 
+paralelización no es automática, el desarrollador tiene que implementarlo, así que dentro del proceso que el developer 
+implemente está la lógica de negocio, lo que quiere hacer más la lógica de distribución de carga de trabajo, más la lógica de 
+paralelización y empieza a programar cosas que nada tienen que ver con lo que negocio le pidió, por limitantes de 
+infraestructura. Justamente ese es el problema de los CORES TRADICIONALES y esto lo solucionan al día de hoy los CORES DE 
+BIG DATA, ya que, los cores de big data de un punto de vista de infraestructura están basados en clusters de servidores, por 
+detrás tendremos 10 servidores o servidores 20 servidores o los que necesitemos. Cuando desarrollemos nuestras soluciones con 
+tecnologías de Big data como Spark, Hadoop u otras que iremos viendo y enviamos ese proceso a ser ejecutado en el clúster, 
+nosotros le tendremos que decir el factor de paralelización y quiero que todo lo que he implementado se ejecuta en 3 servidores 
+diferentes o en 5 servidores para que se haga más rápido o en los 10 servidores que tenemos y esa manera el propio Clúster 
+paraleliza lo que tú hayas codificado, así que, te olvidas de las técnicas de paralelización y solamente te vas a enfocar en 
+programar. ESA ES LA VENTAJA QUE TIENEN LAS TECNOLOGÍAS DE BIG DATA: PARALELIZACIÓN AUTOMÁTICA DE LO QUE TU PROGRAMES. SOBRE 
+UN CORE DE BIG DATA LOS DESARROLLADORES SOLAMENTE TIENEN QUE IMPLEMENTAR SU SOLUCIÓN E INDICAR EL FACTOR DE PARALELIZACIÓN.
+Otro punto importante es que estas tecnologías de Big data no es que vengan a crear nuevos tipos de solución, simplemente que 
+nos facilitan el desarrollo de estas soluciones sobre entornos de infraestructura que pueden paralelizar el código de manera 
+automática. Seguiremos haciendo nuestros reportes o nuestros modelos de redes neuronales o nuestros flujos de ETL con la 
+diferencia que ahora todo se va a ejecutar sobre una infraestructura que autoparaleliza todo en función de un factor que tú le 
+indiques, por eso es que al día de hoy las empresas están migrando a cores basados en Big data. Pero aquí nos vamos a encontrar 
+con otro gran problema. 
+
+EL PRIMER PROBLEMA ES QUE DIGAMOS QUE EL PROCESO SE DEMORA 5 HORAS Y NEGOCIO LO QUIERE EN 1 HORA PUES LE PONEMOS 5 VECES MÁS 
+POTENCIA, EN VEZ DE QUE CORRA EN UN SERVER LE DECIMOS AHORA EJECUTA TODO EN 5 SERVIDORES, ENTONCES VA A IR 5 VECES MÁS RÁPIDO Y 
+EN VEZ DE 5 HORAS SE VA A TOMAR 1 HORA. ESO DICE LA TEORÍA, PERO PARA QUE ESO SE CUMPLA, TENEMOS QUE PROGRAMAR CON ESTÁNDARES Y 
+PATRONES, SI NO, NO SE VA A CUMPLIR POR MÁS POTENCIA COMPUTACIONAL QUE TÚ LE PONGAS, ASÍ QUE, ESA ES UNA RESTRICCIÓN QUE TIENEN 
+LAS TECNOLOGÍAS DE BIG DATA. Pues, en pocas palabras si sobre este core empresarial te pones a programar por programar sin 
+patrones de diseño, no va a funcionar tu código de la manera esperada y ¿eso en qué se traduce? que mandas ejecutar tu proceso y 
+se queda pensando horas, horas, horas y nunca termina o después de que termine aparece un error de memory overflow o 
+timeException o cosas extrañas y tú dices, pero ¿qué ha pasado? es porque has programado por programar y no te basaste en 
+estándares arquitectónicos. Ese es el primer problema con el que nos vamos a encontrar de hecho eso el día de mañana lo vamos a 
+empezar ya a solucionar con las definiciones exactas. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Tecnologías en el mundo de Big data
+===================================
+
+El otro problema con el que nos vamos a enfrentar es, digamos que ya entendemos que un core de Big data tiene cierta 
+arquitectura conceptual basada en estándares y ¿cómo lo implementamos? ese es un problema, porque en 2016, por ejemplo, de 
+hecho, no están todas las tecnologías de Big data, esto es solamente un pequeño resumen de lo que había en 2016, son muchísimas. 
+
+En 2020, pues esto creció y de hecho acá no se agregaron las tecnologías Cloud, porque, si no, no alcanzaría dentro de la PPT. 
+¿Esto qué significa? que los ecosistemas tecnológicos de Big data ya se han desbordado, hay tantas tecnologías al día de hoy que 
+escoger un buen ecosistema que sea coherente con la arquitectura puede resultar difícil. ¿Qué es lo que se recomienda entonces? 
+para temas académicos, como el que estamos llevando nosotros, primero vamos a basarnos en definir una infraestructura conceptual 
+que sea agnóstica a la tecnología, por ejemplo, ya sabemos que hay que ingestar, almacenar, luego se procesa, luego se explota y 
+eso hay que gobernar y asegurar, como explicamos hace unos momentos. Digamos que ese es el flujo estándar. Pero, ¿con qué lo 
+implemento? en esencia existen cuatro ecosistemas tecnológicos, estos cuatro ecosistemas tecnológicos son: 
+
+1.- El basado en Hadoop 
+2.- El basado en la nube de AWS
+3.- El basado en la nube de AZURE 
+4.- El basado en la nube de GCP 
+
+Al menos aquí en Latinoamérica son los que más se usan. Otros ecosistemas tecnológicos muy buenos, que también ya se están 
+empezando a usar aquí en Latinoamérica son el de HUAWEI y también el de DATABRICKS, aunque Databricks, de hecho, va a ser un 
+cross para poder hacer infraestructuras híbridas con los cuatro ecosistemas. 
+
+¿Con qué vamos a comenzar?
+-------------------------- 
+
+Con el ecosistema de Hadoop que es el que respeta mejor los estándares. Y luego vamos a hacer las traducciones tecnológicas de 
+esos estándares, y a cada una de esas nubes particulares. Por ejemplo, ya tenemos la arquitectura conceptual que aún no sabemos 
+cómo se construye y decimos: ¿y con qué lo vamos a desarrollar? bueno, pues vamos a utilizar el ecosistema tecnológico de Hadoop. 
+Para INGESTA tenemos estas herramientas, para ALMACENAMIENTO otras y así sucesivamente. Colocaremos estas tecnologías y 
+empezaremos a crear arquetipos con algunas de ellas para ver cómo una arquitectura se traduce a código. Una vez que hayamos 
+entendido cómo se define la arquitectura y cómo se traduce a código, vamos a poner un caso de uso para hacer una traducción a 
+una nube en particular, utilizaremos AWS, ya que, es la más simple desde el punto de vista académico para preparar la 
+infraestructura. Y luego veremos las traducciones a AZURE y GCP, pero por ejemplo, la primera vez que veamos una traducción de 
+arquitectura a una nube, vamos a ir algo despacio, porque, tenemos que aprender los patrones Cloud. Una vez que aprendamos los 
+patrones Cloud con alguna de las nubes, esos patrones son exactamente iguales para cualquiera de las otras nubes, lo que 
+diferencia, por supuesto, es que por ejemplo AWS se utiliza S3 para almacenamiento de datos, AZURE utiliza los BLOB STORATE y 
+GCP utiliza también su propio sistema de almacenamiento, HADOOP también tiene su propio sistema de almacenamiento que es HDFS y 
+así sucesivamente. Pero lo que nos va a importar son los patrones de diseño, más que con qué tecnología se implementa.
+
+-----------------------------------------------------------------------------------------------------------------------------
