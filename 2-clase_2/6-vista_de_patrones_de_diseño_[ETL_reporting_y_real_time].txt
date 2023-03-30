@@ -1,0 +1,52 @@
+========================================================
+VISTA DE PATRONES DE DISEÑO [ETL, REPORTING Y REAL-TIME]
+========================================================
+
+Por último, a lo largo de las sesiones vamos a ir hablando también de otros patrones de diseño, de hecho, no nos vamos a 
+enfocar mucho en estudiar cómo es el patrón de diseño o cómo es que se define el componente, más nos vamos a dedicar a ver
+cómo esos patrones se colocan dentro de las definiciones arquitectónicas y cómo se traducen a código. 
+
+
+PATRÓN DE PROCESAMIENTO BATCH APLICADO A REPORTING
+--------------------------------------------------
+
+Por ejemplo, para hacer reportería ya hay patrones de diseños que se basan en ir moviendo los datos y binarizandolos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+PATRÓN DE PROCESAMIENTO EN REAL TIME APLICADO A REDES SOCIALES
+--------------------------------------------------------------
+
+Para hacer patrones de procesamiento en tiempo real también ya hay un estándar conceptual, no es tan simple como ir moviendo 
+los datos, hay que usar tópicos y infraestructuras reservadas para capturas de datos y bueno, cada vez se va a ir haciendo más 
+complejo.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ARQUITECTURA ESTÁNDAR EXTENDIDA PARA PROCESAMIENTO EN REAL-TIME
+---------------------------------------------------------------
+
+De hecho, esta lámina de acá es la que ya muestra la verdadera forma en cómo se hace un procesamiento en tiempo real. ¿Por qué 
+es importante entender esto? el día uno en que la empresa tenga que hacer un proceso de tiempo real, parte de esto y esto tiene 
+un arquetipo de código asociado, así que, el desarrollador agarra el arquetipo y ya tiene el arquetipo para ingestar los datos, 
+ya tiene el arquetipo para procesarlos, para exponerlos e integrarlos con el resto de la arquitectura empresarial, ya está todo 
+definido, solamente es programar el caso específico de negocio que le vayan a poner. Y también nota que estos patrones de 
+diseño son agnósticos a la tecnología, este es el patrón de diseño, ahora si lo vamos a hacer todo en HADOOP o en AWS, bueno 
+pues, ahí ya va la cajita tecnológica, pero, el patrón sigue siendo el mismo. Esto también tiene que quedar muy en claro el día 
+de hoy, los patrones de diseño arquitectónicos son agnósticos a la infraestructura. Así que el día en que esto lo quieras hacer 
+en AZURE va a ser el mismo patrón, solo que ahora se implementará con otras tecnologías. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+MACHINE LEARNING ON DATA LAKE PARA EXPLOTACIÓN EN REAL-TIME
+-----------------------------------------------------------
+
+Y también, no solamente es saber cómo funciona ese patrón de diseño, sino, cómo también se integra dentro del Data lake para 
+que pueda ser gobernado. Pueden ver entonces que aparentemente es un poco complejo, porque, hay que definir a la vez 
+infraestructura, gobierno, patrones de diseños, interacciones entre capas y puede parecer un poco complejo. Ya el día de 
+mañana cuando empecemos a implementar la solución desde cero, van a ver que inicialmente lo vamos a entender y al final vamos 
+a llegar un diagrama muy complejo que cuando tú lo veas dices: “ … ya entiendo, porque, ya sabemos cuáles son esos patrones de 
+diseño y ya sabemos la justificación de por qué los componentes conceptuales se colocan de esa manera … “. Y la próxima semana 
+ya nos dedicamos a la parte de programación, para ver cómo se traducen esos patrones a código.
+
+-----------------------------------------------------------------------------------------------------------------------------

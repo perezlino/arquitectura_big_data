@@ -1,0 +1,16 @@
+============
+CONCLUSIONES
+============
+
+Así que en resumen, qué es lo que vamos a seguir viendo desde el día de mañana, vamos a empezar a definir las vistas 
+arquitectónicas basadas en patrones de diseño. Esto a su vez va a estar amarrado a otras vistas, no va a estar aislado, 
+porque, las vistas son co-dependientes entre sí, mueves algo en una vista y afectas a otra vista, no hay un orden secuencial 
+para definir las vistas. Además de eso, los tipos de soluciones que vamos a ver van a ser las que se utilizan en las empresas, 
+desde ETLs hasta estas técnicas de redes neuronales que podrían ser lo más complejo que te podrías encontrar dentro de una 
+empresa. ¿Cómo se coloca eso dentro de la vista arquitectónica? eso lo vamos a ir resolviendo ya desde el día de mañana. Una 
+vez que ya sepamos los patrones de diseño y las definiciones de vistas arquitectónicas, lo siguiente es la traducción a código. 
+Los arquetipos de código van a tener como objetivo demostrar una prueba de concepto para saber que realmente los datos van a 
+fluir sobre la arquitectura y de esa manera el día que vengan los desarrolladores se descargarán esas plantillas que garantizan 
+la integración entre los componentes de la infraestructura y ya se pondrán a programar sus lógicas complejas y cuando lo hagan 
+en un esquema de producción ya hay garantía de que si han respetado los arquetipos de código, su código debe de funcionar a la 
+primera. 

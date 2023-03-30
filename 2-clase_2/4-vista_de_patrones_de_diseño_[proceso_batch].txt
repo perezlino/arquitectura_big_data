@@ -1,0 +1,61 @@
+===========================================
+VISTA DE PATRONES DE DISEÑO [PROCESO BATCH]
+===========================================
+
+PROBLEMA: MI SCRIPT TIENE MUCHOS PASOS Y NO TENGO SUFICIENTE RAM EN EL CLÚSTER
+------------------------------------------------------------------------------
+
+El patrón de diseño solamente nos ayuda a tener un punto de partida, pero siempre hay que aclimatizar el patrón de diseño 
+a lo que el negocio necesita, entonces, no es que acá, por ejemplo, ahí está el patrón de diseño, qué bonito se ve, y lo 
+vamos a hacer en la arquitectura, así no funciona, esta es la base y sobre esa base tenemos que hacer una traducción 
+específica para la necesidad de negocio específica que tenga negocio. Si implementamos el patrón tal cual, tal vez no se 
+integre bien con la arquitectura empresarial que estamos definiendo, así que, siempre hay que ser adaptaciones. A veces 
+son mínimas, a veces son muchas, pero, de que las hay, siempre las hay. Por ejemplo, uno de los problemas que vamos a 
+resolver en la capa de soluciones es el buen uso de la memoria RAM. Lo voy a poner muy simple el día de hoy, generalmente 
+cuando los desarrolladores trabajan van a tener cientos y cientos de líneas de código, cada vez van haciendo cosas más 
+complejas, también recordemos que arquitectónicamente vamos a definir una cuota de uso de la potencia del Clúster, digamos 
+que tenemos un Clúster de de 5.000 GB de RAM, el 5% de eso serían 100 GB, entonces, el desarrollador va a tener solamente 
+100 GB de RAM para poder hacer su solución. ¿Qué es lo que va a pasar? digamos que el primer paso de su solución requiere 
+de 10 GB de RAM, el segundo también y hasta el paso 10 también 10 GB de RAM, entonces, ahí ya usó su 5% de la potencia 
+asignada. Pero por necesidad de negocios necesita seguir implementando más pasos para tener ya su resultante final, el 
+problema es que ya se le acabó la memoria RAM y le va a salir un error.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+SOLUCIÓN: PATRÓN CHECKPOINT
+---------------------------
+
+Y ¿qué es lo que va a pasar? pues el desarrollador te va a decir: “ … oye necesito 10% de la memoria RAM para trabajar, 
+porque, tengo más pasos … “ y generalmente la respuesta eso es: “ … no te puedo dar más memoria RAM, porque, en este momento 
+el Clúster está a un 90% de la potencia, y si te asigno más memoria RAM le voy a quitar potencia a otros desarrolladores, así 
+que, mala suerte, tendrás que ingeniártelas para ver cómo haces tu solución … “ eso diría un mal arquitecto. Ahora, un buen 
+arquitecto, ¿qué es lo que diría? no te puedo dar más potencia del Clúster, porque, ya cada desarrollador tiene su cuota y le 
+restaría, pero, vamos a utilizar un patrón de diseño, veras, en lugar de tener una cadena de procesos extremadamente larga de 
+20 pasos, vamos a ir procesándolos de 10 en 10 procesaremos, los 10 primeros pasos en la memoria RAM y la resultante la 
+guardamos en disco duro y aprovechamos una vez que guardamos esa resultante intermedia, liberamos la memoria RAM y seguimos 
+procesando los demás pasos, porque, partimos nuevamente de cero de RAM y los siguientes 10 pasos, bueno, ya tienes tus 100 GB 
+de RAM nuevamente y lo puedes procesar y listo … “ gracias a ese patrón de diseño conocido como CHECKPOINT, ya el desarrollador 
+va a poder trabajar con su limitante del 5%, pero por supuesto hay una penalización aquí. Como implica el uso de disco duro, 
+hay un punto del proceso que va a ser lento ,porque, disco duro es 100 veces más lento que la memoria RAM, así que, aunque es 
+cierto que el patrón de CHECKPOINT nos permite trabajar con cantidad de RAM limitada, la penalización de eso es tiempo de 
+escritura y lectura en disco duro, pero no hay de otra pues, si simplemente el proceso no se le puede asignar más RAM porque 
+el Clúster está al 100%, no existe otro camino, es hacerlo con CHECKPOINT o no hacerlo y que nada funcione. Ahora esto que 
+estamos haciendo aquí bonito, tiene que estar traducido dentro de la arquitectura y en arquetipos de código, para que desde el 
+día uno los desarrolladores sepan que cuando tengan un problema de colapso de memoria RAM deben aplicar el patrón de CHECKPOINT. 
+De hecho el 90% de las cosas que programemos en las soluciones se arreglan con el patrón de CHECKPOINT y hay un 10% restante 
+que, bueno pues, ahí sí vamos a tener que asignar más memoria RAM, generalmente son los entrenamientos analíticos y para eso 
+hay un patrón de diseño: sacar esos entrenamientos analíticos a una nube que solamente vive el tiempo necesario para hacer el 
+entrenamiento, se encuentra el modelo Deep learning y se borra y se destruye su infraestructura en nube. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+¿Y SI AUMENTAMOS MÁS PASOS EN EL PROCESO?
+-----------------------------------------
+
+Ahora, gracias entonces a este patrón de diseño basado en CHECKPOINT, ya el desarrollador va a ponerse creativo y va a ponerse 
+a codificar y ya va a poder trabajar tranquilamente y cada cierta cantidad de pasos en su procesamiento va a ir bajando a 
+disco duro para liberar la memoria RAM de todas las variables que va creando. Por supuesto, es la desventaja es el proceso de 
+escritura en disco duro, pero, al menos ya quitamos la limitante de no asignarle más RAM, porque, el clúster ya está saturado 
+y el Data engineer va a poder seguir trabajando. 
+
+-----------------------------------------------------------------------------------------------------------------------------

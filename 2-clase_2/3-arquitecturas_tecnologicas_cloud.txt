@@ -5,8 +5,117 @@ ARQUITECTURAS TECNOLÓGICAS CLOUD
 SERVICIOS CLOUD
 ---------------
 
-Los servicios cloud pues existen muchísimos servicios diferentes, nosotros solamente nos vamos a enfocar en los servicios de 
+Los servicios Cloud pues existen muchísimos servicios diferentes, nosotros solamente nos vamos a enfocar en los servicios de 
 procesamiento de Big data. Para la parte de arquitectura solamente nos enfocaremos en los ecosistemas de Big data de cada 
 nube. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+EL FLUJO DEL BIG DATA ON CLOUD
+------------------------------
+
+Y lo que van a entender es que el flujo de procesamiento de los estándares Cloud es agnóstico a cuál nube tú estés utilizando, 
+lo único que va a cambiar, el flujo es el mismo, ingestar, almacenar, limpiar los datos, procesarlos y explotarlos, eso 
+siempre va a ser lo mismo, es la arquitectura conceptual. Pero, AWS lo hace con su propio mix tecnológico, AZURE con su propio 
+mix tecnológico, GCP con su propio mix tecnológico, HUAWEI o la que sea de tu preferencia bajo ya con su propio mix tecnológico. 
+Lo importante nuevamente es entender los patrones de diseños traducidos a la nube.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+HERRAMIENTAS ESTÁNDAR
+---------------------
+
+Realmente hay muchas herramientas en el mundo del Big data, al momento de que hagamos la programación, esto no es un curso en 
+sí orientado de programación para Big data, es un curso de arquitectura, pero eso no significa que no sepas cómo hay que 
+programar. Cada capa de la arquitectura tiene una tecnología asociada, así que, hay que saber cómo utilizar esa tecnología. No 
+vamos a hacer una implementación profesional que lo haría un Data Engineer, vamos a hacer una implementación mínima que nos 
+garantice que los datos estén moviendo por las diferentes capas del Data Lake, para que cuando ya venga un desarrollador 
+profesional y haga su codificación como nosotros ya hemos hecho la prueba de que los datos fluyen por la arquitectura, ya hay 
+garantía que el desarrollador va a poder trabajar. Es por eso que igual eso tiene que traducirse a arquetipos de código, 
+porque, lo defines es muy bonito, pero, el día en que esto salga producción vienen los desarrolladores y nada funciona, 
+entonces, si no haces las pruebas de concepto y los arquetipos de código, pues, te vas a llevar una sorpresa desagradable el 
+día uno en que todo esto empiece a funcionar y todo va a empezar a colapsar. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+HERRAMIENTAS CLOUD EQUIVALENTES
+-------------------------------
+
+Porsupuesto que hay muchas herramientas no vamos a poder verlas todas, pero, vamos a ver como mínimo las herramientas banderas 
+de cada ecosistema para poder ver cómo se integran unas con otras. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+FLUJO ESTÁNDAR SOBRE UN DATA LAKE
+---------------------------------
+
+Adicionalmente, a eso cuando procesamos los datos, independientemente del ecosistema tecnológico en donde estemos trabajando 
+siempre vamos a seguir estos cuatro pasos, al capturar los datos los vamos a colocar en una capa de aterrizaje temporal, luego, 
+los vamos a binarizar en un esquema flexible. Generalmente, los archivos que nos dejan son archivos de texto plano o archivos 
+Excel, archivos estructurados, esos archivos de texto plano son lentísimos para el procesamiento de los datos, por ejemplo, si 
+queremos hacer un reporte o una red neuronal o lo que tú quieras y el input es un archivo de texto plano, probablemente el 
+proceso termine colapsando. Hay que binarizar ese archivo en un formato de rápido procesamiento y ese archivo binarizado en ese formato 
+va a vivir en la zona de LANDING del Data Lake. Una vez que está bien binarizada en un formato de rápido procesamiento, lo 
+siguiente es tener los datos limpios, por ejemplo, no pueden haber registros Nulls, hay que implementar las reglas de calidad y 
+esas resultantes van en una capa conocida como UNIVERSAL, aquí está la data lista para ser explotada y luego ahora sí vamos a 
+hacer la soluciones, desde una reportería muy simple hasta una red neuronal. Hay muchos tipos de soluciones, ya las soluciones 
+van en la capa de SMART, aquí es donde nos podemos a codificar la solución y el “input” lo toma de UNIVERSAL, en donde se 
+supone que los datos ya están limpios. Acá, por ejemplo, para no complicar el concepto no he puesto la capa DATA MESH, que al 
+día de hoy se recomienda utilizar, pero, al menos por hora quedemos con estos cuatro pasos, capturar los datos en texto plano, 
+binarizarlos para rápido procesamiento, limpiarlos y procesarlos. Cada uno va en cierta capa. Ahora, ¿por qué definimos este 
+flujo estándar? cuando los desarrolladores comiencen a hacer sus soluciones van a tener que forzosamente ir capa por capa del 
+Data Lake, primero ingestamos, luego binarizamos, luego limpiamos y al final recién programamos la solución. De esta manera 
+estamos forzando al desarrollador que siga un flujo estándar y hay pasos bien definidos y nadie puede salirse de ese flujo. En 
+la vida real los desarrolladores sí van a salirse de ese flujo, pero gracias a que tenemos una definición de esquema nos vamos 
+a dar cuenta al momento de que alguien, por ejemplo, está construyendo una red neuronal en una zona que no corresponde y 
+podemos decirle: “ … oye eso no tiene sentido, reactualiza tu código, porque, eso tiene que ir en la capa Smart, la capa 
+Landing es solo de binarización …” y de esa manera estamos gobernando esos pasos y esa va a ser una solución cross. Cualquier 
+cosa que implique procesamiento de Big data sin excepción va a tener que seguir estos pasos y aquí no hay ningún pero que 
+valga, si viene un desarrollador y dice: “ … pero hoy yo quiero hacerlo todo en una sola capa … “, no, no funciona así y te 
+dice: “ … pero es que mira si lo hago acá directamente es más rápido … “, sí, puede que sea más rápido en una sola capa, pero, 
+no vamos a poder gobernar el proceso, porque, el día en que queramos darle mantenimiento a ese código si todo está solamente 
+en una capa, pues, ¿qué es lo que está fallando? la ingesta, el almacenamiento, la mineralización, el procesamiento, la 
+explotación, no se va a poder detectar fácilmente o el día en que queramos agregar más código, ¿qué tipo de código? ahora 
+tiene quizá existen más campos en la fuente, bueno entonces, va a cambiar la ingesta o quizá solamente queremos enfocarnos en 
+el procesamiento, vamos a agregar algunas reglas de negocio adicional. Ya tenemos un mapa en donde ubicarnos para empezar a 
+hacer el procesamiento. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+TRADUCCIÓN DE ESTÁNDARES A CADA CLOUD DE CUALQUIER FLUJO QUE LLEGUE HASTA UNIVERSAL
+------------------------------------------------------------------------------------
+
+La otra ventaja de definir este flujo estándar es que nos va a ayudar a hacer agnósticos a la nube y el ecosistema en donde 
+estamos programando, si se dan cuenta básicamente esta parte de aquí (desde LANDING_TMP a UNIVERSAL) es hacer un ETL, capturar, 
+binarizar y limpiar y luego ya es programar la solución. Hacer un ETL en sí no es tan complejo, no es que vamos a hacer una red 
+neuronal o un caso de negocio que nos han pedido. ¿Cómo se hacen esos ETLs? bueno eso es muy dependiente del ecosistema 
+tecnológico que estemos utilizando, pero el procesamiento de los datos, por ejemplo, al día de hoy se hace exclusivamente con 
+SPARK, es decir, codificar y el spark que tú programes en un entorno basado en HADOOP o en un entorno basado en AZURE o en AWS 
+o GCP, el código es el mismo, ¿eso que significa? que si nos basamos en patrones de diseño los códigos de nuestras soluciones 
+tienen que funcionar igual de bien en un ecosistema de HADOOP como en uno de AZURE, como en uno de AWS o como en uno de GCP. 
+Esos códigos de las soluciones tienen que ser completamente agnósticos. No se puede lograr la agnosticidad al 100%, pero, van 
+a ver que al menos si respetamos los patrones de diseños en un 90% lo que codificamos va a ser agnóstico a la nube y ya un 10% 
+va a ser algo muy independiente de una nube en particular. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+¿Y QUE PASA CON LAS SOLUCIONES?
+-------------------------------
+
+Acá, por ejemplo, digamos que en UNIVERSAL están los datos limpios que vamos a procesar y la capa SMART es en donde ya vive la 
+solución. Para eso hay que codificar y ese código tiene que ejecutarse igual de bien en cualquiera de estas 3 nubes, si mañana, 
+por ejemplo, esto se migra a otra nube, porque, un área de la empresa trabaja con otra nube, pues, te llevas ese código y lo 
+copias y lo pegas literalmente y funciona igual de bien en cualquiera de estas nubes. Siempre y cuando te bases en patrones de 
+diseño, todos los patrones de las soluciones que vamos a aprender van a ser agnósticos a la infraestructura en donde se 
+ejecuta. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+PUEDEN SER SOLUCIONES MÁS COMPLEJAS COMO REDES NEURONALES
+---------------------------------------------------------
+
+¿Por qué es bueno esto? porque en la vida real vas a hacer procesos cada vez más complejos. El último tipo de soluciones que 
+vamos a ver que son las redes neuronales son mucho más complejas, así que ese código también tiene que ser agnóstico a la 
+infraestructura en donde se va a ejecutar.
 
 -----------------------------------------------------------------------------------------------------------------------------

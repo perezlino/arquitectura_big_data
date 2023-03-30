@@ -1,0 +1,115 @@
+======================================================
+VISTA DE PATRONES DE DISEÑO [PROCESO MACHINE LEARNING]
+======================================================
+
+¿QUE ES UN TENSOR?
+------------------
+
+Ahora, por ejemplo, aquí les quiero mostrar el otro patrón de diseño de Machine learning. De esto vamos a hablar el día de 
+mañana. Hay un componente matemático llamado TENSOR que nos permite transformar datos no estructurados a datos estructurados. 
+¿Como es esto? es cierto que lo ideal sería que todos entendamos la matemática que hay detrás de los objetos tensoriales, por 
+ejemplo, estos objetos tensoriales se utilizan mucho para lo que es el álgebra lineal o para lo que es la construcción de 
+redes neuronales o para el análisis de objetos hipotéticos en cuatro dimensiones basados en física cuántica que, de hecho, 
+bueno y esto nos estamos saliendo del tema de Big data, pero, por ejemplo, el día de hoy hay hipótesis de que el universo en 
+donde vivimos está dentro de un universo aún más grande de cuatro dimensiones, que a su vez, está en uno más grande de 6 
+dimensiones. ¿Cómo se hacen todos esos análisis dimensionales? tensores, hay mucha parte de matemática. Pero, ¿en qué nos va a 
+servir este concepto matemático dentro de nuestras arquitecturas? lo voy a poner muy simple el día de hoy, ya mañana vamos a 
+ver el detalle, por ejemplo, si estamos haciendo procesamiento de reconocimiento de imágenes vamos a recibir un dataset de 
+imágenes, esas imágenes tienen canales de colores, ya sabemos que, por ejemplo, un pixel de esta imagen está combinado con 
+cierta tonalidad de rojo, con cierta tonalidad de verde y con cierta tonalidad de azul y la combinación de esas 3 tonalidades 
+nos da el color de este pixel y así sucesivamente para todos los píxeles de la imagen.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+REPRESENTACIÓN TENSORIAL DE UNA IMAGEN
+---------------------------------------
+
+Supongamos que tenemos una imagen de 32 x 32 pixeles. ¿Qué es lo que podríamos hacer? cada tonalidad de los colores en RGB, va 
+a tener un número asociado de cero a 255, en donde cero es la ausencia del color y 255 es en la máxima tonalidad de ese canal 
+de color. Acá, por ejemplo, este pixel tiene una tonalidad roja de 17, 32 de verde y 22 de azul y la combinación de esas 3 
+tonalidades nos da el color de este pixel. ¿Cuántos píxeles tenemos? 32 x 32 píxeles, entonces, deberíamos tener 3 matrices de 
+32 por 32 casilleros cada una y en cada una de ellas irá la tonalidad del pixel asociado. Aquí lo que estamos haciendo es crear 
+un TENSOR. La representación tensorial de una imagen es los canales de colores definidas en sus matrices, 3 submatrices en
+total. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DATASETS PARA PROCESAMIENTO DE IMÁGENES EN DEEP LEARNING
+--------------------------------------------------------
+
+Esto, por ejemplo, ¿para qué nos va a servir en la vida real? digamos que dentro de la arquitectura de Big data también se van 
+a hacer procesos de reconocimiento de imágenes. Dentro de la capa LANDING del Data lake, en donde aterrizan los datos, se 
+subirán las imágenes en crudo en un directorio del Data lake en la capa LANDING ahí estarán todas las imágenes. En UNIVERSAL 
+es donde se estructuran los datos para que ya hagamos la solución, entonces, de alguna manera que aún no conocemos, tendremos
+que crear un archivo tensorial que estructure esos datos. Acá, por ejemplo, tenemos la imagen del ave con sus 3 canales de 
+colores, aquí esta imagen del gato con sus 3 canales de colores y así sucesivamente. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ARQUITECTURA PARA VISIÓN ARTIFICIAL
+-----------------------------------
+
+¿Cómo se integra esto dentro de una arquitectura de Big data? bueno, realmente es un poquito más complejo, cuando veamos ya 
+las soluciones lo vamos a ver a detalle, pero por ejemplo, este es un primer paso se le llama FEATURE ENGINEERING, tensorizar
+las imágenes que vamos a procesar. El segundo paso es descubrir los patrones visuales, eso se hace con una RED CONVOLUCIONAL. 
+El tercer paso es, esos patrones visuales que hemos encontrado hay que asociarlos a cada imagen, decimos: “ … para el ave hemos 
+encontrado la forma de la boca, la forma del ala y la forma de las patas, entonces el ave tiene esos 3 patrones asociados, un 
+perro tendrá sus propios patrones, un gato tendrá también sus propios patrones … “, eso se hace en la etapa FLATTEN y luego 
+viene la RED NEURONAL que clasifica los patrones, dice: “ … esto es un ave, entonces, cuando le ingresemos la imagen de un ave 
+a la arquitectura, la red neuronal ya memorizó los patrones, dentro de la red neuronal se ha quedado grabado cuáles son los 
+patrones de un ave, de un perro, de un gato, verá si esa imagen tiene esos patrones y lo clasificará como ave, gato o perro … “. 
+Lo estoy explicando digamos de manera muy genérica solamente para entender el concepto, ya en la clase de soluciones lo veremos 
+ya con el detalle exacto. Lo importante aquí es entender que esta es la arquitectura para hacer reconocimiento de imágenes. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+MACHINE LEARNING ON DATALAKE
+----------------------------
+
+¿Cómo vive dentro de un Data lake? por ejemplo, las imágenes en crudo tienen que vivir en un directorio dentro de la zona 
+LANDING. Las imágenes tensorizadas tienen que vivir en un archivo tensorial en la zona UNIVERSAL y la red convolucional y ya 
+la implementación de la red neuronal, esa ya es la solución que estamos implementando, eso ya va la capa SMART. Si el día de 
+mañana, por ejemplo, nos dan otras 50.000 imágenes, pues, es repetir el mismo proceso, subirlas a LANDING, tensorizarlas en 
+UNIVERSAL y que la red neuronal las procese. Ya tenemos un orden coherente para poder procesar. También quiero que noten que 
+en la capa LANDING los datos aterrizan tal cual vienen de la fuente de datos. La capa UNIVERSAL tiene como objetivo estructurar 
+la data no estructurada y semi estructurada. Las soluciones solamente deben de trabajar en un Data lake con datos estructurados 
+que estén listos para ser analizados. Por ejemplo, también vamos a ver que existen archivos JSON o archivos XML, que son 
+semiestructurados, hay técnicas para estructurarlos en tablas estructuradas en UNIVERSAL o, por ejemplo, no solamente existen 
+archivos binarios de imagen y ¿qué pasa si estamos haciendo un reconocimiento de videos? el video se sube tal cual en un 
+directorio de la capa LANDING y luego hay que aplicar una técnica basada en captura de fotogramas para que 1 segundo de vídeo 
+son 24 fotogramas, entonces, por cada segundo del vídeo tendremos 24 imágenes y eso luego se tensoriza y bueno, y van a ver 
+que esto no lo queremos guardar, porque, lo tenemos en el vídeo y esto tiene que ir a una zona temporal y bueno, pues, ya hay 
+patrones de diseño. Así que ya el día de mañana que vamos a aprender a ingestar datos basados en patrones de diseños vamos a 
+definir esas técnicas conceptualmente para ver cómo viven dentro de un Data lake. Lo importante que se lleven al día de hoy es 
+que cualquier tipo de dato que tú quieras procesar ya tiene un estándar de procesamiento, así que, el día uno en que a ti te 
+digan vamos a procesar archivos de video para hacer reconocimiento de imágenes, no lo vas a hacer de cero, buscas el estándar, 
+ves cómo se define y lo implementas, pero no es que lo tengas que implementar de cero. Mañana vamos a reemplazar justamente los 
+estándares de ingesta y de almacenamiento. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+USO DE GPU PARA PROCESOS MATRICIALES
+------------------------------------
+
+Ahora, respecto a la infraestructura, por ejemplo, los modelos de Deep learning, como son las redes neuronales o redes 
+convolucionales, utilizan muy bien la GPU. Los científicos de datos saben mucho de eso, por eso los desarrollos siempre lo 
+hacen sobre GPUs.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+INFRAESTRUCTURA PARA MACHINE LEARNING ON DATALAKE
+-------------------------------------------------
+
+Pero, ¿cuál es el problema? la GPU solamente es buena en la zona SMART. Al momento de hacer la construcción de la red 
+convolucional y la red neuronal, ahí es donde la GPU se aprovecha bien. Pero para la tensorización, ahí hay que utilizar CPUs, 
+porque, si usamos GPUs para tensorizar imágenes, no va a haber ni ganancia ni disminución de tiempo de procesamiento, lo va a 
+ser igual de bien que una CPU, pero, ¿cuál es el problema? el costo. La GPU es muchísimo más costosa que la CPU, por eso, hay 
+pocas GPUs dentro de la empresa y deben ser utilizadas para los procesos que realmente van a ser beneficiados por ellos, la 
+tensorización, por ejemplo, no se hace en GPU y yo he visto, lo clásico, los científicos de datos como hacen todo en GPU, la 
+tensorización también la hacen en GPU y utilizan tiempo de GPU que podría ser usado para otro científico de datos para hacer 
+su entrenamiento de red neuronal, así que, acá hay una definición en vivo para que vean que los patrones de diseño también 
+dependen de una infraestructura asociada y el día uno en que un científico de datos quiera hacer reconocimiento de imágenes, 
+ya tenemos el plano para que lo programe de la mejor manera posible y que no lo programe poniéndose creativo como el mejor 
+crea, gracias a esto podemos gobernar el flujo. 
+
+-----------------------------------------------------------------------------------------------------------------------------
