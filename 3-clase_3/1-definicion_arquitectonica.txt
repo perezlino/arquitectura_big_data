@@ -1,0 +1,14 @@
+=========================
+DEFINICION ARQUITECTONICA
+=========================
+
+Vamos a hacer una definición ahora sí de una arquitectura, nos vamos a enfocar primero en la capa de ingesta y de 
+modelamiento y en la siguiente sesión haremos la implementación. luego de eso iremos a la última capa que es la capa 
+de soluciones. Para ponerlo en términos simples, al hablar de definición arquitectónica ya sabemos que implica esto, 
+hay diferentes vistas arquitectónicas con las que tenemos que trabajar. Al momento de hacer la definición de toda la 
+arquitectura no es que linealmente se haga 1 por 1 cada vista, ya sabemos también por la clase del día de ayer que todo 
+está interrelacionado. Por ejemplo, el día de hoy para definir una parte de esta arquitectura vamos a tener que definir 
+todas esas vistas hasta cierto punto respecto a lo que es la ingesta y el modelamiento y luego ya podremos seguir 
+avanzando con más vistas. De hecho, van a ver que el día de hoy vamos a hacer agnósticos a la tecnología con que luego 
+implementaremos estas vistas, podríamos utilizar cualquiera de los cuatro ecosistemas clásicos que existen el de HADOOP 
+o el de las 3 nubes. Lo importante es tener primero una definición. 

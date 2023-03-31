@@ -1,0 +1,168 @@
+================
+VISTA CONCEPTUAL
+================
+
+VISTA CONCEPTUAL
+----------------
+
+En primer lugar, vamos a partir de un punto genérico para todos, el cual es una vista conceptual. Sobre esta vista 
+conceptual vamos a empezar a definir varias cosas. Digamos que este es el punto de partida, pero para poder entender 
+cómo se llega a este punto de partida voy a colocarlo aquí en la pizarra para darnos la idea general de cómo es que 
+empieza todo esto de este cero. 
+
+En primer lugar hay que entender que la arquitectura que vamos a implementar tiene que estar pensada para un entorno 
+de Big data y ¿qué implica eso? al hablar de Big data estamos hablando de diferentes tipos de velocidades, pueden ser: 
+
+● Procesos Batch
+● Procesos Real time
+
+También al hablar de procesamiento de datos estamos hablando de estructuras de datos, se dividen en 3: 
+
+● Datos estructurados (una tabla de datos) 
+● Datos semiestructurados (un archivo json) 
+● Datos no estructurados (una fotografía o una imagen)
+
+
+¿Qué otra cosa tenemos que tomar en cuenta para hacer la definición? 
+--------------------------------------------------------------------
+
+Las soluciones que vamos a implementar. 
+
+1.- Una cosa es la capa de ingesta, podríamos, por ejemplo, hacer diferentes combinaciones de velocidades y estructuras 
+    de datos, ingestar datos estructurados en batch o real time o para los semiestructurados o para los no estructurados, 
+    podemos hacer una combinatoria de todos esos tipos de ingestas. 
+
+2- Una vez que hemos ingestado los datos desde la fuente de datos eso hay que almacenarlo y hay que ordenarlo. Vamos a 
+   tener entonces un repositorio de datos y este repositorio de datos debe tener como mínimo 2 partes: 
+
+● Una parte para el almacenamiento de ALTA LATENCIA 
+● Otra parte para el almacenamiento de BAJA LATENCIA. 
+
+Y ¿qué significa esto? y DESDE EL PUNTO DE VISTA DE UNA ARQUITECTURA AL HABLAR DE LATENCIA, ESTAMOS HABLANDO DE LO QUE ES 
+LA VELOCIDAD DE CAPTURA DE LOS DATOS. “Alta latencia” significa que es una captura de datos que puede demorarse varias horas, 
+no hay ningún problema, por ejemplo, un proceso Batch que va a ser una limpieza de ETL en la madrugada que puede demorarse 
+3 o 4 horas. La resultante final de ese procesamiento escribirá en una base de datos de “Alta latencia”, porque, es un 
+proceso Batch. En cambio, si estamos ingestando datos semi estructurados de Facebook de los comentarios de las personas, 
+eso es un tiempo real, entonces, sobre nuestra capa de almacenamiento tendremos que guardarlo en un motor de “Baja latencia”. 
+
+
+¿Qué más necesitamos?
+---------------------
+
+Vamos a capturar y modelar estos datos, los guardaremos en un repositorio dependiendo de su naturaleza. Además, hay que tener 
+en cuenta que este repositorio de alta latencia y de baja latencia tiene que estar de listo para soportar datos estructurados, 
+semi estructurados y no estructurados, para ambas capas de almacenamiento. Luego, una vez que nosotros hemos ya capturado los 
+datos que la empresa va a procesar, ya vienen las soluciones y ¿qué podemos hacer con esos datos? pues, podemos simplemente 
+hacer una solución de ETL, los vamos a limpiar para tenerlos listos para hacer otras soluciones, una limpieza clásica de datos 
+o podemos hacer un dashboard visual, un reporte con SQL nos conectamos a esos datos y construimos un reporte que luego se pinta 
+en una página web o en un dashboard gerencial. ¿Qué otra cosa podríamos hacer? podríamos programar, agarrar algún lenguaje de 
+programación y empezar a hacer algo con estos datos, por ejemplo, podríamos crear un API de microservicios para que se acceda 
+a los puntajes de riesgo crediticio que tengamos  o a los comentarios que hemos capturado de Facebook. Podríamos agarrar un 
+lenguaje de programación y empezar a procesar estos datos. O por ejemplo, también podríamos hacer la parte de Machine learning 
+y Deep learning, es decir, crear modelos analíticos para encontrar patrones dentro de los datos. En esencia, estas son las 
+soluciones que podríamos implementar sobre estos datos capturados, por supuesto, que estas soluciones también tienen que pensar 
+en las combinatoria de velocidades y estructuras de datos, por ejemplo, el proceso de ETL tiene que estar en la capacidad para 
+procesar datos estructurados, semi estructurados, no estructurados e incluso combinar diferentes fuentes de datos con 
+diferentes estructuras que hayan sido capturado en diferentes velocidades, esto es lo que se llama tener una VISIÓN HOLÍSTICA 
+DEL PROCESAMIENTO. No importa la naturaleza del dato, podemos combinar datos que tengan diferente naturaleza en velocidad y en 
+estructura. Lo mismo para la reportería o los procesos de programación con algún lenguaje o los procesos analíticos. En 
+esencia, eso es lo que permite hacer un motor de Big data. Ahora para dibujar todos estos conceptos de una manera coherente que 
+pueda ser presentable frente a una reunión de alguien de negocio, podríamos definirlo de la siguiente manera: vamos a tener una 
+CAPA DE FUENTES y esta capa de fuentes pues nos conectaremos con la CAPA DE INGESTA, el objetivo de la capa de ingesta es 
+conectarnos a la fuente de datos y extraer los datos, una vez que los hemos extraído, pues, hay que escribirlo en el 
+repositorio de datos (ALMACENAMIENTO). LA FUENTE ES ALGO EXTERNO AL ENTORNO DE BIG DATA, desde las herramientas de ingesta en 
+adelante ya son propias del entorno de Big data, así que, básicamente esto lo que hace es el CTRL C + CTRL V hacia el sistema 
+del motor del Big data. Ahora una vez que hemos capturado los datos, lo siguiente es hacer las diferentes soluciones: procesos 
+de ETL, procesos de reportería, procesos de programación con algún lenguaje o procesos de machine learning y deep learning 
+(parte analítica). Adicionalmente, a esto hay que saber que al estar en un entorno de Big data, pues, las fuentes pueden ser 
+Batch o Real time. Además, no necesariamente van a ser servidores de bases de datos clásicas las fuentes de datos, podemos 
+procesar cualquier nivel de estructura de datos, así que, en general podemos conectarnos a servidores o a APIS, o a cualquier 
+motor que entregue data, tanto para Bach como para Real-time. Así que, podemos conectarnos a bases de datos tradicionales o si 
+queremos a servidores que entreguen datos binarizados o semiestructurados o no estructurados, podemos ingestar cualquier cosa. 
+Por supuesto que, hay que tener una herramienta de ingesta batchera y una herramienta de ingesta en tiempo real y lo mismo pasa 
+con las capas de almacenamiento. Una capa de almacenamiento de alta latencia para el almacenamiento batch y una capa de 
+almacenamiento de baja latencia para el almacenamiento del real time y adicionalmente nuestras capas de almacenamiento pueden
+soportar datos estructurados. LOS DATOS ESTRUCTURADOS LOS PODEMOS GUARDAR EN TABLAS DE DATOS, pero, ¿qué va a pasar, por 
+ejemplo, con los datos semiestructurados y los no estructurados? por ejemplo, una imagen no la vamos a guardar en una tabla, 
+una imagen es un archivo binario o un archivo json, eso no va en una tabla, porque tiene campos que tiene subcampos y es un 
+archivo en general. Así que LOS DATOS SEMIESTRUCTURADOS VAN A VIVIR EN UN SISTEMA DE ARCHIVOS, para ponerlo en términos muy 
+simples, se creará un directorio y dentro de ese directorio guardaremos ese archivo semiestructurado. LO MISMO PASARÁ CON LOS 
+DATOS NO ESTRUCTURADOS, no lo podemos manejar a nivel de tablas, pero sí a nivel de directorio y dentro del directorio 
+guardaremos esos archivos no estructurados, puede ser desde una imagen hasta un video o lo que tú gustes. En cambio, los que 
+sí son archivos estructurados, los vamos a guardar dentro de tablas, porque es la mejor manera de ver archivos estructurados.
+
+Estos conceptos se aplican tanto para la capa de almacenamiento de alta latencia como para la capa de almacenamiento de baja 
+latencia, también deberemos tener un soporte de datos estructurados y semi estructurados y no estructurados. Estructurados a 
+nivel de tablas y semi estructurados y no estructurados a nivel de sistema de archivos, directorios. De esta manera ya tenemos 
+una primera definición conceptual y hay un punto de partida sobre el cual trabajar. Básicamente hemos definido esta la PPT 
+“Vista concetual”. Esto debería ser entendido a nivel de negocio como mínimo y básicamente estamos diciendo: “ … mira podemos 
+ingestar lo que sea … “ y aquí es donde negocio podría decir lo siguiente: “ … ya pero mira, yo estoy pensando en una solución 
+de negocio para hacer analítica de sentimientos en los correos electrónicos que los usuarios nos envían, vamos a ver al día 
+recibimos 10.000 correos, algunos son de quejas, otros son que quieren aumentar su línea crediticia, otros simplemente tienen 
+algunas consultas, entonces, queremos armar un sistema que clasifique los correos electrónicos para saber cuál es el tipo de 
+problema asociado al correo electrónico, ¿esta arquitectura lo va a soportar? … “ y la respuesta es: sí. Podemos, por ejemplo, 
+ingestar esos correos electrónicos cada hora, llega un correo electrónico y cada hora llegan 20.000 correos electrónicos, 
+entonces, cada hora se dispara un proceso Batch, guardará esos correos electrónicos en la capa de datos no estructurados y 
+construiremos un modelo analítico para hacer análisis de sentimientos y ver qué tipo de clasificación recibe el correo 
+asociado. Ahora dice negocio: “ … pero yo quiero que esto sea en tiempo real o sea no quiero esperar 1 hora para responderle 
+al cliente, quiero que sea inmediato … “, bueno, no hay problema, entonces, podemos ir por este camino (se refiere al camino 
+que indica el proceso Real time). Tendremos que crear alguna API de conexión al servidor de los correos electrónicos y nos 
+iremos por este lado de aquí para poder hacer ese análisis. Digamos que este es el punto de partida, para que negocio empiece 
+a aflorar las ideas y tú ya vayas teniendo esa intuición de por dónde tenemos que ir explayando nuestra arquitectura, pero 
+como pueden ver, en esencia, esto de manera muy general resuelve todos los casos posibles, todos los tipos de velocidades con 
+todos los tipos de estructuras con todos los tipos de soluciones.
+
+             _______________________________________________________________________________________________________
+            |                                                                                                       |
+            |   ¿Si ingesto archivos PARQUET debo almacenarlo en tablas o como no estructurados, en directorios?    |
+            |                                                                                                       |
+            |   Van en directorios y si ese parquet tiene un formato estructurado lo puedes asociar con una tabla.  |
+            |_______________________________________________________________________________________________________|
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRATEGIA DE INGESTA DE FUENTES BATCH
+---------------------------------------
+
+Ya tenemos entonces el punto de partida y acá se estará empezando a hablar muchas cosas y probablemente estén hablando 2, 
+3 horas sobre qué es lo que podemos hacer y negocio te dice: “ … ok, sí veo que estamos teniendo un buen punto inicial … “. 
+Bien, ahora vamos a hacer una mejor definición conceptual, tenemos que tener 2 estrategias de ingesta para las 2 velocidades 
+que vamos a manejar: 
+
+● Ingestar datos en Batch y 
+● Ingestar datos en Real time 
+
+Esto no necesariamente lo tiene que entender negocio, quizás, se lo podríamos mostrar pero esto ya es más, va para la 
+definición de lo que luego se va a implementar. Vamos a definir también esta parte de la arquitectura en pizarra para entender 
+cómo se construye. Bien, ya negocio nos dio el OK, ve que esto está yendo por buen camino, ahora definamos más exactamente lo 
+que vamos a hacer. 
+
+
+¿Primero cómo se van a capturar los datos batcheros? 
+¿Qué fuentes de datos en esencia vamos a tener siempre? 
+-------------------------------------------------------
+
+Vamos a tener servidores genéricos que dentro pueden tener archivos o tablas. Básicamente, son tablas si son datos 
+estructurados o archivos si son datos semiestructurados o no estructurados, un archivo puede soportar desde una imagen hasta 
+un video hasta un json, así que, en esencia es eso. O también podríamos tener una base de datos clásica, en donde ahí si todos 
+son tablas. Va a depender, por ejemplo, para nuestro diagrama de ejemplo, podemos tener un servidor Cobol o puede ser un 
+Fileserver o puede ser un servidor SFTP o un servidor FTP, pero al final, es un servidor que contiene archivos. Y también 
+tendremos una base de datos que contiene tablas. En esencia esas van a ser las fuentes de datos. 
+
+
+¿Cómo vamos a extraer los datos de esas fuentes de datos? 
+---------------------------------------------------------
+
+Para ambos casos se va a tener que implementar algún proceso “export” que se conecte al archivo o tabla que queramos exportar 
+y lo deberemos sacar de la fuente de datos y guardarlo en algún lugar. Ese algún lugar es un servidor conocido como 
+“Fileserver”, es ahí donde, por ejemplo, digamos que en nuestro servidor (Fuente de datos) está el archivo de clientes que 
+queremos ingestarlo en el sistema de Big data para empezar a hacer procesamiento. Alguien va a tener que desarrollar ese 
+export que deje el archivo en un directorio de algún servidor de la empresa (Fileserver). 
+
+ Servidor                          Fileserver
+ ________                           ________
+|        |			 __	           |        |    
+|        |  ----->  |__|  ----->   |		|    
+|	     |         Export          |        |    
+|________|                         |________| 
