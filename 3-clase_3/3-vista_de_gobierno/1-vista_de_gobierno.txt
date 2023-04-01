@@ -287,3 +287,170 @@ arquitecto solamente se encarga de que haya coherencia entre las definiciones. E
 MODELAMIENTO DE DATOS ESTRUCTURADOS
 -----------------------------------
 
+La responsabilidad que nosotros tenemos como arquitectos es integrar el modelo definido por los modeladores y las reglas de 
+calidad, dentro de la arquitectura y ¿cómo se hace? ahora sí vemos el patrón de diseño, ya sabemos que, lo que hemos ingestado 
+desde la fuente de datos (la tabla ‘Persona’ que vive en la zona LANDING y está binarizado en AVRO) en función de lo que el 
+modelador haya definido, seleccionaremos de esa tabla algunos campos y lo castearemos a los tipos de datos correctos y en 
+función de lo que el equipo de calidad haya definido, en otra tercera cajita debemos de implementar esas reglas de calidad. 
+Aquellos registros que cumplan las reglas de calidad aterrizarán en una tabla que se llamará exactamente igual que la otra 
+tabla, pero, que vivirá en la zona de UNIVERSAL. Adicionalmente, a eso ¿en las fuentes de datos qué es lo que pasa en la vida
+real? por ejemplo, en la fuente de datos el día de hoy, digamos que estamos conectándonos a la tabla ‘Persona’ desde la base 
+de datos Oracle y esta tiene 10 campos, pero, por necesidad de negocio en la fuente de datos ahora le agregan un campo 11. La 
+ventaja de tener binarizada la información en AVRO, es que nos permiten guardar esa evolución de las estructuras de datos 
+dentro de la tabla, cada archivo va a guardar el formato de estructura de tablas con la que fue ingestado el día de hoy, por 
+ejemplo, durante 10 años hemos estado ingestando datos que tienen 10 campos y el día de mañana la fuente de datos cambia a 11 
+campos, pues, ese nuevo archivo binarizado en AVRO va a incluir dentro del archivo en una zona de metadatos ese nuevo campo 
+número 11. Así que esa es la ventaja de AVRO permite tener esquemas flexibles. Pero notemos que en la capa UNIVERSAL ya tenemos 
+esquemas bien definidos por los moderadores, entonces, existe un formato binarizado llamado PARQUET, que es más rígido, no es 
+tan flexible como AVRO, es ideal para hacer estas implementaciones en donde ya sabemos exactamente qué campos necesitamos. De 
+hecho el PARQUET es mucho más rápido que el formato AVRO, porque, ya es un esquema fijo, por eso la capa UNIVERSAL se 
+recomienda que esté en PARQUET. En el caso de que los registros no cumplan las reglas de calidad, entonces, esos registros 
+deberán de ser enviados a otra tabla que tendrá el mismo nombre de la fuente de datos, pero con un sufijo de “reject” que 
+serán reyectados. Adicionalmente a eso, esta tabla ‘Persona reject’ va a tener los mismos campos que la tabla ‘Persona’, pero 
+sus tipos de datos van a ser siempre cadenas de caracteres. ¿Por qué? para poder guardar cualquier cosa que se reyecte. Qué 
+tal, por ejemplo, si alguien en la edad o en el campo salario se equivocaron y colocaron el nombre de la persona, se reyecta. 
+Para poder guardar ese error eso tiene que ser un string, si no, no se podría guardar ese error. Por eso es que esta tabla de 
+reyectados tiene que ser siempre de cadena de caracteres. Esto es para el caso de los datos estructurados. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+MODELAMIENTO DE DATOS SEMI ESTRUCTURADOS
+----------------------------------------
+
+Ahora y ¿qué pasa para los datos semiestructurados? el objetivo con ellos va a ser estructurar los datos. La buena noticia 
+aquí es que da igual si son archivos JSON, XML, BSON o cualquier otro tipo de semiestructuras. Las reglas van a ser las mismas. 
+Voy a ponerlo de manera muy genérica el día de hoy y ya cuando lo veamos en código vamos a verlo en vivo, primero lo 
+entendamoslo conceptualmente. Acá, por ejemplo, cada registro de este archivo JSON tiene datos de Persona, Empresa y datos de 
+Transacción. Entonces, podríamos crear 3 tablas la tabla ‘Persona’, ‘Empresa’ y ‘Transacción’. Colocaremos los datos en 
+registros de la Persona en una tabla, los de la Empresa en otra tabla y los datos propios de la Transacción en esa tercera 
+tabla. Y de esa manera un archivo JSON se convirtió en 3 tablas estructuradas. Una vez que tenemos esas tablas estructuradas, 
+lo siguiente es aplicar lo que previamente explicamos: cada una de ellas tiene que seleccionar ciertos campos, castearlos y 
+aplicarlas las reglas de calidad y listo, ya tenemos esas tablas estructuradas. También es muy importante entender que estas 
+resultantes finales viven en UNIVERSAL, pero, se apoyan en tablas temporales para poder hacer estos procesos de seleccionar, 
+castear y aplicar reglas de calidad, así que generalmente hay una zona del DATA LAKE en donde escribimos estas tablas 
+temporales que van a vivir solamente para procesar, termina el proceso y como ya tenemos las tablas resultantes finales listas, 
+se eliminan para ahorrar espacio en disco duro, eso también es parte del patrón de diseño, solo las resultantes finales tienen 
+que ser permanentes, las tablas temporales se eliminan una vez finalizado el proceso. Así que conceptualmente, no hay mucha 
+complicación al momento de definir cómo se modelan los datos semiestructurados, el truco es esta parte de “Estructurar los 
+datos”. De alguna manera tratar de estructurar los campos en diferentes tablas y luego ya tratarlos como tablas estructuradas. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRUCTURANDO DATOS NO ESTRUCTURADOS [IMÁGENES]
+-----------------------------------------------
+
+Ahora vamos a lo que sí va a ser más complejo en la vida real, porque, aquí ya no hay una estrategia genérica como en el caso 
+de los datos estructurados o semiestructurados. En el caso de los datos no estructurados va a depender del formato, una cosa 
+son imágenes, otra cosa son videos, otra cosa son audios, otra cosa son archivos de texto enriquecido como archivos Word, PDF 
+o correos, entonces, ya dependiendo de la naturaleza del dato hay cierta estrategia basada en patrones de diseño. Vamos a 
+explicarlo conceptualmente para poder entenderlo. Por ejemplo, en el caso de las imágenes qué es lo que sabemos, nosotros 
+sabemos que los colores de una imagen están formados por 3 canales de colores: canal RGB, entonces, de alguna manera desde 
+código podríamos separar esta imagen en sus 3 canales de colores, ya sabemos que, la combinación de esos 3 canales de colores 
+nos va a resultar la imagen original. Ahora la pregunta es ¿y cómo hacemos esa separación? para eso un archivo de imagen tiene 
+cierto tamaño de píxeles, 32 por 32 pixeles, con ciertos canales de colores, generalmente son RGB para poder hacer las 
+combinaciones y que salga el color de cada pixel. Lo que podemos hacer es crear 3 matrices una para cada canal de color, cada 
+matriz va a tener el tamaño de 32 por 32 casilleros y dentro de cada casillero estará la tonalidad de cada canal de color. Esa 
+tonalidad va a ir de cero a 255 y la combinación de las tonalidades nos dará el color de ese pixel. Por ejemplo, digamos que 
+este casillero que tiene 11, 70 y 75, entonces tiene más abundante verde y azul y bueno quién sabe qué color dará dentro de la 
+imagen. Pero vean cómo estamos ya estructurando aquí los datos, a esto es lo que se le conoce como TENSORIZAR. Dentro de la 
+capa UNIVERSAL tienen que vivir las imágenes tenzorizadas, es decir, cada imagen separada en sus canales de colores primarios 
+y de qué tamaño es cada una de estas matrices, pues, del tamaño de la imagen original y dentro los casilleros tendrán números 
+de 0 a 255, dependiendo de qué tan fuerte sea la tonalidad de ese color. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+REPRESENTACIÓN TENSORIAL DE UN DATASET DE IMAGENES
+--------------------------------------------------
+
+Ahora esto es justamente lo que se le llama la REPRESENTACIÓN TENSORIAL. Esta es la estructura de datos, digamos que va a 
+haber un proyecto que va a ser reconocimiento de imágenes y tenemos 50.000 imágenes, bueno, tendremos que tensorizar cada una 
+de esas imágenes en sus canales de colores primarios dentro de estas matrices y de esa manera tenemos datos estructurados.  
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRUCTURANDO DATOS NO ESTRUCTURADOS [IMÁGENES]
+-----------------------------------------------
+
+Entonces el proceso como definición es simple, ya sabemos que en la zona de LANDING vamos a tener en un directorio las 
+imágenes, qué es lo que va a vivir en UNIVERSAL, haremos un proceso de tensorización para convertir cada imagen en un TENSOR. 
+Cada imagen está tensorizada, representada por sus canales de colores y eso va a vivir dentro de un archivo tensorial dentro de 
+algún directorio en UNIVERSAL y de esa manera ya tenemos los datos estructurados para el caso de las imágenes. Ahora, ¿por qué 
+es necesario tensorizar? Porque, por ejemplo, las redes neuronales y las redes convolucionales que son soluciones analíticas 
+hacen procesamiento tensorial y este va a ser su punto de partida, en la capa de solución ya vivirá la red neuronal o la red 
+convolucional. ¿Cuál es el input de las soluciones? lo que hay en UNIVERSAL y en UNIVERSAL ya tenemos tensorizados los datos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRUCTURANDO DATOS NO ESTRUCTURADOS [VIDEOS]
+---------------------------------------------
+
+Y ¿qué es lo que va a pasar con los vídeos? algo parecido nosotros sabemos que un vídeo es un conjunto de fotogramas, 
+generalmente cada segundo de un vídeo tiene 24 fotogramas. Lo que debemos de hacer es, bueno, en LANDING va a haber un 
+directorio con el vídeo que hemos capturado, tendremos un proceso que separe cada segundo del vídeo en 24 fotogramas, que son 
+imagenes y luego ya sabemos cómo procesar las imágenes. Tensorizamos cada una de las imágenes en el, aquí sí es importante el 
+orden, tiene que estar tensorizado en el orden, porque, es una secuencia, así que esto es lo que se conoce como un ARCHIVO 
+TENSORIAL ORDENADO. Para la PPT anterior el archivo tensorial nos da igual el orden, pero aquí no, en un vídeo la secuencia 
+tiene que respetar la secuencia de los fotogramas. Y este tensor ordenado ya vive en un archivo tensorial dentro de la capa 
+UNIVERSAL. Esta parte de la separación en fotogramas va a vivir en un directorio temporal, que una vez que ya se tensórice y 
+esté todo tensorizado, pues, esto ya se elimina. Así que parte de la arquitectura es tener bien definido eso y esto, por 
+ejemplo, también es muy importante, porque, los fotogramas son muchísimas imágenes y ocupan mucho espacio en disco duro y si 
+no lo borras pues probablemente se te va a llenar rápido los discos duros del Clúster. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRUCTURANDO DATOS NO ESTRUCTURADOS [AUDIOS]
+---------------------------------------------
+
+Ahora y ¿qué pasa con los audios? aquí también hay un patrón de diseño que ya se encarga de hacer el procesamiento. Ya sabemos 
+que los audios aterrizan en directorios dentro de LANDING, es simplemente un archivo no estructurado. Ahora lo que tenemos que 
+hacer es utilizar algún framework de speech to text que nos convierta la información en un archivo de texto plano de la 
+siguiente manera: dentro del audio este framework va a tener que detectar los interlocutores que hay en el audio y qué es lo 
+que habla cada interlocutor en cada momento del audio, por ejemplo, el interlocutor 1 del segundo 5 al segundo 15 dijo: “Hola”. 
+El interlocutor 2 del segundo 17 al segundo 19 le respondió: “Buenos días” y así sucesivamente. Eso es lo que se conoce como un 
+ARCHIVO DE GUIÓN, en donde el audio se transformó a texto, a un guion de texto en donde se sabe qué es lo que dice cada 
+interlocutor en cada ventana de tiempo. Eso se hace con algún framework en específico. Una vez que lo tenemos así, lo guardamos 
+en una tabla que debe de tener una estructura similar a esta: el ID del interlocutor, la hora inicial y final del mensaje y qué 
+es lo que dijo en ese tiempo. Además, estos frameworks en ocasiones agregan más cosas, por ejemplo, una cosa es que alguien 
+hable de manera normal y otra cosa es que alguien hable de manera exaltada y eso nos puede ayudar a encontrar un reconocimiento 
+de movimiento del sentimiento que hubo en el audio. Por ejemplo, acá puede haber un puntaje, algunos frameworks te lo dan, te 
+dicen: “ … la tonalidad de voz está entre el 0 al 10, acá habló con 2 y acá con 2 y aquí se exaltó y llegó hasta 10 … “ eso lo 
+podemos guardar también en un campo. Lo importante es entender cómo es que este framework que utilizamos, porque, hay 
+muchísimos que podríamos utilizar, cree ese guion y tratar de guardar esa información dentro de una tabla estructurada, para 
+luego, ya que alguien consulte esa tabla y empiece a sacar los mensajes en función de las fechas o de lo que necesite. Misma 
+historia, este guion solamente es un aspecto temporal, así que, una vez que ya está guardado en la tabla, se elimina y lo que 
+vive ya es la información ordenada dentro de la tabla en UNIVERSAL. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRUCTURANDO DATOS NO ESTRUCTURADOS [DOCUMENTOS ENRIQUECIDOS]
+--------------------------------------------------------------
+
+Ahora en el caso de los textos enriquecidos como pueden ser los documentos Word, PDF, correos electrónicos o tantas cosas que 
+tienen las empresas, aquí lo que tenemos que hacer es, lo que importa no es en sí que, por ejemplo, el documento tenga un 
+título que está en arial 24, luego un párrafo que esté en times new roman 23, luego el otro párrafo está en comic sans con una 
+tamaño de 40, eso nos da exactamente igual, lo que queremos es la información. Así que el primer paso es extraer la información 
+que tenga el documento y convertirla a texto plano, literalmente a un TXT, en donde solamente saquemos lo que está escrito. Por 
+ejemplo, si esto fuera un correo electrónico solamente nos interesaría lo que fue escrito dentro de ese correo electrónico. Una 
+vez que ya lo tenemos en texto plano, esto lo hace también alguna tecnología, hay muchísimos frameworks, por ejemplo, existe 
+una API llamada POI que es de Java que se encarga de hacer traducciones de documentos a texto plano, solamente nos interesa el 
+texto. Una vez que lo tengamos en texto plano hay que guardarlo en algún motor de indexación, por ejemplo, un caso de negocio 
+que nos podría interesar: digamos que estamos procesando los correos electrónicos y queremos detectar qué mensaje nos envían 
+más nuestros clientes, de qué tipo de problemas nos hablan más. Básicamente, lo que tendríamos que hacer es un contador de 
+palabras para ver cuál es la palabra que más se repite, quizás si la palabra más repetida es: “se me fue el internet”, sabemos 
+que del 100% de los problemas el 90% son relacionados, si somos una empresa de proveedor de internet, 90% es que se les va el 
+internet, el 5% es de que está muy lento el internet y el otro 5% son otros problemas. Básicamente, eso lo podemos saber 
+haciendo un conteo de palabras, ¿cuáles son las palabras más repetidas? es un poquito más complejo en realidad porque las 
+palabras dependen del contexto y bueno solamente lo estoy explicando conceptualmente. Ahora qué herramientas nos permiten 
+contar palabras dentro de los textos de manera eficiente y teniendo esos contextos asociados para poder descubrir cuáles son 
+los temas que más se repiten dentro de esos contextos. Hay herramientas de indexación de textos, que justamente resuelven este 
+tipo de problemas, nos pueden decir cuáles son las palabras o las frases más repetidas dentro de un repositorio textual. Para 
+eso lo que se hace es tomar este archivo de texto plano y guardarlo en un JSON que como mínimo tiene 2 partes: el nombre del 
+archivo y el texto en plano. Esto va a ir a un motor de de indexación de textos, como lo puede ser ELASTICSEARCH y ahí podremos 
+hacerle la consulta. Tenemos acá en elasticsearch un directorio con muchos archivos indexados en JSON, ¿cuál es la frase que 
+más se repite? y ya el motor se encarga de buscar esa frase más repetida y encuentra que es “se me va el internet” y listo ya 
+sabemos que ese es el tema más problemático que tiene la empresa. ¿Cuál es la segunda frase más repetida? tal y tal y te da 
+incluso hasta los porcentajes y ya puedes fácilmente ver qué es lo que más se escribe en los correos electrónicos. Así que 
+esos archivos de texto enriquecido se indexan dentro de unos JSON especiales para poder hacer este tipo de búsquedas y hay 
+herramientas que hacen ese tipo de búsquedas como lo son ELASTICSEARCH. 
+
+-----------------------------------------------------------------------------------------------------------------------------
