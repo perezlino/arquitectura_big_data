@@ -1,0 +1,289 @@
+=================
+VISTA DE GOBIERNO
+=================
+
+Ahora esto que hemos definido, ya nos da estrategias para empezar a capturar datos, pero todavía no estamos gobernando 
+los procesos, porque, lo único que hemos hecho es hacer el CTRL + C y el CTRL + V de los datos. Pero ¿qué pasa con las 
+reglas de calidad? por ejemplo, porque la data va a venir con datos sucios y eso hay que arreglarlo. Digamos, tenemos la 
+tabla ‘Persona’ y tenemos un proceso que implementa las reglas de calidad (reglas de quality), por ejemplo, tienen que 
+tener edades mayores a cero, y como resultante obtendremos una tabla ‘Persona’ donde colocaremos los registros que pasan 
+las reglas de calidad, y aquellos que no cumplan, van a ir una tabla ‘Personas reyectadas’. Si tenemos 100.000 registros 
+en la tabla ‘Persona’ original y en la tabla ‘Persona’ después de haber aplicado la regla de calidad aterrizan 9000 
+registros y en la tabla ‘Personas reyectadas’ aterrizan 1000 registros, tendríamos que la fuente de datos que estamos 
+ingestando cumplen las reglas de calidad en un 90% y hay un 10% que algo raro está pasando, entonces, el equipo de calidad 
+se conectará a la tabla ‘Personas reyectadas’ y empezará a revisar los registros para ver qué es lo que ha pasado. Tenemos 
+que tener entonces una capa en donde se empiece a aplicar todo esto, para poder gobernar los datos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DATA LAKE
+---------
+
+Ahora, ¿cómo se hace esto? esto se hace con un un marco de trabajo conocido como DATA LAKE, el cual como mínimo está compuesto 
+por cuatro capas, cada una de estas capas tiene un objetivo muy específico, voy a dibujarlo desde cero para poder entenderlo. 
+Nosotros hemos dicho que lo primero que tenemos que hacer es tener la estrategia de captura de datos y dijimos que eso se 
+escribe en el sistema de Big data, en el sistema de almacenamiento. Pero específicamente se escribe dentro de una capa conocida 
+como LANDING TMP. Es una capa de aterrizaje, si son archivos estructurados van a vivir en tablas, si son archivos 
+semiestructurados los colocaremos en un directorio, si son archivos no estructurados como imágenes también irán en un 
+directorio. Así es como la estrategia de captura de datos ingesta los datos en una capa llamada LANDING TEMPORAL. Ahora, el 
+objetivo de la capa de LANDING TEMPORAL es capturar la data del día de hoy. Hay una capa llamada LANDING que tiene el objetivo 
+de ir acumulando los datos, por ejemplo, en esta capa tenemos una tabla que va a estar particionada por la fecha en la que 
+estamos ingestando los datos y aquí tendremos el archivo de anteayer, está el archivo de ayer y el archivo de hoy. Luego, al 
+día siguiente se borrará  el archivo que se encuentra en la capa LANDING_TMP y se ingresará este nuevo archivo a esta capa y lo 
+moveremos a la capa LANDING a la tabla en la partición correspondiente y de esa manera vamos a ir acumulando los datos. Eso se 
+hace en la zona de LANDING. 
+
+
+¿Qué es lo que pasa con los datos semiestructurados y no estructurados? 
+-----------------------------------------------------------------------
+
+Vamos a tener un directorio en la capa LANDING, digamos que estamos capturando un archivo JSON, dentro de este directorio habrá 
+un subdirectorio que dirá: “ … esta es la fecha del día de anteayer, luego esta es el archivo de la fecha del día de ayer y el 
+día de hoy creamos un nuevo directorio y guardamos el archivo así y de esa manera vamos capturando los datos … “. Es decir, se 
+crearon dentro del directorio, distintos subdirectorios para cada fecha. Lo mismo con los datos no estructurados, un directorio 
+con subdirectorios y cada subdirectorio va a tener las imágenes, vídeos o lo que se esté capturando ese día. Por eso esta capa 
+se conoce como LANDING TEMPORAL es solamente para escribir los datos desde las fuentes de datos, eso que pusimos en la 
+estrategia de ingesta de los datos, eso escribe aquí, pero luego tenemos que moverlo a las particiones o a los subdirectorios. 
+Adicionalmente a eso, HAY QUE BINARIZAR LOS DATOS. 
+
+
+¿Cuál es el problema con lo que hemos definido hasta el momento? 
+----------------------------------------------------------------
+
+Recordemos que generalmente los archivos de datos que nos dejan las fuentes de datos son archivos de texto plano que están 
+separados por comas o son archivos JSON o son archivos de imágenes. Hay que tratar de binarizar esos datos, por ejemplo, si son 
+datos estructurados eso lo vamos a binarizar en un formato conocido como AVRO, los datos semiestructurados también tienen 
+soporte para AVRO, los datos no estructurados va a depender la binarización, ahí por ejemplo, vamos a tener que tensorizar. Lo 
+importante es que dentro de la capa LANDING ya hay que escoger alguna estrategia de binarización de los datos, porque, los 
+entornos de Big data pueden procesar archivos de texto plano, pero, son demasiado lentos. Existen archivos binarizados que 
+permiten hacer el procesamiento hasta 10 veces más rápido que si estuviéramos procesando en texto plano. Así que al momento de 
+mover el archivo ingestado a la partición de la tabla correspondiente no solamente lo vamos a mover, sino, que también lo vamos 
+a binarizar en algún formato de rápido procesamiento. 
+
+Una vez que esté en la zona de LANDING hay que limpiar esos datos, porque, pueden venir con errores. Eso se hace en una capa 
+conocida como UNIVERSAL. Implementaremos aquí un proceso que se conecte a la data que se está ingestando el día de hoy y le 
+aplique las reglas de calidad y eso como resultante nos entregará una tabla limpia, si estamos ingresando la tabla ‘Persona’ 
+en UNIVERSAL tendremos también la tabla ‘Persona’ pero con registros limpios. 
+
+Lo mismo va a pasar con los datos de semi estructurados y no estructurados, pero, acá hay un nivel de complejidad que vamos a 
+explicar en unos momentos luego de entender un poquito mejor esto. Lo importante es que en UNIVERSAL ya vive la data de manera 
+limpia y lista para ser consultada por las soluciones, eso se hace en la zona de SMART. La zona de SMART se conecta a los datos 
+que ya están limpios y ya hace su proceso de ETL, su proceso de reporting, su red neuronal o lo que quiera hacer. Ahora ¿qué es 
+lo que pasa? antiguamente se hacía lo siguiente: ya sabemos que en UNIVERSAL vamos a tener los datos limpios, ahora podríamos 
+construir un proceso que se conecta a esas tablas de datos ya limpias y las empieza a procesar y por ejemplo aquí salga el 
+reporte o salga el modelo de red neuronal o lo que estemos implementando. Pero ¿qué es lo que pasa? como yo les dije, las 
+reglas de calidad no necesariamente son las mismas para todas las soluciones que vamos a implementar, por ejemplo, a un proceso 
+de negocio si le importa que la edad sea mayor a cero y otro proceso le da exactamente igual, porque, se enfoca en procesar las 
+estaturas de las personas. Así que, aquí en la capa UNIVERSAL van reglas de calidad genéricas, por ejemplo, no pueden haber 
+registros con todos sus valores nulos, eso se tiene que cumplir para cualquier tabla y en la capa SMART la propia solución ya 
+define sus propias reglas de calidad particulares, por ejemplo, en esta solución de la capa SMART la persona debe tener edades 
+mayores a cero. Digamos que otra solución que hace otra cosa con la tabla limpia de la capa UNIVERSAL, la edad le da 
+exactamente igual, puede tener edad mayor a cero, no le interesa, pero las estaturas tienen que ser mayores a cero y tiene que 
+tener registrado un correo electrónico en el campo de correo porque le quiere enviar un correo. Entonces, cada una de las 
+soluciones define sus propias reglas de calidad. El output de una tabla con reglas de calidad particulares (en la capa SMART) 
+va una pequeña base de datos conocida como DATA MESH. El DATA MESH lo que tiene son las resultantes de reglas de calidad 
+particulares a cada solución y ahora sí construimos la solución, quizá quiere hacer un proceso de reportería, quizá quiere 
+hacer un modelo de red neuronal. En esencia, esto es lo que hace un DATA LAKE. Estas 2 capas, las capas LANDING_TMP y LANDING,
+HACEN UN PROCESO DE ETL, CAPTURA DE DATOS Y BINARIZACIÓN. La capa UNIVERSAL HACE UN PROCESO CONOCIDO COMO MODELAMIENTO DE LOS 
+DATOS, le aplica reglas de calidad genéricas y tiene la tabla lista para que las soluciones las utilicen. y esta es la capa de 
+soluciones (SMART), EN DONDE TU YA TE PONES A IMPLEMENTAR TODO LO QUE QUIERAS CODIFICAR, DESDE UNA REPORTERÍA HASTA UN MODELO 
+DE RED NEURONAL. Dentro de esa capa de soluciones, cada solución define su propio DATA MESH, QUE EN ESENCIA SON REGLAS 
+PARTICULARES, QUE CADA SOLUCIÓN NECESITA, QUE NO PUEDE SER REALIZADA EN LA CAPA UNIVERSAL, porque, se contradecirían entre sí. 
+Así que cada solución que defina sus propias reglas de calidad, qué es lo que entiende por una tabla ‘Persona’ que esté lista 
+para ser procesada. Esas resultantes van en una pequeña base de datos llamada DATA MESH, el cual, ya es el punto de partida 
+para poder hacer la solución que tú necesitas. 
+
+Estas capas que hemos definido LANDING_TMP, LANDING, UNIVERSAL y SMART conforman lo que es un DATA LAKE en Big data y ya nos 
+ayuda a tener la estrategia de procesamiento, capturamos guardamos de manera permanente, binarizamos, limpiamos, limpiamos con 
+reglas particulares y hacemos la solución. CUALQUIER PROCESO QUE IMPLEMENTEMOS TIENE QUE SEGUIR ESTE FLUJO, no es que en la 
+zona de soluciones hago todo directamente, está bien distribuido cada parte del procesamiento y de esa manera podemos gobernar 
+los flujos que haya dentro del entorno de Big data. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DATOS ESTRUCTURADOS, SEMI-ESTRUCTURADOS Y NO ESTRUCTURADOS
+----------------------------------------------------------
+
+Sin embargo, hay que ser más detallados, porque, en la vida real cuando los desarrolladores trabajen, te van a entender 
+conceptualmente el flujo que vimos en la diapositiva anterior, pero ¿qué pasa si llega un archivo de vídeo? ¿qué es lo que va 
+a hacer el desarrollador? ¿cómo implementa ese flujo? Entonces, hay que tener bien mapeado todo lo posible que pueda llegar a 
+ser procesado. Ya sabemos que los datos pueden ser estructurados, semi estructurados y no estructurados. Ahora, siendo 
+específicos y llevándola a una realidad concreta, ¿qué puede venir? en datos estructurados podemos estar procesando tablas o 
+archivos, porque, podemos tener un archivo CSV que alguien nos deja separado por comas o podemos tener una tabla en Oracle, 
+esa es data estructurada. En semiestructurada podemos tener archivos JSON y XML. En esencia, en las empresas básicamente eso 
+es lo que entienden por semiestructurado. En un archivo semi estructurado cada registro define su propio juego de campos que 
+incluso pueden tener subcampos y no necesariamente los campos y subcampos de todos los registros tienen que ser iguales, pueden 
+ser diferentes. En esencia, en las empresas nos podemos encontrar con archivos JSON y XML. 
+
+Ahora respecto a los datos no estructurados, estos ya son los más abundantes. Generalmente los datos estructurados y 
+semiestructurados los vamos a tener controlados muy bien desde el principio, porque, en esencia son estos cuatro tipos (Tablas, 
+archivos con delimitadores, JSON y XML). De hecho, en los archivos semi estructurados también existe algo llamado BSON, que son 
+JSON binarizados, pero realmente las herramientas como Spark que vamos a aprender la próxima semana, son agnósticas al tipo de 
+semi estructura, así que nos va a dar igual, pero en el caso de los datos no estructurados el procesamiento de esos datos ya 
+depende de la naturaleza de los datos. Para procesar imágenes tendremos que tener una estrategia, para los videos otra 
+estrategia, para los audios una estrategia completamente diferente, para documentos enriquecidos como words o pdf otra 
+estrategia, así que aquí es donde potencialmente podrían llegar a venir los problemas. Lo importante es que desde el día uno 
+en la definición arquitectónica sepamos cuáles son esos formatos no estructurados, tal vez, no resolvamos ese día como vamos a 
+capturarlos y procesarlos, pero, al menos hay que tener listados qué tipo de formatos vamos a procesar. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ETL PARA DATOS ESTRUCTURADOS
+----------------------------
+
+Entonces a nivel conceptual hay que aterrizarlo a un mayor nivel de detalle para cada tipo de dato que vamos a procesar. Por 
+ejemplo, para el procesamiento de datos estructurados, vamos a poner los ejemplos en este momento solamente con procesos batch, 
+pero, en el real time es exactamente lo mismo, solo que van a cambiar las tecnologías, así que, por ahora simplemente hablemos 
+conceptualmente. En el procesamiento de los datos estructurados para la ingesta, tenemos esta estrategia, habíamos llegado 
+hasta el Gateway, exportamos los datos de la Fuente de datos a un Fileserver, los movemos dentro de un Gateway, que puede ser 
+un directorio compartido de este Fileserver con el Gateway y subimos el archivo de datos. ¿Donde se sube? a la zona de 
+LANDING_TMP. Cualquier cosa que entre al entorno del Data lake, tiene que ir esta zona de LANDING_TMP. Son generalmente 
+archivos de texto plano, porque, los están exportando en CSV con algún separador. ¿Dónde van a vivir esos archivos que vamos 
+a ir importando? van a vivir en tablas, porque, son archivos estructurados, entonces, si es data estructurada hay que mejor 
+ver el archivo como una tabla. Esto tecnológicamente hablando se hace con HIVE. Una vez que hemos ingestado el archivo, ¿por 
+qué se llama LANDING_TMP a esta capa? porque su único objetivo es hacer el CTRL + C, capturar el archivo que el día de hoy nos 
+están dejando. Ahora en la capa LANDING vamos a mover ese archivo a la partición correspondiente, si estamos capturando la 
+tabla ‘Persona’ debe de existir tanto en LANDING_TMP como en LANDING, solo que en LANDING va a estar particionada por fecha y 
+en una partición estará el archivo del día de ayer, en otra partición el de que se dio anteayer y el día de hoy se creó una 
+nueva partición y ahí se escribe el archivo de datos y de esa manera aquí es donde ya viven los datos acumulados. LANDING_TMP 
+solamente es una zona de paso temporal. Adicionalmente a eso al mover el archivo de texto plano y colocarlo en la partición 
+correspondiente del día de hoy, nunca hay que colocarlo en texto plano, porque, ya vamos a empezar a procesar esos datos, el 
+siguiente paso es, una vez que se capture la data, ahora hay que limpiar los datos, las edades tienen que ser mayores a cero. 
+Para hacer procesamiento de datos, los motores de Big data podrían hacerlo en texto plano, pero, esos archivos son 
+extremadamente lentos, existen binaria archivos binarios de rápido procesamiento como AVRO, ORC y PARQUET. Acá los vamos a 
+binarizar en AVO. La binarización lo único que hace es convertir el archivo de texto plano en un archivo binario que si tu lo 
+abres con un editor de texto vas a ver código binario, ya no vas a ver información. Pero si lo abres a nivel de una tabla vas 
+a ver datos, si esto tenía 100 registros, pues, vas a ver también los 100 registros ahí. Como son datos estructurados los vamos 
+a manejar a nivel de tabla, no a nivel de archivo, así que mejor el que el archivo esté binarizado para que pueda procesarse 
+rápido. Adicionalmente a eso, vamos a comprimir también de los datos. La ventaja de hacer una binarización no solamente nos 
+ayuda a aumentar la velocidad en las consultas, sino, que también nos ayuda a ahorrar espacio en disco duro. El formato de 
+compresión estándar que existe el día de hoy en entornos de Big data se llama SNAPPYPY, que permite paralelizar los códigos, a 
+pesar de que la data esté comprimida. SNAPPY es el estándar de facto en compresión para los datos, así que al momento de 
+binarizar también vamos a comprimir. ¿En cuánto puede llegar a comprimir SNAPPY? en el mejor de los casos puede comprimir los 
+datos hasta en un 80% y recuerda que estamos en un entorno de Big data, si estamos en gestando una tabla de datos de 1 TB, al 
+comprimirlo con SNAPPY, ese terabyte que son 1.000 GB de datos, podemos reducirlo a 200 GB de datos y nos estamos ahorrando 
+800 GB, eso es bastante información. Por supuesto que la compresión tiene una penalización, las consultas van a correr un 
+poquito más lentas de que si solo estuvieran en AVRO, pero miren la ganancia y ahorro de disco duro. El estándar en el caso de 
+procesos batch, la data que sea batchera comprímela, pero la data que sea en tiempo real, esa sí no la vamos a comprimir, 
+porque, el proceso se va a hacer más lento si lo comprimimos, entonces, ahí no se comprime. Entonces, en la capa LANDING se 
+binariza, se comprime y ese archivo binarizado y comprimido se guarda en la partición correspondiente. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+FORMATOS SEMI ESTRUCTURADOS
+ETL PARA DATOS SEMI ESTRUCTURADOS
+---------------------------------
+
+Ahora en el caso de los archivos semiestructurados, la estrategia es la misma. ¿Cuál es la diferencia? los archivos 
+probablemente ya no vengan de una base de datos, van a venir de servidores en donde habrá archivos JSON y XML y los tendremos 
+que colocar dentro del LANDING_TMP. Pero ya no van a vivir en tablas, porque, son archivos semi estructurados, no los podemos 
+ver como tablas. Dentro de LANDING_TMP, digamos que estamos ingestando el archivo ‘Persona’, pues, tendremos que crear un 
+directorio ‘Persona’ y dentro colocar ese archivo JSON. Si son archivos semiestructurados, eso se maneja a nivel de directorios, 
+debemos de crear un directorio para cada entidad y dentro guardar el archivo. Ahora para moverlo hacia LANDING, ahí vamos a 
+repetir el mismo proceso, lo vamos a binarizar y comprimir, esos datos semiestructurados sean JSON o XML pueden ser binarizados 
+en AVRO, sólo que ahora la estrategia de particiones se va a manejar el directorio ‘Persona’ y en subdirectorios se irán 
+agregando los archivos según fecha. Estos archivos JSON y XML también estarán binarizados en AVRO, ya que, AVRO soporta 
+formatos estructurados y también semiestructurados y por supuesto, también tendrán que estar comprimidos. Así es como iremos 
+poblando la capa LANDING. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ETL PARA DATOS NO ESTRUCTURADOS
+-------------------------------
+
+Ahora, en el caso de los archivos no estructurados, aquí es un poquito diferente. En esencia, la forma en cómo vamos a mover 
+los archivos de las fuentes de datos es la misma que el semiestructurado, pero, ya no los vamos a binarizar. La fuente de datos 
+tiene archivos de imágenes o videos o audios, da igual el formato de archivo, todo tiene que ir al Gateway. ¿Cómo lo subimos al 
+LANDING_TMP? pues es simplemente un directorio, en donde subiremos los archivos de imágenes de ese día, por ejemplo, digamos 
+que tenemos grabaciones de una cámara de seguridad y se generaron un video por cada hora de esa cámara de seguridad, entonces, 
+tendríamos que subir 24 archivos de vídeo dentro de este directorio y este directorio llevaría el nombre “Grabación de la 
+cámara de seguridad 27”, por darle un nombre. Y luego, lo único que tenemos que hacer es, una vez que los datos se ingresaron 
+al LANDING_TMP, luego solamente los vamos a mover a la capa LANDING a su partición correspondiente, colocaremos las imágenes 
+del día de anteayer, las del día de ayer y las del día de hoy y las del día de mañana. En LANDING ya no vamos a binarizar en 
+algún formato de rápido procesamiento como lo hacíamos anteriormente, acá simplemente lo movemos a una partición y de esa 
+manera vamos ordenando las capturas de los datos. 
+
+Y listo, con eso ya hemos resuelto el primer problema. Ya sabemos para cualquier nivel de estructura cómo vamos a guardar los 
+datos que vamos a capturar dentro del DATA LAKE. Hemos llegado a las capas de LANDING_TMP y LANDING. Así que sea cual sea el 
+dato y el nivel de estructura de ese dato, ya sabemos, cómo va a aterrizar en LANDING, lo que es data estructurada y 
+semiestructurada se va a binarizar en AVRO y se va a comprimir y lo que es datos no estructurados, bueno pues, simplemente va 
+a vivir en las particiones y vamos a ir ordenando lo que estamos ingestando. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+CAPA DE MODELAMIENTO
+--------------------
+
+Ahora, diariamente ya sabemos que en la capa LANDING los datos se van a ir acumulando y es donde va a vivir toda la 
+información. Ahora, ya tenemos la estrategia de captura de datos, vamos a la parte de UNIVERSAL, en donde vamos a hacer el 
+modelamiento de los datos. Aquí hay que tener bastante cuidado. ¿Qué significa modelar los datos? cuando hablamos de datos 
+estructurados, el modelamiento de datos hace referencia a básicamente a 3 cosas: 
+
+● Seleccionar ciertos campos de la tabla ‘Persona’, que, por ejemplo, vive en la zona de LANDING, castear los tipos de datos 
+  correctos. Digamos que la tabla ‘Persona’ tiene el nombre de la persona, su identificación, su salario, su edad, su sexo, su 
+  estatura y muchos otros datos. Ahora, hay un rol conocido en las empresas como modelador de datos que define:  “ … mira 
+  nosotros somos un banco y a nosotros no nos interesan las estaturas de las personas, nos interesa su nombre, su edad, su 
+  salario, su estado civil … “, digamos que estos datos. Entonces el modelamiento de datos implica que de los datos que estamos 
+  ingestando no vamos a requerir todos los campos, eso depende de cada negocio, vamos a seleccionar los que realmente va a 
+  utilizar negocio. 
+
+● Luego hay que CASTEAR a los tipos de datos correctos, porque por ejemplo, puede ser que originalmente en la fuente de datos 
+  que hemos ingestado la edad venga como cadena de caracteres, pero eso tiene que ser un número, hay que darle el tipo de dato 
+  correcto, eso es castear, definir el esquema ya del dato, quiénes son número, quién es un entero, quién es un decimal, quién 
+  es una cadena de caracteres. 
+
+● Una vez que ya los tenemos como tipos de datos correctos, ahí le aplicamos las reglas de calidad y ahí viene lo que les 
+  expliqué, los que cumplan las reglas de calidad se van a una tabla y los que no se van una tabla reyectada. En esencia, a 
+  eso nos referimos con modelar, tener los datos listos y dejarlos en la capa UNIVERSAL para que las soluciones los puedan 
+  consumir y ya procesarlos. Pero no es tan simple. En el caso de los datos estructurados, lo que les ha explicado es la forma 
+  en cómo se trabaja, en el caso de los datos semiestructurados el modelamiento es diferente. DENTRO DE UNIVERSAL LO QUE 
+  DEBEMOS DE TENER SON TABLAS ESTRUCTURADAS. ACÁ POR EJEMPLO VAN A VENIR ARCHIVOS SEMIESTRUCTURADOS, DE ALGUNA MANERA QUE AÚN
+  NO CONOCEMOS ESOS ARCHIVOS SEMIESTRUCTURADOS LOS VAMOS A CONVERTIR EN TABLAS ESTRUCTURADAS. LO MISMO CON LOS ARCHIVOS NO 
+  ESTRUCTURADOS, DE ALGUNA MANERA QUE AÚN NO CONOCEMOS VAMOS A TENER QUE CONVERTIR ESOS ARCHIVOS A FORMATOS ESTRUCTURADOS. De 
+  hecho, en algunos casos va a ser imposible colocarlos en tablas, pero sí lo vamos a manejar a nivel de archivos 
+  estructurados, así que, EL OBJETIVO DE UNIVERSAL ES TENER LA DATA ESTRUCTURADA, LISTA PARA QUE SEA PROCESADA, ESTRUCTURADA Y 
+  CON LAS REGLAS DE CALIDAD. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DEFINICIÓN DEL MODELO DE DATOS [VISTA DE MODELAMIENTO]
+------------------------------------------------------
+
+Ahora ¿eso qué significa? bueno va a depender de lo que estemos procesando, vamos a ver cada uno de los casos con los que te 
+puedes encontrar en la vida real. Por ejemplo, digamos los datos estructurados, vamos a definir para cada tabla, los campos y 
+los tipos de datos que queremos tener. Por ejemplo, de la tabla ‘Persona’ sólo nos interesa estos campos y estos tienen que 
+ser los tipos de datos. De la tabla ‘Empresa’ que estamos capturando de alguna fuente de datos, estos campos y estos tipos de 
+datos y de la tabla ‘Transacción’ nos interesan estos campos y deben ser de esos tipos de datos. Esto que estoy poniendo de 
+una manera muy simple es la vista de modelamiento, es parte de la arquitectura, es definir el modelo de datos. De las tablas 
+¿cuáles son los campos y cuáles son los tipos de datos? esto por supuesto no lo hace el arquitecto, recuerden que el objetivo 
+de nosotros los arquitectos es balancear todas las vistas para que sean coherentes, esto lo hace otro rol, esto lo hace un 
+modelador de datos, el modelador de datos conoce mucho del negocio y él, por ejemplo, si fuera un banco diría: “ … oye el 
+campo ‘salario’ nos va a importar a nosotros, porque, en función de eso podemos hacer recomendaciones de aprobar o desaprobar 
+créditos, pero la ‘estatura’ de la persona, por ejemplo, eso es irrelevante … “. Ahora, digamos que somos una entidad 
+deportiva, entonces, ahí la estatura define ciertas capacidades atléticas, así que, quizá ese campo si le interese a ese 
+negocio. La definición de estas tablas de datos la hace un modelador y él nos tendrá que decir de las tablas cuáles son los 
+campos y los tipos de datos. Adicionalmente a eso, el equipo de modelamiento, que en la vida real esto es un equipo de varias 
+personas, va a depender del tamaño de la empresa, si es una empresa chica puede ser solo una persona, si es una empresa grande 
+puede ser un equipo de hasta 20 modeladores trabajando y definiendo. En esencia, ellos solamente definen cómo van a ser las 
+tablas, cuáles son los campos y cuáles son los tipos de datos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+REGLAS DE CALIDAD [VISTA DE CALIDAD]
+------------------------------------
+
+Paralelamente, se tiene que también definir las reglas de calidad. En la arquitectura eso se le conoce como la VISTA DE 
+CALIDAD. Eso no necesariamente lo hacen los modeladores, eso lo puede hacer el equipo de calidad que es un equipo de personas 
+completamente diferentes, que conocen ya la naturaleza de las tablas, de las fuentes de datos. Por ejemplo, podrían decir lo 
+siguiente: “ … el modelador ¿qué es lo que definió para la  tabla ‘Persona’? estos campos y estos tipos de datos, … “ bien, 
+pero a nivel de procesamiento de datos, ¿qué significa datos limpios en esta tabla? por ejemplo, vamos a definir cuatro reglas 
+de calidad, los identificadores de los registros no pueden ser nulos, el campo sexo solamente puede tomar 3 valores: masculino, 
+femenino y nulo. El salario tiene que ser un número mayor a cero y también el salario tiene que ser menor a 100.000 USD y 
+listo esas son las reglas de calidad que el equipo de calidad definió. Misma historia, esto no lo hace el arquitecto, el 
+arquitecto solamente se encarga de que haya coherencia entre las definiciones. Esto lo hace el equipo de calidad. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+MODELAMIENTO DE DATOS ESTRUCTURADOS
+-----------------------------------
+

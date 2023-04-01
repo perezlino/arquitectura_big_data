@@ -160,9 +160,431 @@ y lo deberemos sacar de la fuente de datos y guardarlo en algún lugar. Ese alg�
 queremos ingestarlo en el sistema de Big data para empezar a hacer procesamiento. Alguien va a tener que desarrollar ese 
 export que deje el archivo en un directorio de algún servidor de la empresa (Fileserver). 
 
- Servidor                          Fileserver
- ________                           ________
-|        |			 __	           |        |    
-|        |  ----->  |__|  ----->   |		|    
-|	     |         Export          |        |    
-|________|                         |________| 
+                                 Servidor                          Fileserver
+                                 ________                           ________
+                                |        |			 __	           |        |    
+                                |        |  ----->  |__|  ----->   |		|    
+                                |	     |         Export          |        |    
+                                |________|                         |________| 
+
+
+El consenso podría decir: todos los días a las 6:00 de la tarde me dejas el archivo con las transacciones que se han realizado 
+ese día en un directorio que se encuentra en el servidor de la empresa (Fileserver). Lo mismo va a pasar con las tablas de base 
+de datos, dentro de algún Fileserver en algún directorio tendrán que dejarnos exportado el archivo, como es una tabla 
+estructurada, nos pueden dejar el archivo exportado con comas o algún separador. Lo importante es que aterrice en un directorio 
+de algún servidor. 
+
+                                 Servidor                          Fileserver
+                                 ________                           ________
+                                |        |			 __	           |        |    
+                                |        |  ----->  |__|  ----->   |		|    
+                                |	     |         Export          |        |    
+                                |________|                         |________| 
+
+
+                              Base de datos                        Fileserver
+                                 ________                           ________
+                                |        |			 __	           |        |    
+                                |        |  ----->  |__|  ----->   |		|    
+                                |	     |         Export          |        |    
+                                |________|                         |________| 
+
+
+Otro punto importante, es que, EN LA MEDIDA DE LO POSIBLE, DESDE EL PUNTO DE VISTA DE INFRAESTRUCTURA, TIENEN QUE SER 
+SERVIDORES DIFERENTES (se refiere a los Fileserver que recibe los datos en ambos casos). Recordemos lo que explicamos el día 
+de ayer, qué es lo que pasa por ejemplo, vamos a ingestar 20.000 tablas de la empresa, entonces, quién sabe desde cuántas 
+bases de datos y desde cuántos servidores vendrán esas 20.000 tablas. Generalmente, para cada base de datos de infraestructura 
+o para cada servidor hay un Fileserver asociado, porque, VA A PASAR QUE ALGUIEN VA A COMETER UN ERROR, VA A LLENAR EL DISCO 
+DURO DEL FILESERVER Y TODOS LOS PROCESOS SE VAN A DETENER SI TODOS USAN UN MISMO SERVIDOR (FILESERVER). Es por eso que es una 
+buena práctica que esté distribuido en diferentes servidores físicos. 
+
+Una vez que ya tenemos el archivo de datos en un servidor (Fileserver) vamos a moverlo al entorno de Big data. NUESTRO PRIMER 
+OBJETIVO ES LLEVARLO A LA CAPA DE ALMACENAMIENTO. Esa capa de almacenamiento puede soportar datos estructurados o datos no 
+estructurados o semiestructurados, ya sabemos, estructurados en tablas y no estructurados y semiestructurados en directorios.
+
+
+La pregunta ahora es y ¿cómo llevamos esos datos al sistema de almacenamiento Big data?
+--------------------------------------------------------------------------------------- 
+
+Hay un servidor especial conocido como Gateway que es la puerta de entrada al clúster de Big data y este servidor dentro tiene 
+instalado servicios especiales, básicamente, son clientes que nos permiten subir datos al entorno de Big data y también este 
+servidor tiene que estar muy bien protegido, porque, todos los procesos tienen que mover este archivo de datos a algún 
+directorio dentro del Gateway. Cuando el archivo de datos está dentro del Gateway, ahora sí recién lo podemos subir al entorno 
+de Big data. Desde los distintos Fileservers tenemos un proceso que simplemente mueve el archivo de datos hacia el Gateway y 
+desde el Gateway tendremos un proceso que hace el “upload”, sube el archivo. Y de esa manera hemos ingestado de forma batchera.
+
+     Servidor                          Fileserver                          Gateway                        Clúster Big data   
+     ________                           ________                          ________                           ________
+    |        |			 __	           |        |           __           |   __   |			  __	        |        |
+    |        |  ----->  |__|  ----->   |		|  ----->  |__|  ----->  |  |__|  |  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          |        |          Mover         |	      |         Upload          |        |
+    |________|                         |________|                        |        |                         |        |
+                                                                         |        |                         |        |   
+                                                                         |        |                         |        |   
+  Base de datos                        Fileserver                        |        |                         |        |   
+     ________                           ________                         |        |                         |        |   
+    |        |			 __	           |        |           __           |   __   |			  __	        |        |
+    |        |  ----->  |__|  ----->   |		|  ----->  |__|  ----->  |  |__|  |  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          |        |          Mover         |	      |         Upload          |        |
+    |________|                         |________|                        |________|                         |________|
+
+
+Los Fileservers podrían también ser Gateway, podríamos instalar los servicios para que este servidor se comporte como un 
+Gateway y nos permita directamente subir los datos al entorno de Big data. El problema es que es muy peligroso que estos 
+Fileserver sean Gateway, porque, le estamos dando acceso al clúster de Big data a cualquier área de la empresa y ¿qué pasa si 
+alguien comete un error y sube algo que no debe de subir? por eso es que esos servicios Gateway que permiten subir datos al 
+entorno de Big data van en un servidor diferente a los Fileservers, de esa manera, nos evitamos ese tipo de problemas y los 
+datos aterrizan en una primera etapa conocida como LANDING. 
+
+Puntos importantes en esta definición, es cierto que el Gateway tiene que ser un servidor diferente, porque, si colapsa el 
+Gateway perdemos el acceso al almacenamiento del sistema de Big data, así que, el Gateway solamente tiene que recibir cosas de 
+otros Fileservers. Pero, ¿qué es lo que hacen algunos? crean un directorio compartido para ahorrarse este movimiento de datos 
+(el paso: “mover”) lo que hacen es crear un directorio compartido como entre el Fileserver y el servidor Gateway. De esta 
+manera, cuando el Fileserver deja el archivo físicamente dentro del servidor que tiene asignado, automáticamente en el Gateway 
+se ve reflejado, porque, es un directorio compartido. Físicamente vive en el Fileserver, pero, desde un punto de vista lógico 
+lo vas a ver ya dentro del Gateway, a pesar de que no está en el Gateway. ¿Qué pasa si alguien comete un error y colapsa el 
+Fileserver? pues simplemente perdemos el montado de ese directorio en el Gateway, pero el resto de montados (como por ejemplo, 
+el Fileserver que almacena los datos de la Base de datos de nuestro diagrama) van a seguir existiendo. Esto es una buena 
+práctica que se utiliza en la vida real, y de esa manera nos ahorramos el paso “mover”. Crear un directorio compartido que 
+físicamente vive en el Fileserver y esté montado virtualmente en el Gateway. Y ahí directamente ya hacemos el “upload”.
+
+
+     Servidor                          Fileserver                          Gateway                        Clúster Big data   
+     ________                           ________                          ________                           ________
+    |        |			 __	           |  _ _ _ |_ _ _ _ _ _ _ _ _ _ _ _ |_ _ _ _ |           __	        |        |
+    |        |  ----->  |__|  ----->   | |  __		                             ||  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          | | |__|                                  ||         Upload          |        |
+    |        |                         | |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _||                         |        |    
+    |________|                         |________|                        |        |                         |        |    
+                                                                         |        |                         |        |   
+                                                                         |        |                         |        |   
+  Base de datos                        Fileserver                        |        |                         |        |   
+     ________                           ________                         |        |                         |        |   
+    |        |			 __	           |        |           __           |   __   |			  __	        |        |
+    |        |  ----->  |__|  ----->   |		|  ----->  |__|  ----->  |  |__|  |  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          |        |          Mover         |	      |         Upload          |        |
+    |________|                         |________|                        |________|                         |________|
+
+
+Otro punto importante es que no necesariamente tenemos que hacer todos estos pasos. Existen herramientas como, por 
+ejemplo: SCOOP, que puede hacer lo siguiente: directamente nos conectamos a una base de datos y HACEMOS EL MOVIMIENTO 
+SIEMPRE Y CUANDO SE TRATEN DE DATOS ESTRUCTURADOS. Decimos quiero ingestar la tabla X y lo vamos a guardar en la tabla 
+del entorno de Big data Y, y se moverá la tabla desde Oracle, o desde MySql, de cualquier gestor clásico y lo escribiremos 
+en una tabla de un entorno de Big data. Eso también se estila hacer mucho, es un movimiento directo que ya nos ahorra todos 
+estos pasos. 
+
+
+     Servidor                          Fileserver                          Gateway                        Clúster Big data   
+     ________                           ________                          ________                           ________
+    |        |			 __	           |  _ _ _ |_ _ _ _ _ _ _ _ _ _ _ _ |_ _ _ _ |           __	        |        |
+    |        |  ----->  |__|  ----->   | |  __		                             ||  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          | | |__|                                  ||         Upload          |        |
+    |        |                         | |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _||                         |        |    
+    |________|                         |________|                        |        |                         |        |    
+                                                                         |        |                         |        |   
+                                                                         |        |                         |        |   
+  Base de datos                        Fileserver                        |        |                         |        |   
+     ________                           ________                         |        |                         |        |   
+    |        |			 __	           |        |           __           |   __   |			  __	        |        |
+    |        |  ----->  |__|  ----->   |		|  ----->  |__|  ----->  |  |__|  |  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          |        |          Mover         |	      |         Upload          |        |
+    |________|                         |________|                        |________|                         |________|
+         |                                                                                                       ˄       
+         |                                                 __                                                    |
+         '----------------------------------------------> |__| --------------------------------------------------' 
+                                                          Scoop
+
+
+O por ejemplo podríamos utilizar una herramienta de ETL como DATA STAGE que haga lo mismo, nos conectamos directamente al 
+servidor, leemos el archivo de datos y lo escribimos en el entorno de Big data. También podríamos hacerlo, nada nos lo impide.
+
+                                                       Data Stage
+                                                           __     
+        .-----------------------------------------------> |__| -------------------------------------------------.
+        |                                                                                                       |
+        |                                                                                                       ˅        
+     Servidor                          Fileserver                          Gateway                        Clúster Big data   
+     ________                           ________                          ________                           ________
+    |        |			 __	           |  _ _ _ |_ _ _ _ _ _ _ _ _ _ _ _ |_ _ _ _ |           __	        |        |
+    |        |  ----->  |__|  ----->   | |  __		                             ||  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          | | |__|                                  ||         Upload          |        |
+    |        |                         | |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _||                         |        |    
+    |________|                         |________|                        |        |                         |        |    
+                                                                         |        |                         |        |   
+                                                                         |        |                         |        |   
+  Base de datos                        Fileserver                        |        |                         |        |   
+     ________                           ________                         |        |                         |        |   
+    |        |			 __	           |        |           __           |   __   |			  __	        |        |
+    |        |  ----->  |__|  ----->   |		|  ----->  |__|  ----->  |  |__|  |  ----->  |__|  ----->   |    	 | 
+    |	     |         Export          |        |          Mover         |	      |         Upload          |        |
+    |________|                         |________|                        |________|                         |________|
+         |                                                                                                       ˄       
+         |                                                 __                                                    |
+         '----------------------------------------------> |__| --------------------------------------------------' 
+                                                          Scoop
+
+
+¿Qué opción es la mejor? 
+------------------------
+
+¿Lo ideal qué sería? conexión directa, por ejemploa podemos usar un Data stage para mover los datos que sean semiestructurados 
+o no estructurados y un Scoop para mover las tablas estructuradas o si queremos podemos hacerlo todo con Data stage, por 
+ejemplo, Data stage también puede mover datos estructurados. En el mundo ideal eso sería lo adecuado, pero, vamos al mundo 
+empresarial, ¿qué es lo que pasa? Generalmente, quien tiene los custodios, que son dueños de estos servidores y estos motores 
+de base de datos, tienen miedo siempre de estas conexiones directas, porque, dicen: “ … oye y qué tal si en tu conexión 
+cometes tú un error y me terminas colapsando mi servidor o mi base de datos … “ eso es peligrosísimo, así que el custodio se 
+niega y te dice: “ … no puedes conectarte … “ y obviamente, el custodio ya lo define, quizá dependiendo del poder que tengamos 
+dentro de la empresa podamos cambiar eso o no, para algunas fuentes de datos sí y vamos a poder hacerlo así, pero, aquellas en 
+que se tenga ese temor vamos a tener que irnos por la opción dónde el custodio tendrá que exportarlo en un Fileserver y 
+tendremos que subir el archivo de datos basándonos en este patrón de diseño. 
+
+Otro punto es que aquellos servidores que sean críticos tampoco necesitan esta conexión directa, porque, es peligroso. Si te 
+colapsas un servidor crítico que la empresa necesita, pues, eso es peligrosísimo, así que, también tendrían que ir por el 
+camino más largo. 
+
+En esencia, entonces, ya tenemos otra definición conceptual, ya tenemos la estrategia para hacer la ingesta de fuentes 
+batcheras. 
+
+
+Y ahora ¿por qué camino va a ir cada fuente? 
+--------------------------------------------
+
+En la vida real dentro de una empresa van a haber muchos servidores y muchas bases de datos, cada una con custodios diferentes, 
+la base de datos de cobranza, la de marketing, la de clientes, estoy poniendo nombres genéricos para que todos lo podamos 
+entender y algunos, pues, podrás ir por el camino que sea entendido como el más eficiente, eso se determinará al momento de 
+analizar la estrategia. Y de esa manera ya tenemos una definición de la ingesta batchera. El día en que empecemos a ingestar 
+datos ya tenemos los cuatro caminos posibles para poder empezar a implementar y ya no nos vamos a poner creativos en ese 
+momento a pensar cómo hacer la ingesta batchera. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ESTRATEGIA DE INGESTA DE FUENTES REAL TIME
+------------------------------------------
+
+Ahora vamos a definir la estrategia para ingestar datos, pero esta vez en tiempo real. Esto puede parecer un poco más complejo 
+al principio, pero, tiene una justificación técnica. Vamos a dibujarlo también desde el comienzo para poder entender cada uno 
+de los componentes. En el caso de la estrategia de fuentes en tiempo real vamos a tener básicamente 2 tipos de fuentes: 
+
+● Servidores que tienen un API que envían los datos en real time. Por ejemplo, un caso genérico que cualquiera de nosotros 
+  puede entender, Facebook. Facebook tiene su API oficial llamada OPEN GRAPH a la cual nosotros nos podemos conectar e ingestar 
+  los comentarios en las páginas que se nos haya autorizado, que se vayan generando en tiempo real, así que, no nos conectamos 
+  directamente a la información que hay en los server, sino, al API que entrega esa información.
+
+● También podemos conectarnos a un servidor que tenga un BUS DE DATOS, por ejemplo, esto abunda mucho en las empresas. Digamos 
+  que estamos ingestando los datos de transacciones que se realizan con tarjetas de crédito en visa. En los servidores de visa 
+  pues tendrán su tabla con las transacciones, pero, también tienen un bus de datos que lo que hace es que cuando una persona 
+  realiza una transacción, por ejemplo, en un POS, esa transacción se guarda en la tabla de transacciones que vivirá en los 
+  servidores de visa y a la vez se guarda en un bus de datos, para que alguien en tiempo real, cuando se guarde en este bus de 
+  datos esa transacción, se dispara un evento y si alguien está consumiendo esos datos los va a poder procesar. Para eso sirven 
+  los buses de datos, para poder guardar transacciones, se dispara un evento, un trigger y un sistema recibe ese evento, se ha 
+  guardado una transacción y jala esa transacción y empieza a hacer algo en tiempo real con esa transacción, a eso se le llama 
+  un BUS DE DATOS EMPRESARIAL. 
+
+Entonces, en esencia, tenemos las 2 fuentes. Cualquier cosa que sea tiempo real va a caer clasificada o bien en un API de real 
+time o bien en un bus de datos empresarial. Ahora, nuestro objetivo es ingestar los datos y llevarlos a nuestro entorno de Big 
+data, específicamente a la capa de baja latencia en esta ocasión. ¿Cómo hacemos ese CTRL + C y CTRL + V? es un poquito más 
+complejo, en primer lugar hay que entender que este sistema de almacenamiento de Big data está conformado desde un punto de 
+vista de infraestructura por un Clúster de servidores, quizá sean 10 servidores, 20 servidores, 100 servidores, eso ya lo vamos 
+a dejar para la clase de Sizing de infraestructura. Pero, al final es un conjunto de servidores. 
+
+
+¿Cuál es el problema con el tiempo real? 
+----------------------------------------
+
+Por ejemplo, digamos que estamos ingestando los comentarios de Facebook, no es que se genere un comentario por segundo en 
+Facebook, sino, que se van a generar hasta miles y miles de comentarios por segundo, incluso podemos llegar a los cientos de 
+miles o digamos que estamos capturando lo que hace Waze, cuando, por ejemplo, uno con Waze puede navegar y evitar el tráfico 
+en una ciudad. ¿Waze cómo calcula el tráfico? Pues, constantemente los celulares de los que están conduciendo los autos 
+envían su posición su geolocalización, su XY, cada segundo lo están enviando, ahora imagínense cuántos registros vienen por 
+segundos mientras todas las personas usan Waze de manera concurrente. A esto es lo que se le conoce como STORM DATA o traducido 
+al español TORMENTA DE DATOS. Esto es peligrosísimo, porque, sobre nuestra infraestructura de Big data pueden llover tantas 
+peticiones que puede llegar a colapsar el Clúster de Big data y todos los procesos dejan de funcionar. Recordemos que en esta 
+infraestructura de Big data van a vivir procesos Batch, Real time y van a haber muchísimos procesos. Si colapsa el Clúster, 
+pues, todos los procesos se detienen. El Storm data puede llegar a colapsar. Así que, no podemos escribir esos registros que se 
+generan en tiempo real, ese Storm data no puede ser enviado directamente al Clúster. ¿Qué es lo que se hace? tendremos que 
+levantar una infraestructura de servidores, un Cluster exclusivamente dedicado a capturar esa tormenta de datos. Por ejemplo, 
+digamos que vamos a tener 10 de estos servidores. Para capturar la tormenta de datos, los datos no se guardan en disco duro, se 
+guardan en memoria RAM, porque la memoria RAM es 100 veces más rápida y llueve tantos datos que si esos datos se guardarán en 
+disco duro, pues, la captura sería lentísima. 
+
+Así que, tiene que ser un Clúster de servidores que tenga almacenamiento en memoria RAM. Por ejemplo, la próxima sesión vamos 
+a entender que eso se puede hacer con KAFKA, con EVENT HUB, con KINESIS si estamos en AWS, con PUB SUB si estamos en GCP, y 
+así sucesivamente. Eso es una infraestructura diferente a la infraestructura de almacenamiento en donde ya vivirá la data 
+capturada. ¿Qué es lo que vamos a hacer dentro de esta otra infraestructura de Clúster especial? capturar esa tormenta de 
+datos. ¿Cómo se va a capturar? vamos a tener que construir unos módulos especiales de captura de datos que como mínimo van a 
+tener 3 componentes: 
+
+El primero de ellos se llama el SOURCE CLIENT. Es el encargado de conectarse a la fuente de datos y hacer el CTRL + C. Por 
+ejemplo, si son comentarios de Facebook tendríamos que desarrollar el SOURCE CLIENT (el cliente de fuente) con OPEN GRAPH, que 
+es el API oficial de Facebook y acá tendríamos que empezar a codificar cómo conectarnos a Facebook y extraer los datos. 
+
+Una vez que hemos extraído los datos y lo siguiente es binarizar la información. Cuando estamos procesando en tiempo real 
+siempre hay que binarizar la información, porque, la información binarizada se almacena mucho más rápido en disco duro cuando 
+ya lo enviemos al Clúster de Big data. Así que vamos a tener un segundo componente que todos esos registros que estén lloviendo 
+en tiempo real los va a binarizar. Esto tiene la justificación de que cualquier cadena binarizada sobre un sistema de base de 
+datos de baja latencia se escribe mucho más rápido. ¿Cuál es la ganancia? pues la ganancia está en milisegundos, en un Batch 
+eso no tiene sentido, pero, en un real time sí, porque, por ejemplo, si son 100.000 transacciones ganas un milisegundo en cada 
+una de esas 100.000 transacciones, has ganado cerca de 100 segundos. Eso quiere decir que te has ahorrado 1 minuto en tu tiempo 
+real y eso sí afecta en un tiempo real, porque, el tiempo real se espera que sea en segundos, así que ahí te has ahorrado un 
+potencial minuto, por eso se binarizan estos registros. Construiremos entonces el componente que binarize la tormenta de datos. 
+
+Y ahora vamos a escribir esos datos, pero, no los vamos a escribir directamente al disco duro, porque, lo terminaríamos 
+colapsando. Vamos a escribirlo en la memoria RAM de este Clúster especial. A eso se le conoce como un TÓPICO o una cola, se 
+representa como un cilindro acostado. El componente que envía los datos binarizados al tópico es conocido como el PRODUCER y 
+todos los registros en tiempo real que iremos capturando se van a ir escribiendo en el TÓPICO. Ahora, y ¿qué pasa si estamos 
+frente a un bus de datos empresarial? la lógica es la misma, un SOURCE CLIENT que se conecte a este BUS DE DATOS EMPRESARIAL, 
+eso va a depender de cuál es la tecnología. Así como, por ejemplo, si esto fuera Facebook tendríamos que usar el API de 
+Facebook, si fuera Instagram tendríamos que usar el API de Instagram, entonces, el SOURCE CLIENT depende ya a que fuente te 
+estás conectando. Igual con el BUS DE DATOS EMPRESARIAL, si es un bus de IBM, pues, IBM tienen su propia tecnología de Source 
+Client, si es un bus de Microsoft, pues, tendremos que usar el API de Microsoft y así sucesivamente. Luego, los demás pasos 
+son los mismos, se binarizan esos registros y el PRODUCER escribe esa tormenta de datos en un TÓPICO que vive en memoria RAM 
+sobre este Clúster especial. Eso significa que para cada fuente de datos en tiempo real tendríamos que tener una de estas 
+estructuras, por ejemplo, si estamos ingestando Facebook, Instagram y YouTube, pues entonces, tendríamos que tener estas 
+3 estructuras conectándonos a Facebook y Instagram y YouTube. Si estamos conectándonos a servidores de visa, a los servidores 
+de mastercard, cada conexión tiene que tener uno de estos y al final todo se almacena en un tópico, el tópico vive en la 
+memoria RAM y puede soportar esa tormenta de datos. Una vez que hemos capturado los datos en la memoria RAM, ahora sí los 
+podemos escribir en disco duro, aquí es donde tenemos que definir cada cuánto tiempo queremos enviar a escribir a disco duro. 
+Por ejemplo, podríamos definir que cada 5 segundos toda la tormenta de datos que se capture en el tópico se envie en un pequeño 
+archivo (MICRO-BATCH) y se escribe en disco duro. De esa manera, si en 1 segundo vienen sin 100.000 transacciones, en 5 
+segundos vendrán 500.000 transacciones y esto probablemente genera un archivo de entre megabytes y un par de gigabytes y eso 
+ya va directamente al sistema de archivos en el entorno de Big data y es escribir un archivo, ya no es escribir muchas 
+transacciones de manera concurrente. Así que ahí estamos ordenando el cuello de botella que se podría generar en el disco duro. 
+El disco duro va a seguir recibiendo solo un archivo cada 5 segundos o por ejemplo también podríamos definir que el real time 
+para este otro proceso es cada minuto. Esa definición la tiene que hacer negocio. Negocio tiene que decir qué entiende por 
+real time, puede ser que sea 1 segundo, como que puede ser que sea 1 minuto, eso no lo definimos nosotros. ¿Para qué nos va a 
+servir esa definición? para cada cierto tiempo mandar escribir lo que se acumule de la tormenta de datos en los tópicos, dentro 
+del sistema de almacenamiento de Big data que tengamos.
+
+¿Cuál es el componente que se encarga de extraer cada cierto tiempo y escribir ya en el entorno de Big data? a ese componente 
+se le conoce como el CONSUMER. El CONSUMER es quien consume los datos del tópico que hayan llovido en ese tiempo y los escribe 
+en forma de un archivo dentro del entorno de Big data. Y de esa manera evitamos posibles colapsos. ¿Por qué es necesario todos 
+estos detalles? también quiero que noten cómo es que estamos haciendo definiciones de infraestructura y definiciones 
+conceptuales a la vez. Además,  debemos tener 2 infraestructuras diferentes: una para captura de tormenta de datos y la otra 
+es la que es el almacenamiento. También quiero que veas que a partir de este punto ya tenemos los procesos de real time 
+controlados, eso quiere decir que me da igual si estoy ingestando datos de Facebook o de visa, el estándar es el mismo y hay 
+una justificación técnica para eso. Hay otros puntos adicionales que también vamos a tener que mencionar, pero ya en la parte 
+de implementación lo vamos a tener, por ejemplo, hay un tiempo de vida asociado a los registros en el tópico, pero, primero te 
+damos todo esto conceptualmente. Ya en la parte tecnológica lo veremos a detalle. Entonces con eso ya tenemos la estrategia 
+para ingestar los datos en real time. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+EXTRATEGIA DE EXPLOTACIÓN E INTEGRACIÓN
+---------------------------------------
+
+Ahora que sigue, una vez que hayamos capturado los datos, lo siguiente va a ser procesarlos. Vamos a entender la estrategia de 
+explotación e integración. Hasta este punto lo único que hemos hecho es el CTRL + C y CTRL + V de la data que vamos a procesar. 
+Dentro de nuestro entorno de Big data en este momento lo que tenemos es pues el motor de almacenamiento que estemos usando, ya 
+tiene los datos estructurados o los datos semiestructurados o no estructurados en directorios, ya lo hemos capturado, sea cual 
+sea la data que esté viniendo en cualquier entorno, ya está dentro del Clúster de Big data, ahora vamos a procesarlos. De 
+alguna manera que aún no hemos definido podríamos hacer las soluciones de ETL o de reportería o de programación o de machine 
+learning y deep learning o cualquier otra cosa que la empresa haga ya clásicamente. Esta sería una capa de soluciones, esta 
+capa de soluciones las vamos a trabajar en la siguiente semana. Lo importante es que al final esa capa de soluciones es un 
+proceso que hace algo y tiene una resultante. Generalmente, las resultantes de un proceso de ETL, de reportería o un proceso 
+que programes con algún lenguaje de programación, tiene una resultante en forma de tabla o de archivo, sale un output, algo que 
+quieres almacenar, entonces, tendremos que tener algún sistema de almacenamiento para guardar esos outputs, esas resultantes 
+del procesamiento. Por otro lado para aquellos procesos que sean analíticos como de machine learning o deep learning, el output 
+de ellos es un modelo analítico, entonces, de alguna manera tendremos que tener un sistema de almacenamiento de modelos 
+analíticos, así que en esencia las soluciones o devuelven datos o devuelven modelos y eso hay que guardarlo en algún lugar, 
+ahora simplemente le llamaremos una CAPA OUTPUT DE LAS SOLUCIONES. Ahora estos outputs son algo que negocio nos ha pedido, 
+digamos que quieren un proceso de reportería para pintarlo en Power BI y tener un gráfico bonito, ¿qué podríamos hacer? ya 
+tenemos la tabla resultante final, así que por acá está el servidor de Power BI donde se ha instalado el Power BI y donde los 
+usuarios de negocios se conectan para ver sus Dashboards y empezar a trabajar con sus datos. Podríamos hacer que el servidor de 
+Power BI se conecte directamente a la tabla resultante final, eso sería lo ideal, pero hay problemas, porque, ¿qué es lo que 
+pasa? generalmente los servicios de Big data que van a hacer el procesamiento y el almacenamiento de las resultantes están 
+KERBERIZADOS. Y esto ¿qué significa? como dijimos no para evitar que alguien intercepte esos datos que estamos procesando, se 
+que “Kerberizan” y de esa manera si alguien trata de leer lo que estamos procesando solamente va a haber código basura y no va 
+a poder entender a menos que tenga las llaves de desencriptación. Pero, ¿cuál es el problema con Kerberizar? que por ejemplo, 
+si alguien lanza desde Power BI una consulta para pintar un gráfico bonito, en primer lugar va a agregar latencia, porque tiene 
+que ENCRIPTAR y DESENCRIPTAR esa conexión y en segundo lugar no todas las herramientas tienen conexiones a entornos 
+kerberizados, a veces si las tienen, a veces no las tiene y a veces sí sí las tienen son muy difíciles de implementar y te 
+pueden tardar varias semanas incluso de poder hacer una conexión, un entorno que kerberizado. Entonces, ¿qué es lo que se 
+prefiere con estas resultantes finales? construiremos un proceso que exporta esa resultante final y lo moveremos al servidor 
+que lo va a utilizar, por ejemplo, si lo va a utilizar Power BI, pues, lo escribiremos aquí dentro del Power BI y en el disco 
+duro de Power BI ya existirán esos datos y el Power BI solamente se conectará localmente a esos datos y ya no tendrá que hacer 
+este viaje de ida y vuelta a la infraestructura de Big data. Básicamente es exportar las resultantes finales y que vivan dentro 
+ya del servidor que las va a utilizar y ahí ya nos ahorramos esta latencia que puede ser muy lentas y sobre todo si está 
+kerberizada o difícil de implementar. Así que resultados finales los sacamos del Clúster de Big data y que vayan al server que 
+las quiere utilizar. Ahora, nuevamente, lo ideal sería una conexión directa pero no necesariamente vas a poder hacer eso en 
+ocasiones esas conexiones directas son muy difíciles de implementar por eso en muchas arquitecturas se prefiere exportar las 
+resultantes finales. 
+
+Ahora, ¿qué pasa con los modelos analíticos? vamos a poner un caso muy simple, digamos que tenemos una página web de un banco
+en donde el encargado del banco ingresa el número de documento de identidad de la persona, le da Enter, va al modelo y en 
+función de ese identificador el modelo te dice: “ … dale el crédito o no le des el crédito … “. Lo ideal sería lo mismo, que 
+el servidor en donde está instalado el sistema de verificación se conecta el entorno de Big data y lance el query y que el 
+modelo le responda, pero, nuevamente eso puede llegar a ser muy lento o hacer las conexiones, pues, son muy complejas, en 
+algunos casos dependiendo de las tecnologías que usemos para implementar el modelo, la capa de almacenamiento y el servidor 
+que quiere usarlo, pues, equilibrar esas 3 tecnologías que estén coordinadas y que funcione todo bien, es muy difícil. Así que 
+se repite lo mismo, tendremos que sacar el modelo analítico resultante fuera del entorno de Big data, pero ¿dónde lo vamos a 
+colocar? generalmente los modelos analíticos se colocan en MICROSERVICIOS. Acá tenemos una infraestructura basada en 
+microservicios (en el diagrama), y por otro lado está el servidor de la página web que consulta y lanza las consultas. ¿Por 
+qué se coloca en microservicios? para tener una CAPA ELÁSTICA ANALÍTICA. ¿A qué me refiero con esto? supongamos que una 
+instancia del modelo puede resolver 100 consultas de manera concurrente y sabemos que generalmente el banco tiene me 300 
+consultas concurrentes, bueno, eso significa que tendremos que tener este modelo en 3 microservicios (en el diagrama cada “M” 
+es un microservicio), de esa manera cuando uno de los microservicios se llene con esas 100 transacciones concurrentes, podemos 
+ir apuntando a los demás microservicios. Y ¿qué pasa si por ejemplo el día de hoy es Navidad y ya no son 300 transacciones 
+ahora son 500, porque, es una fecha especial? como está basado en microservicios, los microservicios son elásticos, es decir, 
+pueden decir: “ … ah ya se saturó este tercer microservicio, bueno, entonces se le va a levantar uno adicional y si ese 
+también se satura, también se levanta uno adicional y digamos que al día siguiente regresamos nuevamente a las 300 consultas, 
+entonces, automáticamente estos 2 microservicios adicionales se eliminan y nos volvemos a quedar solamente con 3 microservicios. 
+GENERALMENTE ESTA CAPA DE MICROSERVICIOS ELÁSTICA SE RECOMIENDA QUE ESTÉ EN NUBE, porque, la nube nos da esa capacidad de crear 
+instancias y disminuir instancias de manera automática. Así que esta es la recomendación para poder sacar esos modelos 
+analíticos que construyamos dentro del entorno de Big data. 
+
+De esta manera, ¿qué es lo que tenemos? la estrategia de explotación e integración, una vez que aquí hemos capturado los datos 
+con nuestra estrategia de ingesta, haremos soluciones que aún no conocemos cómo se implementan, pero sí sabemos que van a tener 
+2 tipos de outputs diferentes, los deberemos de sacar al servidor que va a utilizarlo y en los modelos analíticos a 
+microservicios y listo, ya tenemos una manera eficiente de poder hacer consultas a estas resultantes finales y no hay necesidad 
+de ir resolviendo temas complejos de conexiones. Nuevamente, lo ideal es conectarnos directamente a las resultantes finales, 
+pero, en algunas ocasiones eso no va a ser posible y nos tendremos que ir por el camino de sacarlo a un servidor externo. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ARQUITECTURA DE INGESTA Y EXPLOTACIÓN
+-------------------------------------
+
+Si se dan cuenta con esto ya tenemos una primera lámina para definir cómo van a entrar los datos en el entorno de Big data y 
+cómo van a salir esos datos de ese entorno de Big data. Si estamos frente a procesos Batch sean estructurados, no estructurados 
+o semi estructurados, esta es la arquitectura (indicada en la arquitectura superior de la lámina). Si estamos frente a procesos 
+de tiempo real, esta es la arquitectura (indicada en la arquitectura inferior de la lámina). Al final ahí lo que estamos 
+haciendo es ingestar los datos en el entorno de Big data. Ya en próximas sesiones definiremos las arquitecturas de las 
+soluciones, qué es lo que ya específicamente hace cada una de estas cajitas a nivel arquitectónico. Lo importante es que al 
+final hay un output, ¿cómo vamos a sacar esos outputs para que negocio los pueda utilizar? pues lo sacamos a un Fileserver o a 
+microservicios dependiendo de cómo queremos utilizar esos datos. Así que ya tenemos resuelto una parte muy importante de la 
+arquitectura, como entra y como sale la data, independientemente de la velocidad de los datos o el nivel de estructura de los 
+datos.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+LISTAR FUENTES DE DATOS POR INGESTAR
+------------------------------------
+
+¿Qué seguiría ahora? lo primero que tenemos que hacer es empezar a ingestar los datos, así que, vamos a tener que hacer lo 
+siguiente: tenemos que listar cuáles son todas las fuentes estructuradas y todas las fuentes semi estructuradas y no 
+estructuradas que queremos ingestar. Por ejemplo, de la base de datos de compras queremos ingestar estas cuatro tablas 
+(Persona, Empresa, Transacción y Producto) con esta periodicidad (Diaria, Diaria, Diaria y Semanal). Eso implica que, por 
+ejemplo, vamos a tener de esta base de datos “Compras” vamos a ir exportando cuatro cosas: vamos a tener un proceso “export” 
+para la tabla Persona, Empresa, Transacción y Productos, ¿dónde se va a escribir? en un Fileserver asociado a esta base de 
+datos “Compras” y van a vivir en algún directorio y luego tendremos los procesos que lo coloquen en el Gateway, si es por 
+carpeta compartida nos ahorramos ese movimiento y ¿cada cuánto se va a ejecutar este proceso? pues hay que definir esa 
+periodicidad, eso va a depender ya de la naturaleza de los datos y luego ya hacemos la subida al entorno de Big data. Vean que 
+como ya tenemos una arquitectura bien definida, ya la estrategia es fácil de aplicar, lo mismo tendríamos que hacer con la base 
+de datos “Tarjetas”. Ahora, para el caso de los datos semi estructurados y no estructurados, en este caso, generalmente ya no 
+hablamos de base de datos, la fuente de datos es un servidor y los archivos pueden ser, por ejemplo, JSON, XML, que son 
+archivos semi estructurados o incluso podemos tener archivos estructurados también en servidores. En cierta ruta de este 
+servidor (192.168.1.107) está el archivo semi estructurado JSON que diariamente vamos a tener que ingestar, entonces, tendremos 
+que definir cuál es el server, dónde está la ruta del archivo que queremos ingestar, qué tipo de archivo es y la periodicidad. 
+Por ejemplo, podríamos tener fotografías o archivos de vídeos o archivos de audio y cada uno de ellos pues hay que identificar 
+bien el tipo de formato del archivo, porque, dependiendo del tipo de formato del archivo en la capa de modelamiento que vamos 
+a ver ahora, vamos a tener que aplicar ciertos patrones de diseños, una cosa, por ejemplo, es ingestar archivos JSON, XML, otra 
+de archivos de imágenes, otra de videos y otra de audios, entonces hay que tener bien identificado el tipo de archivo que vamos 
+a ingestar. Y ¿qué pasa si esto es en real time? pues, no usamos esta estrategia, nos vamos a la otra estrategia que ya tenemos 
+definida. Vean cómo cuando uno tiene bien definido en arquitectura, ya la estrategia de implementación sale a la primera, 
+independientemente de lo que estemos ingestando. Y bueno, pues, ahí ya empezaríamos a programar. En la vida real esto se toma 
+muchísimo tiempo, porque, hay que llegar a consensos y hay que saber dónde están los datos, acá lo estoy poniendo bonito, pero, 
+ya sabes que en la vida real es: “ … a ver ¿qué queremos ingestar?, datos de compras, y ¿cuáles son las bases de datos de 
+compras? … “ pues ahí vamos a tener que hablar con mucha gente de negocio y tenemos que ver cuáles son las tablas y las 
+periodicidades y bueno pues en la vida real va a tomar muchísimo tiempo. Una vez identificado vamos a ir ingestando por partes, 
+de lo que ya vamos identificando, pues, si ya tenemos identificado la base de datos “Compras” vamos ingestando esto mientras 
+vamos identificando las otras fuentes de datos. A eso se llama una CARGA POR PARTES. 
