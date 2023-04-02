@@ -167,6 +167,41 @@ finalice, al sistema operativo UBUNTU tenemos que indicarle dónde está instala
 creamos una sesión de conexión a SPARK. En esencia, esto es lo que hace este código, porque, lamentablemente Google Collab no 
 tiene SPARK instalado, así que, hay que instalarlo.
 
+Ahora ¿qué es lo que vamos a hacer? vamos a ingestar primero, el patrón de diseño “ingesta” que deja los datos, primero en 
+LADING_TMP y luego en LANDING. Ingestaremos los archivos “cliente.txt” y “empresa.txt”. Son archivos estructurados. Ahora ¿qué 
+es lo que va a pasar en la Big data real? hay que organizar bien la estrategia de captura de datos. ¿A qué me refiero con esto? 
+digamos que tenemos aquí la fuente de datos, es un servidor empresarial que se llama “Server Clientes y Empresas”. Dentro hay 
+unos archivos binarios en donde están los datos de los clientes y los datos de las empresas, los clientes que hacen 
+transacciones bancarias y las empresas en dónde se realizaron esas transacciones con las tarjetas de crédito. Ahora hay que 
+sacar esos archivos en texto plano, ese va a ser nuestro punto de partida. Ahora ¿cómo se sacan a texto plano? Ya dependiendo 
+de la tecnología que tenga la fuente de datos, si es una BBDD Oracle será de una manera o si es Cobol será de otra manera, pero 
+al final los tenemos como archivos de texto plano. ¿Cómo se encuadra esto dentro del DATA LAKE? para cada fuente de datos, 
+primero entrarán en LANDING_TMP. Recapitulemos lo que tenemos hasta ahora para nuestro ejemplo, tenemos una Fuente de datos 1, 
+la cual tiene 2 archivos de datos: “clientes” que hacen transacciones de tarjetas de crédito y uno de “empresas” donde se hacen 
+esas transacciones. Ahora podríamos tener otra fuente de datos 2 (otro server), que son las transacciones bancarias, es decir, 
+donde tal cliente y hizo una transacción en tal empresa, el propio archivo de las transacciones de los clientes dentro de las 
+empresas. 
+
+Dentro de LANDING_TMP para cada fuente de datos se tiene que crear un subdirectorio, es decir, un SUBDIRECTORIO PARA LA FUENTE 
+DE DATOS 1 y un SUBDIRECTORIO PARA LA FUENTE DE DATOS 2. De la fuente de datos 1 nos interesa ingestar dos archivos, entonces, 
+habrá DOS SUBDIRECTORIOS DENTRO DEL SUBDIRECTORIO DE LA FUENTE DE DATOS 1: el archivo de “cliente” y el de “empresa”. Y dentro 
+de esos subdirectorios ya estarán los archivos de datos que vamos a ingestar. Similar para la fuente de datos 2, solamente nos 
+interesa un archivo de datos, entonces, dentro del directorio de la fuente de datos 2 crearemos el directorio de ‘transacciones 
+bancarias’ y dentro vivirá el archivo de datos. 
+
+Lo mismo para la zona LANDING, tendrá los mismos directorios y subdirectorios que la capa LANDING_TMP. Luego, moveremos los 
+datos de LANDING_TMP hacia LANDING. Enfoquémonos en los datos de “cliente”. Dentro de LANDING, en el subdirectorio de “cliente” 
+los datos van a estar particionados. Digamos que en LANDING_TMP tenemos los datos de los clientes que ingresaron en la fecha 
+19/04/2018. ¿Eso que significa? en la capa LANDING dentro del subdirectorio “cliente” crearemos un subdirectorio con esa fecha, 
+son los archivos del 19/04/2018 y dentro se moverá el archivo de datos. Eso significa particionar, hay que tener ordenados los 
+datos dentro del DATA LAKE. Al día siguiente, cuando venga el archivo del 20/04/2018, se borrará el archivo del 19/04/2018, se 
+dejará el nuevo archivo del 20/04/2018, se creará un subdirectorio dentro de del directorio “clientes” en LANDING y se moverá 
+ahí el nuevo archivo y de esa manera iremos acumulando. Además de ir ordenándolos en subdirectorios, que son las particiones, 
+también hay que binarizarlo. Recordemos que estamos en un entorno de Big data, los entornos de Big data pueden procesar 
+archivos de texto plano, pero, son archivos de procesamiento muy lentos, hay binarizados que tienen un rápido procesamiento, 
+por ejemplo, AVRO o PARQUET. El día de hoy para no complicarnos, todo lo vamos a binarizar en PARQUET. Vamos a ver cómo todo 
+esto se traduce en código para poder entenderlo mejor. 
+
 -----------------------------------------------------------------------------------------------------------------------------
 
 Laboratorio 003 [Arquetipo de ingesta SEMI-ESTRUCTURADA] (Utilizando Python)
@@ -174,5 +209,38 @@ Laboratorio 003 [Arquetipo de ingesta SEMI-ESTRUCTURADA] (Utilizando Python)
 
 
 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 004 [Arquetipo de ingesta NO-ESTRUCTURADA] (Utilizando Python)
+----------------------------------------------------------------------------
+
+En este caso es mucho más simple, aquí no se puede binarizar, porque, ya por defecto viene el archivo binarizado. El problema 
+va a ser el momento de modelarlo, eso lo vamos a resolver el día de mañana, pero el día de hoy nos estamos enfocando en los 
+patrones de diseño de arquetipos de código de ingesta. ¿Qué es lo que vamos a hacer? hablemos de imágenes, pero esto lo podemos 
+generalizar para cualquier tipo de formato binario no estructurado. Digamos que en LANDING_TMP tenemos diferentes fuentes de 
+datos no estructuradas. Tenemos un directorio de grabaciones de vídeos de la central de una ciudad, 20.000 cámaras que están 
+grabando constantemente y al final del día te dejan todas las grabaciones en el directorio que se encuentra en LANDING_TMP. 
+Ahora tenemos otra fuente de datos que son fotografías de animales y te dejan todas las fotografías de los animales de un 
+zoológico en un directorio que se encuentra en LANDING_TMP. Entonces, la estrategia es la misma, dentro de LANDING_TMP 
+tendremos una colección de datos, será la colección de grabaciones de vídeos de cámaras de seguridad y de fotografías de 
+animales. Luego en LANDING (hablemos de lo que vamos a trabajar nosotros) tendremos una base de datos de fotografías de 
+animales. ¿Qué tendremos en LANDING? la fuente de datos (directorio) de fotografías de animales () y dentro tendremos la 
+partición del día de hoy y lo único que haremos será copiar el contenido desde el subdirectorio ubicado en LANDING_TMP y 
+colocarlo en el subdirectorio correspondiente en la capa LANDING, nada más.  YA NO SE BINARIZA, porque, por defecto esto ya 
+está binarizado, y la capa LANDING_TMP solamente nos sirve como zona de entrada, de hecho, podríamos omitir la zona LANDING_TMP 
+y directamente mover los archivos a LANDING, pero ¿por qué no se recomienda hacer eso? recuérdenlo siempre, por el gobierno de 
+datos. El gobierno de datos define flujos formales de procesamiento, recordemos que el gobierno de datos es algo que no 
+solamente implica parte de Big data, implica parte DATA WAREHOUSE, implica parte base de datos de cada área de la empresa, 
+implica muchas cosas, podría hacerse una clase exclusivamente de gobierno de datos. Respecto a lo que es la arquitectura de 
+Big data para la parte de gobierno de datos, la zona de LANDING_TMP es la interfaz de entrada a nuestra arquitectura de Big 
+data, nuestro DATA LAKE. Así que siempre tienen que entrar los datos por ahí, de hecho, en cuestiones de seguridad, el usuario 
+de negocio que sea dueño de una base de datos tiene acceso al subdirectorio que almacenará los datos en el LANDING_TMP, para 
+que pueda escribir. Pero, ya no tiene acceso a la zona LANDING, porque, la comunicación entre LANDING_TMP y LANDING existe un 
+proceso automático que mueve los datos. Recuerda que hay un gobierno de datos, hay que controlar la zona LANDING_TMP para que 
+solamente ciertos usuarios puedan dejar los datos y a partir de la zona LANDING sea un proceso automático, para que nadie meta 
+mano ahí y mueva algo que no deba, estropea y malogra el proceso. Siempre tengan en cuenta el gobierno de datos. 
+
+Vamos a ver entonces este último laboratorio que básicamente es mover archivos binarios de un punto a otro. 
 
 -----------------------------------------------------------------------------------------------------------------------------
