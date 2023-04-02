@@ -1,0 +1,178 @@
+=======
+CLASE 4
+=======
+
+Lo que vamos a hacer el día de hoy es ver cómo todo esto ya se traduce a algo concreto. Acá por ejemplo tenemos ya muchas 
+PPT muy bonitas que podemos adaptar a nuestra realidad de negocio, en la empresa y empezar a dar soluciones al menos hasta 
+la zona de modelamiento, todavía no hemos hablado de la zona de soluciones, la zona es SMART, es la última, ahí es otra 
+historia. 
+
+Nos vamos a enfocar en hacer los 3 TIPOS DE INGESTA: 
+
+● Estructurada 
+● Semiestructurada 
+● No estructurada 
+
+Lo haremos con un archivo estructurado un archivo estructurado, JSON semiestructurado y un archivo de imagen no estructurado. 
+De hecho, para hacerlo más real va a ser un directorio de 100 imágenes. 
+
+Luego, iremos a la ZONA DE MODELAMIENTO y aplicaremos lo mismo: 
+
+● Para estructurado hay un patrón de diseño (Select, Cast y Calidad) 
+● Para semiestructurado primero se estructura en diferentes tablas y luego se aplican los mismos patrones del estructurado 
+● Para no estructurado, ya que, estamos hablando de una imagen, la tensorizaré y esto vivirá en UNIVERSAL
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+SIGUIENTE PASO: DEFINICION DE LAS SOLUCIONES (última lámina PPT Clase 3)
+------------------------------------------------------------------------
+
+También hay que tener en cuenta que aquí estamos haciendo, vamos a ponerlo en términos simples al menos por el momento, el 
+50% de lo que podría ser la implementación de una arquitectura, porque, solamente estamos ingestando y dejando los datos 
+listos para luego ser analizados. Una vez que la data ya esté lista, lo siguiente es ya hacer las soluciones. En esencia, 
+esas soluciones pueden ser del tipo ETL, de reportería, de programación y de analítica y de hecho hay subtipos en cada uno. 
+¿Por qué tenemos que verlo con esta estructura? porque van a ver que hay patrones de diseño para soluciones de ETL, hay 
+patrones de diseños de reportería, de programación, de analítica, por ejemplo, hay algunos orientados a machine learning, a 
+deep learning y bueno, hay diferentes tipos de soluciones. Pero en esencia cualquier solución que tú implementes, ya en tu
+repositorio UNIVERSAL va a caer en alguna de estas cuatro cajitas (ETL, REPORTING, PROGRAMACIÓN o ANALÍTICA) así que ya 
+también nos vamos a enfocar en aprender los patrones de diseño para definir cómo se implementarán la solución en función de 
+cada una de ellas. El otro punto importante que tienes que saber es que, aquí lo estoy poniendo bonito, son cuatro tipos de 
+soluciones y ya está, pero en la vida real vas a ver que no es así, porque, generalmente una solución analítica tiene parte de 
+ETL y de reporte, parte de ETL para capturar la data antes de hacer la analítica y prepararla, luego viene la parte analítica 
+y probablemente la resultante la quieres poner en un reporte para que negocio la vea, así que, realmente no es que sean 
+cajitas aisladas, una solución va a combinar los patrones de diseño arquitectónico que aprenderemos para cada solución. Por 
+supuesto también implicará una codificación para ver cómo todo eso se traduce en algo concreto.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Consulta: ¿Qué tan alejado o compatible con una arquitectura LAKEHOUSE está la arquitectura planteada de Big data?
+------------------------------------------------------------------------------------------------------------------ 
+
+Lo ideal sería que todo entorno de Big data tenga el LAKEHOUSE dentro de él. ¿Qué significa un LAKEHOUSE? nosotros sabemos 
+que dentro de una empresa existen los DATA WAREHOUSE. En esencia, un DATA WAREHOUSE lo que hace es centralizar las diferentes 
+fuentes de datos que existan dentro de la empresa. Centraliza las diferentes fuentes de datos que haya dentro de una empresa, 
+por ejemplo, tenemos la base de datos de clientes, la base de datos de empresas, la base de datos de transacciones y hay otra 
+área que también tiene la base de datos de clientes, donde en una de las tablas de clientes un mismo cliente tiene un teléfono 
+que comienza con 9 y ese mismo cliente tiene otro teléfono que comienza con 8 en la otra tabla de clientes. Entonces, ¿cuál es 
+el verdadero número del cliente? dentro de un DATA WAREHOUSE hay reglas de tipo, nos vamos a quedar dentro con la tabla 
+cliente y seleccionaremos el teléfono que haya sido el último actualizado, por ejemplo, el terminado en 9 y ese será el 
+teléfono del cliente. Esa es una definición de un DATA WAREHOUSE, y estos sirven para poder centralizar la información de las 
+empresas y que dentro haya coherencia de datos. ¿Qué significa coherencia de datos? este tipo de cosas, hay 2 tablas clientes 
+en 2 bases de datos diferentes y hay 2 teléfonos diferentes para un mismo cliente, ¿cuál es el teléfono del cliente? y se pone 
+las reglas de negocio, el teléfono del cliente es el último que ha sido actualizado. Entonces, dentro del DATA WAREHOUSE se 
+implementa esa regla de negocio, se trabaja con la tabla cliente y se tiene una única tabla cliente. De esa manera si algún 
+proyecto quiere trabajar con la tabla de cliente apunta directamente al DATA WAREHOUSE, saca en un archivo de datos la tabla 
+de cliente y hace lo que tenga que hacer. Si no existiera el DATA WAREHOUSE no habría una coherencia de datos empresariales y 
+si el proyecto necesitase de la tabla cliente tendría que ir a todas las bases de datos de la empresa y preguntar: “ … tienes 
+la tabla al cliente … “, probablemente muchos tengan la tabla clientes y tendría que darles coherencia a esas tablas. Por eso 
+el área de DATA WAREHOUSE de una empresa se encarga de tener esas tablas ya con coherencia, para que los proyectos la utilicen 
+y eso ahorra por supuesto mucho tiempo y centraliza los datos dentro de un único punto. De manera muy resumida eso es lo que 
+hace un DATA WAREHOUSE. Tradicionalmente, ¿dónde vive un DATA WAREHOUSE? generalmente vive en entornos como en Oracle, o en un 
+SQL server o en un Postgres o en parte Teradata de IBM, ya depende de la tecnología. Los conceptos de DATA WAREHOUSE empezaron 
+a popularizarse en los años 90, porque, ayudaban mucho, le daban coherencia a la información empresarial. ¿Pero cuál es el 
+problema con los DATA WAREHOUSE? que generalmente utilizan tecnologías clásicas y por supuesto estas tecnologías como vimos en 
+la primera sesión ya están quedando desfasadas y están siendo reemplazadas por motores de Big data que tienen mucha mayor 
+potencia de escalabilidad. Entonces, ¿qué podríamos hacer? hay un concepto llamado LAKE HOUSE. ¿Qué significa esto de LAKE 
+HOUSE? que el DATA WAREHOUSE viva sobre el DATA LAKE para que tenga todas las ventajas que tiene un DATA LAKE, hemos visto, 
+por ejemplo, aquí podemos trabajar con cualquier estructura de datos, hay patrones de diseño bien definidos, está en un Clúster 
+de Big data que puede escalar (es elástico), si estamos en nube lo hacemos crecer o disminuir el número de servidores, 
+entonces, el concepto es simple: “ … y qué tal si en lugar que el DATA WAREHOUSE está en una tecnología clásica incluimos 
+dentro del DATA LAKE al DATA WAREHOUSE para que utilice las tecnologías de Big data? sí sería lo ideal. Conceptualmente 
+hablando, sí es lo ideal, todas las empresas deberían tener su DATA WAREHOUSE dentro de un entorno DATA LAKE, ¿pero cuál es el 
+problema? la migración de un DATA WAREHOUSE es costosísimo, depende del tamaño de una empresa, por ejemplo, si estamos hablando 
+de un banco que en su DATA WAREHOUSE, quién sabe pues, ya tiene 20 años de historia en su DATA WAREHOUSE y tiene muchos 
+procesos en PLSQL, en CBOL y tiene miles y hasta decenas de miles de procesos que están funcionando durante 20 años, que si le 
+mueves una línea de código y no lo haces bien, es peligroso. Así que lo ideal sería migrarlo, pero siempre recuerda que hay un 
+costo de oportunidad. Vamos a ponerlo muy simple, ¿cuál es el costo de hacer la migración del DATA WAREHOUSE a un entorno de 
+DATA LAKE? Básicamente, que toma mucho tiempo dependiendo de qué tan complejos sean esos procesos y qué tanto tiempo haya 
+existido ese DATA WAREHOUSE. Imagínate, tienes un proceso de PLSQL y lo quieres pasar a HIVE o a SPARK que son herramientas de 
+Big data, ahora ¿cómo lo haces? esa es la cuestión y también es casi seguro que esto no va a estar documentado y va a tener 
+zonas de código extrañas que la vas a ver y no vas a saber qué hacer con ellas, entonces, sí es problemático hacer esa 
+migración. El otro costo asociado es y ¿cuál es el beneficio? si yo saco todo el DATA WAREHOUSE y lo coloco sobre el DATA LAKE 
+en un entorno de Big data ¿qué es lo que gano con eso? como se dice, si funciona bien el DATA WAREHOUSE en donde está, pues, 
+que se quede ahí, entonces, para evitarse problemas dicen: “ … bueno el DATA WAREHOUSE está funcionando, como se espera … “, 
+entonces, que se quede ahí. ¿Eso significa que es imposible tener el DATA WAREHOUSE sobre un DATA LAKE y tener el concepto de 
+LAKE HOUSE? la respuesta es no, si es posible, pero, no se migra todo, hay un trabajo que se realiza del 100% del DATA 
+WAREHOUSE, ¿cuáles son los procesos que sí valen la pena migrarlos? generalmente son los procesos muy pesados, esos que le das 
+al botón en el DATA WAREHOUSE, se quedan pensando y a veces funcionan o a veces no funcionan o si funcionan la tabla que tiene 
+que estar lista a las 9:00 de la mañana pero está lista a las 11:00 de la mañana, entonces, eso que es muy pesado y que 
+realmente tiene una justificación, se emigra dentro del DATA LAKE. Del 100% no va a ser todo, será entre un 10 a un 20% y ahí 
+sí vale la pena hacer esa migración. Por eso se dice que ahora el concepto de LAKE HOUSE es un concepto que integra un 
+porcentaje del DATA WAREHOUSE, el porcentaje que valga la pena, que sea crítico, que ayuda al negocio y que tenga un sustento 
+técnico, básicamente es: “ … oye en el DATA WAREHOUSE le doy al botón y se demora mucho … “, eso llevémoslo al DATA LAKE. Así 
+que solamente se migra aquello que tenga sentido migrar, no todo. Ahora digamos que es el día uno, creas tu empresa y estás 
+empezando de cero, con muchas fintech por ejemplo. Ahí sí tiene sentido que todo el DATA WAREHOUSE viva en el DATA LAKE, 
+porque, recién está empezando la empresa, no tiene tablas, así que, directamente el DATA WAREHOUSE puede vivir en el DATA LAKE. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+SIGUIENTE PASO: VISTA TECNOLOGICA Y PROGRAMAR ARQUETIPOS (Penúltima lámina PPT Clase 3)
+---------------------------------------------------------------------------------------
+
+Ahora sí vamos directamente a la implementación. El día de hoy nuestro objetivo va a ser entender cómo esos patrones se ven en 
+el código, por supuesto, que voy a explicarles también el código, pero recuerda que el trabajo de un arquitecto no va a ser 
+codificar. Lo ideal sería que el arquitecto sepa de reglas de calidad, sepa de técnicas de modelamiento, sepa de técnicas de 
+programación, sepa programar en todas las herramientas de Big data que existan y pueda hacer buenas traducciones de patrones 
+de diseño, eso sería lo ideal, pero es irreal, no existe ese tipo de perfil, el arquitecto solo orquesta, lo que sí debe tener 
+el arquitecto es el ojo técnico para ver si el patrón que él ha definido se está traduciendo bien al código. El día de hoy lo 
+vamos a ver en códigos simples, en Python dentro de Google Collab. Usaremos Python, ya que, es un lenguaje de programación 
+fácil de entender. Luego, nos vamos a ir a cada nube en particular, para una vez entendido como todo eso se traduce en código 
+vamos a ver cómo se traduce en las 3 nubes. Nos enfocaremos fuertemente en AWS para ver cómo se integra esto a patrones Cloud. 
+Y luego ya de una manera más superficial ver lo veremos también en que GCP y en Azure. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 001 [Arquetipo de creación de DATA LAKE] (Utilizando Python)
+------------------------------------------------------------------------
+
+Este primer laboratorio nos va a servir para ver qué significa crear un DATA LAKE y en primer lugar tenemos que entender, 
+recuerden que en estos momentos somos agnósticos a las tecnologías, ya luego se verá cuál es la tecnología propietaria en cada 
+Cloud y en cada sistema On-premise. Pero,  sea AWS, sea GCP, sea AZURE o cualquier cosa que tú estés utilizando, hay un SISTEMA 
+DE ARCHIVOS El SISTEMA DE ARCHIVOS es donde se suben los datos que van a procesarse. Ahora en un sistema de archivos ¿qué va a 
+vivir? dentro de un sistema de archivos puedes crear directorios y puedes crear archivos dentro de esos directorios. Va a haber 
+un directorio principal que va a ser el DATA LAKE y dentro de ese directorio, van a existir los subdirectorios que representan 
+las capas del DATA LAKE: LANDIN_TMP, LANDING, UNIVERSAL y SMART. Ahora ¿qué sistemas de archivos existen? nosotros para 
+desarrollar el laboratorio utilizaremos GOOGLE DRIVE, pero podría ser el sistema de archivos de GCP, el de AWS o el de AZURE o 
+el de DATABRICKS o el de HADOOP y así sucesivamente. 
+
+Pero independientemente de la tecnología de sistema de archivos, un DATA LAKE es un directorio que contiene los subdirectorios, 
+uno para cada capa. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 002 [Arquetipo de ingesta ESTRUCTURADA] (Utilizando Python)
+------------------------------------------------------------------------
+
+Ahora vamos a el laboratorio número 2. Lo primero que vamos a hacer es hacer una ingesta estructurada. Vamos a trabajar con 
+los siguientes archivos de datos: datos estructurados,  ¿hacer una ingesta que implica? pasar por LANDING_TMP y dejar los 
+datos en la partición correspondiente en LANDING, pero ¿eso qué significa a nivel de codificación? aquí por ejemplo tenemos 
+el archivo “cliente.txt”, ¿qué es lo que hay dentro de este archivo? es un archivo estructurado que tiene los campos 
+identificador del cliente, su nombre, su teléfono, su correo electrónico, la fecha de ingreso en la que comenzó a trabajar en 
+una empresa, la edad de esta persona, su salario y el identificador de la empresa en donde esta persona trabaja. Este es un 
+archivo estructurado. Acá tenemos otro archivo estructurado que es “empresa.txt”, solamente tiene 2 campos, el id de la 
+empresa y el nombre de la empresa. Vamos a hacer entonces el patrón de diseño de ingesta estructurado. Ingestemos estos 
+2 archivos dentro del DATA LAKE. 
+
+Ahora vamos a tratar de usar ya una herramienta propia de Big data. Una de las herramientas que se utilizan en Big data es 
+SPARK, nos sirve mucho, porque, con SPARK podemos hacer procesamientos de datos estructurados, y semiestructurados. También 
+vamos a utilizar TENSORFLOW, que, por ejemplo, nos ayuda a hacer preprocesamiento de datos no estructurados como lo son las 
+imágenes. Primero veamos la parte de SPARK. 
+
+Lo primero que hace este código es actualizar los repositorios del servidor UBUNTU que tenemos en el servidor que nos facilita 
+GOOGLE COLLAB, para que descargue la versión de SPARK que vamos a utilizar. Luego SPARK está hecho en Java, así que, es 
+necesario instalar Java. Una vez que esté instalado Java lo siguiente que se hace es descargar el instalador de SPARK. Este 
+instalador es un zipeado, así que, hay que des-zipear. Una vez que esté des-zipeado, queremos utilizar SPARK con Python, 
+entonces en Python instalamos el módulo para que Python pueda programar sobre SPARK. Y luego para que la instalación de SPARK 
+finalice, al sistema operativo UBUNTU tenemos que indicarle dónde está instalado Java y dónde está instalado SPARK. Y luego 
+creamos una sesión de conexión a SPARK. En esencia, esto es lo que hace este código, porque, lamentablemente Google Collab no 
+tiene SPARK instalado, así que, hay que instalarlo.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 003 [Arquetipo de ingesta SEMI-ESTRUCTURADA] (Utilizando Python)
+----------------------------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------
