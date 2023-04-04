@@ -1,0 +1,287 @@
+=======
+CLASE 5
+=======
+
+El día de hoy vamos a ver la segunda parte de lo que implica hacer un desarrollo arquitectónico, la traducción a arquetipos 
+de código. El día de ayer nos enfocamos en la parte de la ingesta, es decir, en LANDING_TMP y LANDING. Por supuesto que 
+dimos muchas recomendaciones asociadas a cómo todo lo que habíamos definido en una PPT se traducía a pasos concretos dentro 
+ya de una codificación, por supuesto, que ya dentro de una empresa, pues, hay un mix tecnológico muy grande que ya lo vamos 
+a repasar la próxima semana, los pasos seguirán siendo los mismos, lo que cambiará son las tecnologías. De hecho, uno de sus 
+compañeros hizo una muy buena pregunta, ¿la ingesta en vez de hacerla con Python, la podríamos hacer con una herramienta de 
+ETL especializada en ingestas? la respuesta es que por supuesto que sí, de hecho, así es como se hace en la vida real, pero, 
+los pasos del arquetipo de esa ingesta, sea con, Data stage, con informática, o con cualquier otra herramienta de ETL, van a 
+seguir siendo los mismos, lo que cambia es solo la herramienta tecnológica. Veamos ahora la traducción de la parte de 
+modelamiento. ¿Qué queda ahora? una vez que has ingestado los datos, ya sabemos al menos en Batch, Real time todavía no lo 
+vamos a ver, primero vamos con lo básico. Ya sabemos cómo se ingestan los datos respetando todas las vistas arquitectónicas 
+que habíamos definido en las PPTs y al final tenemos código funcional, ingestamos datos estructurados, semi estructurados y 
+no estructurados. Ya aprendimos como esos patrones de ingesta de la PPT se traduce a algo en concreto en una implementación. 
+Ahora, ¿cuál es el segundo paso? una vez que hayas ingestado los datos de las fuentes de datos con las que vas a trabajar, 
+lo siguiente es tener esos datos listos para que puedan ser explotados por las soluciones. A muy grandes rasgos, ya sabemos, 
+que en esencia, si tenemos una fuente de datos, el primer paso es ingestar, entonces, un mal arquitecto diría esto: “ … se 
+ingesta desde la fuente y lo tenemos en nuestro repositorio de datos y listo y ahí está la data … “. Ya sabemos que esto 
+implica una gran complejidad, no es solo una cajita que está ahí. Una vez que hemos ingestado los datos, podríamos hacer un 
+reporte muy bonito en un dashboard o un modelo de red neuronal o quien sabe que, ya con la data que hemos ingestado y empezar 
+a hacer soluciones. Pero LAS FUENTES DE DATOS NO VAN A ENTREGAR DATOS LIMPIOS, MUCHAS VECES VAN A TENER DATOS QUE NO CUMPLEN 
+LAS REGLAS DE CALIDAD. EN ESE CASO HAY QUE HACER UN PROCESO DE MODELAMIENTO. Así que lo siguiente es, aquí está la cajita que 
+hace ese proceso de modelamiento y aplicación de reglas de calidad y en UNIVERSAL vamos a tener esas tablas ingestadas ya de 
+manera limpia para que las soluciones desde una reportería hasta una red neuronal puedan utilizarlas. Misma historia, así como 
+esta cajita (INGESTA) implicaba realmente una gran complejidad arquitectónica, esta otra cajita (MODELAMIENTO) también va a 
+implicar una realidad arquitectónica. 
+
+
+¿Qué implica modelar? 
+---------------------
+
+Eso va a depender del nivel de estructura de datos, si estamos hablando de datos estructurados, semi estructurados y no 
+estructurados. Así que nuevamente vamos a repetir lo mismo del día de ayer, pero esta vez para la parte de modelamiento y con 
+eso en UNIVERSAL ya tenemos los datos listos para que las soluciones puedan hacerlo que negocio les pida, desde un reporte muy 
+simple hasta una red neuronal para hacer predicciones. 
+
+
+¿Qué consideraciones debemos de tener en cuenta al momento de modelar datos?
+---------------------------------------------------------------------------- 
+
+Antes de recordar en la PPT, qué implicaba el modelamiento según cada tipo de dato, HAY QUE SABER QUE MODELAR IMPLICA EL 
+MODELAMIENTO EN SÍ MISMO Y TAMBIÉN A LA APLICACIÓN DE REGLAS DE CALIDAD, así que sea cual sea el nivel de la estructura de
+datos, siempre van a ser 2 pasos: 
+
+1.- Primero, definir el modelo de datos
+2.- Segundo, aplicarle reglas de calidad (quality), reglas de calidad a ese modelo de datos. 
+
+El ejemplo más simple de todos, si ya hemos ingestado la tabla Cliente, ¿modelar que implica? quizá esta tabla Cliente tiene 
+campos como: identificador de Cliente, nombre de Cliente, estatura, edad, estado civil y digamos que estamos en un banco, al 
+banco, por ejemplo, que midas 1.70m o 1.80m le da exactamente igual, a él lo que le importa es, por ejemplo, tu identificador 
+de Cliente, tu nombre, tu salario, si eres soltero, si tienes deudas crediticias. Entonces modelar significa seleccionar de 
+los datos que hemos ingestado de la fuente, ciertos campos, no necesariamente todos. Eso como PRIMER PASO. 
+
+Como SEGUNDO PASO una vez que hemos seleccionado los campos que entran dentro del modelamiento, los siguientes castear los 
+tipos de datos correctos. Por ejemplo, una edad es un número entero, la estatura de una persona es un número real, su salario 
+también, el nombre es una cadena de caracteres. Ya colocarle el tipo de dato correcto, porque la fuente desde donde hemos
+ingestado quién sabe qué tipo de dato le pondrá, entonces, hay que forzar a que tenga el tipo de dato que el modelo de nuestra 
+empresa necesita para trabajar. Estas definiciones no las hace el arquitecto y tampoco las implementa, las implementará un 
+Data Engineer y alguien que meta mano al código y trabaje. Y ¿quién lo define? hay un rol en las empresas conocido como el 
+Data model. Él es el encargado de hacer la definición de: qué campos necesita el negocio para funcionar y qué tipo de datos 
+deberán ser esos campos. Parte de tu responsabilidad como arquitecto es que estas definiciones los data engineers los 
+traduzcan a una buena implementación y justamente para eso están los arquetipos de desarrollo en código. Ese es un primer gran 
+punto. Digamos, ok, tu como arquitecto orquestas toda esta parte que los Data modelers van a definir, porque, en la vida real 
+en la empresa van a haber cientos y cientos de tablas, entonces, tampoco es un trabajo tan simple y van a haber discusiones, 
+un Data modeler dirá: “ … esto es un número entero, otro dirá esto es una cadena de caracteres … “ y bueno ya ahí no podríamos 
+hacer mucho como arquitectos, eso lo definen los modeladores. Lo importante es que lo que ellos definan, lo traduzcamos. 
+Ahora, tú como arquitecto mal harías en tratar de definir este modelo de datos o corregir lo que se ha hecho, salvo que 
+conozcas mucho de negocio. Si eres un arquitecto, digamos eres muy bueno eres un arquitecto de big data que ha sido contratado 
+en un gran banco, pero vienes del mundo de las telecomunicaciones, entonces, tienes conocimientos técnicos muy buenos, pero 
+no de negocio y para modelar hay que tener conocimientos de negocios, entonces, ahí tu opinión no pesaría mucho. Ahora digamos 
+que tienes 10 años de experiencia en el sector bancario, entonces, ahí sí estás en la capacidad de cuestionar el modelo de 
+datos que te entreguen los Data modelers, así que por eso les digo tengan bastante cuidado, depende mucho de si sabes o no 
+sabes de negocio. 
+
+Ahora, una vez que tenemos bien definido el modelo de datos y ya sabemos qué es lo que se va a implementar, lo siguiente son 
+las REGLAS DE CALIDAD. Esto lo define otro equipo, el equipo de Calidad. Este equipo en particular no solamente tiene que saber 
+de negocio, sino que, debe de tener algún conocimiento técnico sobre las herramientas con las que se van a construir estas 
+reglas de calidad, eso sería lo ideal. En la vida real es muy raro que eso pase, ¿por qué? porque una buena definición de una 
+regla de calidad se traduce en una fácil implementación, porque, la regla de calidad al final va a ser código, puede ser 
+código escrito en lenguaje de programación o puede ser código que visualmente con una herramienta de ETL se hizo y eso se 
+compila por detrás a algún código, pero sigue siendo código. Si este equipo que define las reglas de calidad que conoce de 
+negocio, tiene conocimientos técnicos de la herramienta con las que se van a implementar esas reglas de calidad, mucho mejor, 
+porque, en el Word que ellos empiecen a hacer sus definiciones o en el Excel, pueden usar lenguaje técnico y de esa manera el 
+Data engineer que tome ese documento Word, puede entender ahí, lo voy a poner muy simple, dice: “ … esto tiene que ser cargado 
+en un Data frame semiestructurado … “, entonces, ya hay un lenguaje técnico y es fácil de entender qué es lo que negocio nos 
+quiere decir por calidad. En cambio, si solamente conoce de negocio el equipo de calidad, pues ese documento Word que te va a 
+pasar, puede llegar a ser complejo de traducirse desde un punto de vista técnico, a la tecnología con la que estemos usando, 
+así que lo ideal es que el equipo que definan las reglas de calidad también sea parte técnica, no necesariamente con un 
+conocimiento tan avanzado como el Data Engineer que lo va a implementar, pero al menos que se conozca la sintaxis o la forma 
+en cómo se trabaja con esa herramienta técnica. Y de esa manera el Word de reglas de calidad ya tiene embebido dentro el mundo 
+técnico y ya es más fácil de implementar. Entonces, este es el otro paso, tener las reglas de calidad. Ejemplo de regla de 
+calidad: las edades tienen que ser mayores a cero, los salarios no pueden ser mayores a un millón de dólares, las estaturas 
+tienen que estar entre 1.30m y 2.30m y todo lo que defina el equipo de calidad para tener buenos datos. 
+
+Entonces, en resumen, se SELECCIONA, se CASTEA, se APLICAN LAS REGLAS DE CALIDAD, algunos registros cumplirán esas reglas de 
+calidad y otros no las cumplirán. Los que cumplen las reglas de calidad van a la tabla, por ejemplo, Clientes de UNIVERSAL y 
+cualquier solución desde un reporte hasta una red neuronal que necesite procesar los datos de Cliente, deberá apuntar hacia 
+esa tabla en donde están los registros limpios y listos para ser procesados. Ahora y ¿qué pasa con aquellos registros que no 
+cumplan las reglas de calidad? eso también depende de la estrategia de cada empresa, pero hablando en términos estándares, que 
+es lo que se recomienda el día de hoy y acá lo repito, eso depende de la empresa, recuerden que los estándares son muy útiles,
+pero hay que a climatizarlos a la realidad empresarial. Si te sirven, excelente y si no te sirven los puedes quitar, siempre y 
+cuando realmente hay una justificación técnica del por qué quitarlos. ¿Qué pasa con los registros que no cumplan las reglas de 
+calidad? como dijimos vamos a tener una tabla de Clientes reyectados, en donde se colocarán todos aquellos registros que no 
+cumplan las reglas de calidad. Ahora la pregunta es y ¿para qué nos va a servir es esto? hay herramientas de calidad y de 
+gobierno de datos que entienden que hay una tabla regular y una tabla de reyectados y lo que explicamos, del 100% de los datos 
+de la fuente, el 95% cumplieron las reglas de calidad y el 5% se fueron a la tabla de reyectados, entonces, la fuente tiene un 
+95% de buena calidad. Ya hay un número, entonces, podríamos decir: “ … bueno, tenemos datos y podemos hacer proyectos con esa 
+fuente de datos … “. Por otro lado, si resultase con el 50% y el 50%, entonces, ahí habría algo extraño y tal vez, por ejemplo, 
+para una red neuronal llevamos a los científicos de datos pero la data tiene un 50% de calidad, entonces, no vamos a poder 
+construir ni siquiera un simple reporte. Es por eso que dentro de los estándares se recomienda tener esa tabla de reyectado 
+para ver qué tan buena o mala es la fuente de datos y si es mala en este en esta tabla están los registros y haces el análisis, 
+por ejemplo, ves y descubres que el campo ‘edad’ se están guardando los nombres, porque, en la sucursal de una ciudad está mal 
+el formulario, entonces, se alerta eso y se corrige. 
+
+Esta es la explicación a nivel arquitectónico. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Modelamiento de datos estructurados [ Lámina 34 PPT Clase 3]
+------------------------------------------------------------
+
+Aquí ya tenemos en una PPT más bonita para poder enseñarle esto a negocio y definir cuál va a ser la estrategia de 
+implementación en la arquitectura. Desde los datos que hemos ingestado en LANDING vamos a tener 3 pasos: 
+
+1.- Seleccionar
+2.- Castear (esto lo define el Data modeler)
+3.- Aplicar reglas de calidad (esto lo define el equipo de calidad) 
+
+Ya sabemos que el Data modeler tiene que ser alguien que conozca mucho de negocio y si tú quieres cuestionarlo pues tienes que 
+ser un arquitecto que conozca mucho del negocio en dónde estás, aquí ya no vale la parte técnica, aquí pesa mucho negocio. 
+Respecto a las reglas de calidad, se recomienda que como les dije, el equipo de calidad también sea parte técnica, porque, es 
+más fácil escribir un documento, un Word, un Excel, con un lenguaje técnico, que cuando el Data engineer lo tome y lo vea, lo 
+entienda y sepa a qué se refiere para la implementación de sus reglas de calidad, es lo ideal. En la vida real es poco 
+probable, habrán pocos de negocio que también sepan la parte técnica, pero habrá algunos y dentro de ese equipo deben de estar 
+esos argumentos. 
+
+Y luego los outputs de este proceso: 
+
+● Los datos buenos y 
+● Los datos reyectados 
+
+Los datos buenos, por supuesto, tienen que cumplir la previsión que dio el Data modeler del tipo de dato y los datos malos, 
+como sabemos, quizá en el salario ingresaron el nombre, porque, se equivocaron, entonces, PARA SOPORTAR CUALQUIER COSA QUE 
+VENGAN EN LOS REYECTADOS SIEMPRE TIENEN QUE SER CADENAS DE CARÁCTER y ya luego se hace el análisis. ¿Por qué las 2 tablas? 
+también tenemos justificación técnica, hay herramientas de calidad y de gobierno de datos que trabajan con la tabla correcta y 
+la de reyectados y hacen el análisis de qué tan buena es la calidad de la fuente de datos. Básicamente porcentualmente ven 
+cuánto lleva una tabla y cuánto hay en otra tabla. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 005 [Arquetipo de modelamiento ESTRUCTURADO]
+--------------------------------------------------------
+
+Un punto importante es que dentro de UNIVERSAL en la medida de lo posible DEBEN VIVIR SOLO DATOS ESTRUCTURADOS, por ejemplo, 
+en este momento estamos modelando data estructurada y el output van a ser 2 tablas estructuradas. Luego, con los datos 
+semiestructurados vamos a tener que estructurar en una o varias tablas los Dataframes semiestructurados, siempre hay que 
+tratar que el output de UNIVERSAL sea estructurado. Igual con las imágenes, vamos a crear tensores que también son datos 
+estructurados. ¿Esto por qué? porque muchos de muchas de las formas de programación que existen actualmente, desde reportería 
+hasta modelos de redes neuronales muy avanzados, el input de ellos son datos ya estructurados, entonces, si UNIVERSAL ya tiene 
+todo estructurado, pues, el proyecto avanza mucho más fácilmente, porque, ya tiene la data lista para trabajar. En algunas 
+ocasiones no va a ser posible, pero en la medida de lo posible hay que tratar de que todo se ha estructurado en UNIVERSAL.
+
+En UNIVERSAL ya existen las entidades absolutas. Imagínate que tengas 2 fuentes de datos en la empresa que sean las tablas
+Cliente. Entonces, en LANDING tendremos la fuente de datos 1 que tiene su propia tabla Clientes y en LANDING tendremos otra 
+fuente de datos que también tiene su propia tabla Cliente y en UNIVERSAL tendremos que juntar ambas tablas de los Clientes y 
+de esa manera crear una única tabla Cliente, por eso se dice que la capa de UNIVERSAL trae coherencia, ahí es donde están los
+datos de toda la empresa, en un único punto. Por eso UNIVERSAL no se maneja a nivel de fuente de datos. 
+
+Un punto importante, un arquitecto tiene que mantener en coherencia muchas cosas, eso también incluye el código. Una vez que 
+hemos LEÍDO lo que se va a procesar, lo siguiente es SELECCIONAR los campos que el modelador defina y luego recién CASTEARLOS. 
+¿Por qué se tiene que hacer en ese orden? Digamos que el dataframe obtenido de la LECTURA tiene 200 campos y luego no 
+seleccionamos los 5 campos que el modelador hace, primero casteamos y creamos un dataframe con 200 campos y solo casteamos los 
+5 campos que el modelador definió y luego recién hacemos la SELECCIÓN, ¿qué es lo que estaría pasando? en ese caso estaríamos 
+creando un segundo dataframe que va a tener las 200 columnas y eso va a ser que se duplique el uso de la memoria RAM, por eso, 
+es parte del patrón primero se lee y luego se selecciona solo aquello que el modelador ha definido y solo se trabaja con eso y 
+luego recién empiezas a castear y aplicar reglas de calidad. Nunca proceses todo el detaframe de manera correcta, eso es parte 
+del arquetipo y por supuesto eso también es agnóstico a la tecnología con la que tú estés desarrollando. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 006 [Arquetipo de modelamiento SEMI ESTRUCTURADO]
+-------------------------------------------------------------
+
+Y ¿qué pasa con los datos semiestructurados? lo que vamos a tener que hacer aquí es tratar de crear tablas estructuradas en 
+función de los datos semiestructurados. YA SABEMOS QUE EN UN ARCHIVO SEMIESTRUCTURADO COMO LO ES JSON PUEDEN VENIR CAMPOS DE 
+DIVERSOS TIPOS, UN REGISTRO PUEDE TENER CUATRO CAMPOS, OTRO 5, OTRO 3 Y ESO ESTÁ BIEN PARA LA SEMI ESTRUCTURA, PERO EN 
+UNIVERSAL DEBEMOS TENER METADATA GOBERNABLE, ES DECIR METADATA FIJA (ESTÁTICA). De un día para otro no puede aparecer un campo 
+ahí. Así que hay que modelar los datos. Vamos a poner un ejemplo simple para entender el arquetipo y que la codificación 
+también sea fácil: acá por ejemplo tenemos este archivo de datos que habíamos ingestado el día de ayer, el archivo de 
+“transacciones_bancarias” y era un archivo algo que grande. Vamos a recordar que tenía este archivo: tenía el campo ‘Persona’ 
+que era complejo, el campo ‘Empresa’ y el campo ‘Transacción’ y cada uno de estos campos complejos tenían algunos subcampos de 
+tipo de datos primitivos. Ahora, esto realmente es trabajo del modelador, no es trabajo del arquitecto, pero, para entender 
+conceptualmente cómo se hace, dice: “ … ya sabemos que aquí están los datos de la persona que hizo la transacción con su 
+tarjeta de crédito, aquí están los datos de la empresa en donde se realizó esa transacción y aquí están los datos propiamente 
+de la transacción … “, entonces el modelador dice: “ … pero del servidor de Clientes y empresas, ya tenemos estos datos, 
+entonces, por ejemplo, ya hemos ingestado los datos de Cliente y Empresa, entonces, esto ya está demás, hace un momento lo 
+hemos hecho, pero no los datos de transacciones … “. Entonces, ¿qué nos interesa realmente de este registro semiestructurado? 
+pues vamos a crear una tabla estructurada que nos diga cuál es el ID de la persona que hizo la transacción, cuál es el ID de 
+la empresa en donde se realizó, el monto y la fecha de la transacción. Crearemos entonces un dataframe estructurado con estos 
+cuatro campos para guardar la información semiestructurada y tenerla en una tabla estructurada. Esto es modelar algo 
+semiestructurado y convertirlo estructurado y vean cómo es que no hay una regla genérica de modelamiento, tiene que ver con 
+negocio, lo hace el modelador, porque, él dice: “ … esto ya lo tenemos en una tabla, esto yo conozco el negocio y ya sé que
+está en otra tabla, entonces, lo único que nos interesa son los datos de la transacción y para saber a quién pertenece la 
+transacción tendremos que agregar a la tabla los identificadores de quién lo hizo y en donde se hizo, entonce,s tendrá que 
+tener esta estructura la tabla: 
+
+PERSONA.ID_PERSONA
+EMPRESA.ID_EMPRESA
+MONTO
+FECHA
+
+y el resto de los datos no nos interesa … “. Eso es modelado y ya ven que es necesario conocer de negocio. Entonces nuestro 
+objetivo será crear una tabla estructurada de este tipo. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Laboratorio 007 [Arquetipo de modelamiento NO ESTRUCTURADO]
+-----------------------------------------------------------
+
+Ahora vamos al último laboratorio del día de hoy, el arquetipo de modelamiento de datos no estructurados. Aquí lamentablemente 
+no existe una manera general de procesamiento, va a depender del tipo de datos no estructurados. Una cosa es estructurar 
+imágenes, otra cosa es estructurar vídeos, otra cosa es estructurar audios y otra cosa es estructurar archivos de documentos 
+enriquecidos como Words o correos electrónicos. Por ejemplo, solamente para recordar, ¿cómo se hacía en los videos? un video 
+era una separación de fotogramas, aproximadamente 1 segundo de un vídeo son 24 fotogramas, entonces, dentro de un directorio 
+temporal en algún lugar del sistema de archivos, cada segundo del vídeo se traduce en 24 imágenes y luego ya lo tensorizamos, 
+como sabemos tensorizar las imágenes. En el caso de los audios por ejemplo hay que traducirlos con algún framework de “speech 
+to text”, tomamos el audio y tenemos un guión y ese guión luego se coloca en una tabla estructurada. Y en el caso de los 
+documentos de texto enriquecido, lo que nos interesa no es tanto si el título está en mayúscula o minúscula, el formato, sino, 
+el texto que hay dentro. Entonces, tenemos que extraerlo a un documento de texto plano e indexarlo en un JSON de búsqueda de 
+texto. Por ejemplo, queremos ver qué es lo que más se habla en los correos electrónicos y descubrimos que la palabra más 
+hablada es “nos sobrecargan de trabajo”. Entonces, vemos que hay un estrés laboral y ya se aplicará algo para corregir eso o 
+un contador de palabras. Entonces ya depende del tipo de binario que queremos estructurar. Por supuesto, si estructuramos esos 
+binarios es muy complejo, hay muchísimas formas y ya se traduciría en una clase de programación, cosa que no es, estamos en 
+una clase de arquitectura, pero para entender la idea general de cómo se hace vamos a hacerlo con los archivos no estructurados 
+del tipo imagen, ya que, conceptualmente es lo más fácil de entender, cada imagen tiene una representación tensorial de 3 
+canales de colores RGB, serán números del 0 al 255. Si esto es una imagen de 32 por 32 píxeles tendremos 3 matrices de 32 por 
+32 casilleros, cada uno tendrá su tonalidad de color RGB entre 0 y 255, 0 es ausencia del color y 255 es completamente ese 
+color y dentro de ese rango está la gama de colores. Ese proceso se llama tensorizar y este archivo tensorial va a vivir dentro 
+de UNIVERSAL. ¿Para qué sirven los archivos tensoriales? para hacer reconocimiento de imágenes por medio de técnicas de ciencia 
+de datos, esto por ejemplo, se hace con redes convolucionales. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DATA MESH
+---------
+
+Ya tenemos la estructura estándar de un DATA LAKE, tenemos las capas LANDING_TMP, LANDING, UNIVERSAL y SMART. Hemos llegado 
+hasta la capa UNIVERSAL y hemos hecho muchas definiciones arquitectónicas tomando en cuenta varias vistas, desde la vista de 
+definición conceptual, de patrones de diseño, la vista de infraestructura, la vista de gobierno, la vista de calidad. Entonces 
+creo que con esto queda más en claro cómo es que realmente es hacer una arquitectura, es ir armando todo esto en paralelo, no 
+es que sea creen de manera secuencial. Pero, ¿cuál es el problema con esta estructura de LANDING_TMP, LANDING, UNIVERSAL y 
+SMART? el 80% de las cosas que se implementen en tu empresa va a respetar esta estructura de procesamiento, este estándar de 
+tu arquitectura, pero van a haber algunas cosas muy excepcionales, generalmente es el 20% y lamentablemente no van a respetar 
+esta estructura. A ¿qué se debe generalmente? se debe a que en UNIVERSAL tenemos la tabla ‘Cliente’ con los datos limpios,
+¿qué implicaba esto? habíamos definido una regla de calidad que decía: “ … la edad tiene que ser mayor a 0 … “ y digamos que 
+en la tabla ‘Clientes rejectados’ se fueron 2000 de ellos (tenemos 100.000 Clientes) porque el digitador simplemente se 
+equivocó y en la edad puso el nombre, puede pasar. Pero y qué pasaría sí al área de segmentación de Clientes, a él si le 
+interesa el campo ‘edad’, tiene que estar bien definido ese campo ‘edad’, el área que segmenta los Clientes para enviar 
+promociones, los de cierta edad cierta promoción, los de cierta edad otra promoción y así sucesivamente. Pero, digamos que el 
+área que hace envío de notificaciones, por ejemplo, “ … te clonaron tu tarjeta … “, entonces, urgentemente tiene que enviarte 
+una notificación para decirte que te han bloqueado la tarjeta. Si el área de notificaciones de bloqueo de tarjetas trabaja con 
+este Cliente y qué pasa si este Cliente si tiene su correo y su teléfono bien escrito y solamente el campo de edad era el que 
+está mal escrito y por eso se rejectó, no vamos a tener ese Cliente. Qué pasa si a este Cliente le clonan su tarjeta, ¿cómo le 
+enviamos la notificación? no existe, ese es un problema. ¿Qué es lo que pasa en esos casos? algunos lo que hacen es “ … vamos 
+a hacer procesos de corrección de datos … “, pero esos procesos son muy complicados de hacer y, por ejemplo, tendríamos que 
+empezar a fijarnos en cada uno de estos registros y ver la realidad propia de cada registro para ver por qué se rejectó y 
+encontrar la mejor manera de arreglarlo y no es ideal, toma tiempo. Entonces, el problema de tener una única definición de lo 
+que significa un Cliente dentro de una empresa es que pueden haber definiciones contradictorias para soluciones, a un área si 
+le puede interesar que la edad sea mayor a cero y a otra área puede que no le interese eso y eso es un problema que pasa en la 
+vida real. ¿Cómo se soluciona? Para eso utilizamos el DATA MESH. Arquitectónicamente hablando donde se encuentra: tenemos 
+LANDING_TMP, LANDING, UNIVERSAL y tenemos una solución en SMART que quiere hacer un reporte y tiene una contradicción con la 
+tabla ‘Cliente’ que se encuentra en UNIVERSAL. Entonces, ¿qué es lo que hacemos? nos vamos a la fuente original, en LANDING, 
+que no tiene reglas de calidad ni casteos ni nada y jalamos esos datos hacia la capa SMART donde se encuentra la solución y 
+aplicamos nuestros propios procesos, por ejemplo, aquí nos da igual que la edad sea igual a cero y vamos a formar nuestro DATA 
+MESH, por ejemplo, también necesitamos la tabla ‘Empresa’, la tabla ‘Transacciones’ y aplicamos nuestras propias reglas 
+ignorando las reglas de calidad aplicadas en UNIVERSAL y tenemos esas tablas con las propias reglas que la solución defina qué 
+significa una tabla correcta. Desde un punto de vista conceptual es eso. Desde un punto de vista de implementación bueno es 
+todo lo que hemos explicado a nivel de arquetipos, pero, conceptualmente simplemente ignorar UNIVERSAL y apuntar directamente 
+a las fuentes de datos y que ellos mismos definan sus propias reglas de calidad. Ese repositorio que contiene las tablas 
+corregidas es lo que se conoce como un DATA MESH y es particular para cada realidad de cada solución. En ocasiones también es 
+particular para cada área de la empresa, cada área en ocasiones también puede tener su propio DATA MESH. Así que ese 20% 
+excepcional está relacionado con el DATA MESH. 
+
+-----------------------------------------------------------------------------------------------------------------------------
