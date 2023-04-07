@@ -8,9 +8,9 @@ de datos no es algo tan simple como copiar y pegar un archivo, hay muchos patron
 ya tenemos a data lista. De hecho, también hicimos 2 implementaciones una en un ambiente agnóstico y otra en una nube en 
 específico. Una vez que los datos sean capturados sobre la arquitectura ¿qué es lo que se va a hacer? por supuesto que hemos 
 dado muchas definiciones arquitectónicas, pero, ahora es hora de programar, es hora de hacer las soluciones con los datos, nos 
-pueden pedir desde algo tan simple como: “ … oye en función de estas tablas que has capturado, pues, quiero que me hagas un proceso 
+pueden pedir desde algo tan simple como: " … oye en función de estas tablas que has capturado, pues, quiero que me hagas un proceso 
 y que me construyas un reporte, por ejemplo, o en función de estas tablas que has capturado, pues, quiero que me hagas un modelo de 
-red neuronal … “. Entonces, dentro de una empresa la parte de soluciones tiene una amplia variedad dependiendo de qué es lo que el 
+red neuronal … ". Entonces, dentro de una empresa la parte de soluciones tiene una amplia variedad dependiendo de qué es lo que el 
 negocio nos pida. Al hablar de soluciones tenemos que hablar desde el punto de vista de la arquitectura de 2 cosas:
 
 1.- La infraestructura en donde las soluciones se van a ejecutar. Sin infraestructura pues el código no se ejecuta.
@@ -29,7 +29,7 @@ lo habíamos definido en la pizarra en nuestra primera sesión.
 
 Este concepto lo podemos implementar en nube. Quizá el día de hoy necesitamos 5 servidores para procesar la volumetría empresarial que 
 tenga la empresa ese día y mañana, digamos que es Navidad y las ventas se duplican y venden doble de datos a procesar, entonces, como 
-estamos en nube es tan simple como decir: “ … oye dame más servidores y listo … “ y vamos a poder seguir atendiendo el nivel de 
+estamos en nube es tan simple como decir: " … oye dame más servidores y listo … " y vamos a poder seguir atendiendo el nivel de 
 servicio. En teoría se resume en eso. Por supuesto que hay que entrar en el detalle técnico arquitectónico, en primer lugar, AL HABLAR 
 DE UN CLÚSTER DE INFRAESTRUCTURA PARA BIG DATA TENEMOS QUE SABER QUE EXISTEN DIFERENTES ROLES EN LOS SERVIDORES QUE CONFORMAN EL 
 CLÚSTER. 
@@ -51,14 +51,14 @@ aplicando ese concepto a la volumetría que tú tienes, pues, podría ser el cá
 día de hoy aprenderemos a hacer SIZING de la vista arquitectónica para infraestructura, eso lo vamos a ver el día de hoy. 
 
 Ahora regresando a este primer ejemplo. Un data scientist o un Data engineer, no son los arquitectos, pueden verlo tranquilamente de 
-esa manera, dicen: “ … tenemos 10 servidores de 100 GB de RAM, entonces, tenemos 1.000 GB de RAM … “. Pero no es tan simple, porque, 
+esa manera, dicen: " … tenemos 10 servidores de 100 GB de RAM, entonces, tenemos 1.000 GB de RAM … ". Pero no es tan simple, porque, 
 los servidores no funcionan con magia, funcionan con un sistema operativo, generalmente tienen Redhat, Centos o alguna distribución de 
 servidores empresariales. Ellos, por ejemplo, piden 16 GB de RAM para funcionar, además dentro de este servidor van a haber otros 
 programas instalados, el firewall, el antivirus, otras cosas que le van a ir quitando RAM a ese servidor. Para efectos prácticos el 
 estándar desde el punto de vista de la infraestructura, porque, no hay un cálculo detallado que podríamos hacer, pero, el estándar nos 
 dice del 100% de la potencia de cada servidor nosotros debemos asumir que solamente tenemos a nuestra disposición el 80%, eso ¿qué 
 significaría? que si el server tiene 100 GB de RAM solamente vamos a poder usar 80 GB para nuestras soluciones. Tenemos 10 servidores 
-de 80 GB de RAM utilizables, entonces, realmente la potencia de ese Clúster es de 800 GB de RAM. Esta “potencia real” la tienes que 
+de 80 GB de RAM utilizables, entonces, realmente la potencia de ese Clúster es de 800 GB de RAM. Esta "potencia real” la tienes que 
 definir tú como arquitecto, ESTO SIGNIFICA EL 100% DE LA POTENCIA UTILIZABLE POR EL CLÚSTER DE BIG DATA (Se refiere a los 800 GB de 
 RAM). Ahora, adicionalmente a eso, ya sabemos que cada server solamente podremos utilizar a lo más el 80% de sus recursos 
 computacionales, eso lo debemos traducir a números concretos para decírselo a los desarrolladores y a los Data scientist, tendremos 
@@ -93,14 +93,14 @@ que los desarrolladores pueden usar. Digamos que para que sea fácil el cálculo
 total neta es de 1.000 GB. Ahora, hay que tener una estrategia de distribución y uso de recursos ¿a qué me refiero con  esto? tenemos 
 1.000 GB de RAM, ahora sobre el Clúster van a estar los desarrolladores trabajando con sus procesos, pero ¿qué es lo que va a pasar? no 
 es que un desarrollador va a estar solo en el Clúster trabajando, van a haber muchos desarrolladores, entonces, ¿qué es lo que puede 
-pasar? uno de ellos dice: “ … estamos en un Clúster de Big data, entonces, voy a tomar 500 GB de la infraestructura … “ el otro también 
-piensa lo mismo y dice: “ … yo también quiero 500 GB de RAM de la infraestructura … “ y listo, se llevaron el 100% de uso y el resto de 
+pasar? uno de ellos dice: " … estamos en un Clúster de Big data, entonces, voy a tomar 500 GB de la infraestructura … " el otro también 
+piensa lo mismo y dice: " … yo también quiero 500 GB de RAM de la infraestructura … " y listo, se llevaron el 100% de uso y el resto de 
 los desarrolladores de la empresa ya no pueden trabajar, porque, se cayó en el anti patrón conocido como MONOPOLIZACIÓN DE RECURSOS 
 COMPUTACIONALES, es decir, pocos procesos o pocos desarrolladores tomaron el 100% de la potencia del Clúster. Nuestro trabajo como 
 arquitectos es evitar este problema y tener una estrategia de distribución de recursos. Por ejemplo, podríamos definir lo siguiente: 
 por defecto cada desarrollador solamente puede tomar el 5% de la potencia del Clúster para trabajar, gracias a esto sabemos que 
 ¿cuántos desarrolladores como máximo pueden haber dentro del Clúster? si cada uno toma el 5% significa que a lo más pueden haber 20 
-desarrolladores trabajando de manera paralela en la infraestructura. Y si te dicen: “ … no pero nuestro equipo es de 50 personas … “. 
+desarrolladores trabajando de manera paralela en la infraestructura. Y si te dicen: " … no pero nuestro equipo es de 50 personas … ". 
 Entonces, tendremos que asignarle el 2% de la potencia a cada desarrollador y de esa manera puede haber 50 desarrolladores trabajando 
 sobre el Clúster. Acá lo estoy simplificando para entender el concepto pero, ¿qué significa el 2%? siempre hay que llevarlo a números 
 concretos, por ejemplo, si son 1.000 GB significa que cada desarrollador puede tomar 20 GB de RAM del Clúster, eso será mucho o poco, 
@@ -136,12 +136,12 @@ menos que eso no es una arquitectura empresarial. En el caso de los nodos maestr
 Ahora la pregunta es y ¿por qué 3? la respuesta se debe a que, lo voy a poner simple para poder entenderlo, porque, esto depende de la 
 tecnología y del ecosistema con el que se esté trabajando, pero, vamos a ponerlo simple al menos el día de hoy y ya mañana cuando veamos 
 una implementación real lo veremos más a detalle, se recomienda tener 3, porque, recuerden que el nodo maestro balancea la ejecución 
-entre los servidores ¿qué es lo que podría pasar? quizá el primer nodo maestro dice: “… hay que ejecutar el proceso en el server 1 … “ 
-y el segundo nodo maestro dice: “ … no, mejor ejecutemoslos en el server 2, ya que, está más libre … “, entonces, ¿en cual se ejecuta? 
-el tercer nodo maestro entra ahí y analiza ambos casos y vota por uno de ellos y dice: “ … yo creo que en el servidor 1 … “, entonces, 
+entre los servidores ¿qué es lo que podría pasar? quizá el primer nodo maestro dice: "… hay que ejecutar el proceso en el server 1 … " 
+y el segundo nodo maestro dice: " … no, mejor ejecutemoslos en el server 2, ya que, está más libre … ", entonces, ¿en cual se ejecuta? 
+el tercer nodo maestro entra ahí y analiza ambos casos y vota por uno de ellos y dice: " … yo creo que en el servidor 1 … ", entonces, 
 hay 2 votos para el servidor 1, un voto para el servidor 2 y el proceso se ejecuta en el servidor 1. Por eso siempre tienen que ser 
-números impares en los nodos maestros, para evitar el problema, porque, si fueran números pares un servidor dice: “ … en el server 1 … “ 
-y el otro dice: “ … en el server 2 … “, entonces, ¿en cual se ejecuta? alguien tiene que romper esa paridad. Hablando empresarialmente, 
+números impares en los nodos maestros, para evitar el problema, porque, si fueran números pares un servidor dice: " … en el server 1 … " 
+y el otro dice: " … en el server 2 … ", entonces, ¿en cual se ejecuta? alguien tiene que romper esa paridad. Hablando empresarialmente, 
 en Clústers empresariales, es suficiente con tener 3 nodos maestros, ya si nos fuéramos a un Clúster de investigación académica, por 
 ejemplo, para computación cuántica, a ahí el estándar cambia, podríamos tener 5 o 7, pero, lo importante es que siempre sean números 
 impares para evitar el problema que acabo de colocar aquí. Esto, por ejemplo, pasa en Spark, pasa con Zookeeper, pasa con muchas 
@@ -182,8 +182,416 @@ trabajar bien esas soluciones por más que los desarrolladores usen muy buenos p
 ahora sí formalmente hablando en la PPT y una vez entendido esos conceptos, volvamos a la pizarra y vamos a resolver un caso para ver 
 cómo se define la infraestructura y el día de mañana desplegaremos esa infraestructura sobre AZURE y veremos los tipos de soluciones 
 que tenemos y de esa manera bueno ya habremos trabajado con varios de los ecosistemas tecnológicos. Respecto a lo que es GCP, que no lo 
-hemos visto, vamos a hacer un “versus” para mencionarlo con AZURE y entender qué es lo que hay en ese otro ecosistema. Pero, como les 
+hemos visto, vamos a hacer un "versus” para mencionarlo con AZURE y entender qué es lo que hay en ese otro ecosistema. Pero, como les 
 dije, los patrones son agnósticos a los ecosistemas. 
 
 -----------------------------------------------------------------------------------------------------------------------------
 
+Roles estándar en clústers de Big data (Infraestructura en el curso de Big data)
+-------------------------------------------------------------------------------------------------------
+
+Primero deberemos hablar de los roles estándar que tienen los Clústers de Big data, ya los conocemos. Como mínimo son estos cuatro 
+roles. Un rol Gateway para que los desarrolladores se conecten y comiencen a trabajar. Ahí se conectan de manera remota con sus laptops, 
+generalmente con un cliente SSH y de esa manera trabajan desde su laptop conectado remotamente al Gateway. Dentro del Gateway ¿qué es 
+lo que podemos encontrar? Como mínimo va estar la consola de comandos de Linux, porque, son servidores Linux o si queremos, dentro del 
+Gateway, podemos instalar las interfaces gráficas de desarrollo, por ejemplo, podríamos instalar HUE, Jupyter o cualquier otra interfaz 
+gráfica para facilitar el trabajo de los desarrolladores. Las consolas de comando y las interfaces de desarrollo gráficas viven dentro 
+de los servidores Gateway.
+
+El otro rol también ya lo conocemos es el rol Master. Desde el Gateway los desarrolladores envían los comandos y en los nodos maestros 
+deciden la estrategia de ejecución sobre los nodos Esclavos. Luego, encontramos los servidores de Metadata, el rol de Metadata también 
+ya lo conocemos, es el encargado de guardar el catálogo de datos de las tablas estructuradas que creamos en la capa de UNIVERSAL. Es 
+muy importante proteger este nodo, porque, si perdemos ese nodo perdemos la Metadata, por lo tanto, perdemos el potencial gobierno de 
+datos que podemos hacer. Y por último, el rol esclavo. Estos son los nodos que procesan los datos, aquí es donde está la potencia de 
+procesamiento. 
+
+Esta es la distribución mínima desde el punto de vista de infraestructura, como mínimo tiene que existir eso. ¿Existen otros roles? por 
+supuesto que sí, por ejemplo, existe el rol de active directory, que es un servidor en donde están almacenados los usuarios y 
+contraseñas de las personas que pueden loguearse al Clúster o por ejemplo existe un servidor de kerberos que controla la seguridad de 
+los servicios que se ejecutan dentro del Clúster y así existen realmente muchos otros roles, pero si hablamos de exclusivamente de Big 
+data, como mínimo, deberán de ser esos cuatro roles. ¿Cómo son las implementaciones del Gateway y Metadata servers en las plataformas 
+de AWS o AZURE? si los tienen, pero, hay que activarlos. De hecho, el día de mañana en AZURE lo vamos a activar para poder ver tanto el 
+acceso al Gateway desde consola y el acceso al Gateway desde interfaz gráfica. Cuando tú instancias un Clúster ya los tienes, pero, hay 
+que activarlo para poder entrar sobre ellos, eso lo vamos a ver el día de mañana. Ahora, una vez que hemos entendido cuáles son los 
+roles estándar de un Clúster de Big data, hay que entender que sobre estos servidores se instalan servicios especiales, por ejemplo, 
+digamos que queremos instalar SPARK en nuestro Clúster, entonces, SPARK tiene un servicio que debe ser instalado en el Gateway, tiene 
+otro servicio que debe ser instalado en el Máster, otro en el Metadata y otro en los nodos Slaves. Ahora queremos instalar HIVE, que es 
+otra herramienta de procesamiento para Big data, es lo mismo, HIVE tiene ciertos servicios que deben ser instalados en el Gateway, otros 
+en el Máster, otros en el Metadata y otros en el Slave y así sucesivamente. Con esto me refiero a que, dependiendo de la tecnología que 
+tú quieras utilizar hay ciertos servicios que debes de instalar en cada uno de esos servidores. El despliegue de una herramienta 
+tecnológica implica instalar servicios de diferentes roles en cada servidor y hacía sucesivamente. Digamos que el día de mañana sale 
+una nueva herramienta de Big data que es mucho mejor que HIVE, o que SPARK o HADOOP, es muy buena esa herramienta. Hay que averiguar 
+cómo instalar esa herramienta, cómo se instala el servicio para el Gateway, el servicio para el Master, algunos tienen servicio para 
+Metadata, otros no y el servicio para los Slaves. Como mínimo. Esto lo tendrías que mapear en algún lugar, esto es lo que se llama el 
+GOBIERNO TECNOLÓGICO, saber cómo están distribuidos los servicios alrededor del Clúster. 
+
+
+SIZING
+------
+
+Ahora otro concepto importante que deben de entender y el que va a consistir el ejercicio del día de hoy, es hacer un SIZING de 
+infraestructura. ¿A qué me refiero con esto? digamos que estamos en una pequeña empresa, pues, dudo mucho que esa pequeña empresa 
+requiera de 1.000 servidores de 200 GB de RAM para funcionar. Ahora digamos que estamos en un banco transnacional, pues, dudo mucho que 
+ese banco requiera de solo 3 servidores Esclavos para funcionar. ¿Hacer SIZING que significa? escoger un número adecuado de servidores 
+según las necesidades de las soluciones que se implementarán dentro de la empresa. Ahora formalmente hablando con el SIZING tenemos que 
+identificar cuántos nodos se necesitan para cada rol, cuántos para el Gateway, para el Máster, para el Metadata y para los Esclavos. Y 
+adicionalmente a eso, cuáles son las características hardware de cada uno de esos nodos. Por ejemplo, ¿quiénes van a procesar? los 
+nodos Esclavos, entonces, ellos son los que deben tener mayor potencia computacional, por ejemplo, 300 GB de RAM cada nodo. En cambio, 
+el nodo Gateway solamente es a donde se conectan los desarrolladores y ahí no se va a procesar nada solamente se envían comandos, 
+entonces, un Gateway, pues, no va a ser de 300 GB de RAM, va a ser más pequeño. Así que, ¿qué implicará hacer SIZING? debemos de definir 
+cuántos nodos por rol necesitaremos y también cuánta RAM, CPU, Disco, Ancho de banda, GPU, DPU, NLPU, ¿cuánta potencia necesita cada 
+uno de estos roles? un nodo Gateway no necesita la misma potencia que un nodo Slave. En el nodo Slave es donde se procesa, en el nodo 
+Gateway es donde se conectan los desarrolladores, entonces, son servidores diferentes. Los nodos Slaves tienen que ser muy potentes y 
+los nodos Gateway tienen que ser muy concurrentes. De eso vamos a hablar más a detalle en unos momentos. Por ahora saber que simplemente 
+desde el punto de vista de la arquitectura y de infraestructura diferentes roles tienen diferentes necesidades de Hardware. Entonces, 
+en resumen, SIZING es definir el número de nodos por rol y la potencia de cada uno de esos servidores según su rol. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Consideraciones de recursos computacionales (Infraestructura en el curso de Big data)
+-------------------------------------------------------------------------------------
+
+Ahora que hemos ya entendido más formalmente esta primera PPT, vamos a la segunda para entender las consideraciones de lo que 
+significan los recursos computacionales. En esencia, un recurso computacional, yo lo he puesto muy simple, para entender los conceptos 
+hemos estado hablando solo de la memoria RAM, pero, hay otras cosas, hay Disco duro, hay CPU, hay GPU, hay Ancho de banda, entonces, 
+hay otras cosas que definen lo que es un recurso computacional. En síntesis, un recurso computacional es todo aquel elemento del 
+hardware que nos permita transportar, almacenar y procesar los datos. Por ejemplo, para transportar los datos sobre un Clúster se 
+utiliza la interfaz de red, mientras más rápida sea esa red mucho mejor. Por ejemplo, en el caso de los Clústers de Big data se 
+recomienda que como mínimo el ancho de banda sea de 10 gigabits por segundo como mínimo, porque, se van a estar moviendo muchos datos. 
+Ahora sí se puede tener 2 interfaces ethernet de 10 gigabits por segundo o una de 100 gigabits mejor todavía, pero como mínimo una de 
+estas dentro de cada servidor. ¿Para almacenar qué tenemos? tenemos 2 recursos: el Disco duro y la memoria RAM. En el Disco duro se 
+almacenan los archivos de manera permanente y en la memoria RAM se almacenan las variables de programación. Los desarrolladores cuando 
+trabajan empiezan a crear variables y empiezan a procesar, entonces, mientras más memoria RAM tengamos pues esos procesos pueden ser 
+más complejos. PARA PROCESAR, PUES, ¿QUIÉN PROCESA? LA MEMORIA RAM NO PROCESA, SOLAMENTE SOPORTA MUCHAS VARIABLES, QUIEN PROCESA SON 
+LAS CPU Y LA GPU. Por ejemplo, la CPU está especializada para soluciones generales y la GPU para soluciones tensoriales. De eso también 
+hablaremos más a detalle el día de mañana, pero, al menos por ahora simplemente unidades de procesamiento (la CPU clásica) o una 
+interfaz de procesamiento gráfico (la GPU). 
+
+Hay que entender bien cómo están relacionados estos 3 componentes dentro de un servidor. Los datos dentro de un Clúster van a entrar a 
+los servidores por medio de la interfaz de red, ya sabemos que la recomendación es de al menos 10 gigabits por segundo, si se puede 
+2 puertos ethernet de 10 gigabits por segundo y lo ideal sería que sea de 100 gigabits, aunque, les adelanto que esto podría ser un 
+exceso, en la gran mayoría de empresas con 10 gigabits es suficiente. Ok, tenemos buena velocidad de transferencia de datos. ¿Dónde se 
+guardan los datos? los datos se guardan dentro del Disco duro, por estándar se recomienda que tengamos al menos 100 TB de Disco duro en 
+cada servidor que formará parte de un Clúster de Big data, pero, este estándar es muy flexible, en ocasiones tienen discos de 20 TB, en 
+ocasiones tienen incluso discos de 10 TB. Respecto a la memoria RAM, se recomienda que los servidores tengan al menos 256 GB de RAM pero 
+misma historia, el estándar es flexible y podemos tener incluso hasta servers de 64 GB de RAM. Respecto a la CPU, se recomienda tener 
+al menos 40 núcleos de CPU, pero misma historia, el estándar también es flexible. Ahora, ¿cómo interactúan estos componentes? los 
+archivos de datos que viven en el DATA LAKE, esos archivos viven en el Disco duro, digamos que tenemos ya 100.000 archivos ingestados y 
+el día de hoy vamos a hacer un proceso que procesa cuatro de esos archivos. Esos cuatro archivos para procesarlos deberán de subirse a 
+la memoria RAM del servidor y ahora digamos que vamos a procesar un archivo de 100 GB, otro de 200 GB, otro de 300 GB y otro de 400 GB 
+en total tendríamos cerca de 800 GB, entonces, no va a alcanzar en la memoria RAM del servidor (tiene 256 GB de RAM), por eso hacemos 
+uso de los Clústers, para que los archivos se distribuyan en la memoria RAM de los diferentes servidores. En la memoria RAM se coloca 
+los archivos que se van a procesar y luego el desarrollador empezará a codificar su solución, cada línea de código la ejecuta la CPU. 
+La CPU tomará lo registros de los archivos que estén cargados en la memoria RAM y empezará a procesar. La CPU no habla directamente con 
+el Disco duro ¿por qué? porque la memoria RAM es 100 veces más rápida que el Disco duro, eso quiere decir que si usásemos Disco duro y 
+nuestro programa toma 100 minutos en ejecutarse, si los datos los hubiésemos cargado a la RAM el programa se hubiese ejecutado en tan 
+solo 1 minuto. Por eso todo lo que se va a procesar se debe de volcar a memoria RAM para ganar esa velocidad. Así es como funciona un 
+servidor común. 
+
+Ahora qué consideraciones adicionales debemos de saber: mientras más CPU tengamos en el Clúster más procesos en paralelo podrán 
+ejecutarse. Por ejemplo, si tenemos en total 400 CPU podemos tener 400 procesos ejecutándose, cada uno en una CPU diferente. También se 
+cumple que mientras más CPU tengamos más paralelizable va a ser nuestro proceso. ¿A qué me refiero con esto? implementamos una solución 
+que se está demorando 400 minutos y negocio te dice: " … yo lo quiero en 1 minuto … " entonces, podemos paralelizar nuestra solución en 
+esas 400 CPUs para que se ejecute 400 veces más rápido y, por lo tanto, el procesamiento pasará de 400 minutos a 1 minuto. Les adelanto 
+que no es tan fácil, pero en esencia, a eso se refiere, mientras más CPUs tengas puedes paralelizar más un proceso. Respecto a la 
+memoria RAM, mientras más RAM tengas, más archivos y tablas pesadas puedes procesar. Digamos que quieres procesar 1 TB de datos, tienes 
+en tu Disco duro un archivo de 1 TB y en total en tu Clúster solamente tienes 800 GB de RAM, no va a entrar ese TB de datos en la 
+memoria RAM tendríamos que instanciar más servidores para tener 1 TB de memoria RAM y poder volcar ese archivo para que pueda empezar 
+el procesamiento. Así que mientras más RAM tengas puedes procesar archivos cada vez más grandes. Ahora mientras más RAM tengas menos 
+memoria virtual vas a utilizar. ¿Qué es lo que pasa con muchas de las tecnologías de Big data? digamos que quieres procesar un archivo 
+de 1 TB, pero en total en el Clúster tienes solo 800 GB de RAM, te faltan 200 GB de RAM para procesar. ¿Qué es lo que hacen las 
+herramientas de Big data como SPARK u otras? desde Disco duro emulan memoria RAM y dicen: " … bueno los 200 GB que faltan vamos a 
+colocarlos dentro del Disco duro para emular memoria RAM … " a eso se le llama MEMORIA VIRTUAL, pero ¿cuál es el problema con emular 
+memoria RAM desde el Disco duro? que cualquier proceso que se ejecute aquí va a ir 100 veces más lento y, por lo tanto, tu solución se 
+va a demorar mucho. Así que hay que tratar de nunca utilizar esa memoria virtual. Respecto al Disco duro, ¿qué es lo que debemos de 
+saber? Pues, aquí está más fácil de entenderlo, mientras más capacidad de almacenamiento tenga tu Disco duro puedes guardar más cosas. 
+Aquí hay algo que no están obvio, MIENTRAS MÁS DISCOS DUROS TENGAS, MÁS PARALELIZABLE VAN A SER LAS LECTURAS Y ESCRITURAS DE LOS 
+ARCHIVOS. ¿A qué me refiero con esto? esto es un punto muy descuidado al momento de hacer despliegue de infraestructura. Supongamos que 
+tenemos un archivo de 1.000 GB y lo mandamos a escribir al Clúster y digamos que el Clúster tiene un Disco duro de 10 TB y tenemos un 
+archivo 1.000 GB, por lo tanto, lo va a escribir. Entonces, el cabezal de lectura/escritura del Disco duro empezará a escribir el 
+archivo y listo, lo escribirá y digamos que se demora 10 horas en escribir ese archivo que es muy grande. Ahora, voy a poner otro 
+escenario tenemos el mismo archivo de 1.000 GB de datos y en lugar de tener un gran Disco duro de 10 TB, tenemos 10 Discos duros pero 
+de 1 TB, al final el servidor tiene la misma potencia de almacenamiento, siguen siendo 10 TB, sólo que distribuidos en Discos duros de 
+1 TB. ¿Cuál es la ventaja de esto? cada Disco duro tiene su propio cabezal de lectura/escritura, la tecnología de Big data se da cuenta 
+de eso y dice voy a escribir este archivo de manera paralela en diferentes Discos duros y mandaré a escribir 100 GB de datos en cada 
+Disco duro y la escritura se hará 10 veces más rápido, ya no se va a demorar 10 horas en escribir, sino, que se demorará 1 hora. Vean 
+entonces que el número de Discos duros afecta la performance de escritura, cuando nosotros hagamos un despliegue, por ejemplo, digamos 
+que cada server necesita de 10 TB de almacenamiento, una cosa es un Disco duro de 10 TB y otra cosa son 10 Discos duros de 1 TB, siempre 
+nos va a convenir tener la mayor cantidad de Discos duros para aumentar la performance de escritura. 
+
+Ahora respecto al ancho de banda, pues, aquí también es simple, mientras más ancho de banda tú tengas, pues, la transferencia de 
+archivos entre los nodos Esclavos va a ser más rápido. Como mínimo 10 gigabits por segundo. 
+
+
+CPU
+---
+
+Hablemos primero de la CPU. Como arquitectos debemos de saber que formalmente hablando existen 3 términos que en ocasiones se utilizan 
+como sinónimos: CPU, núcleo de CPU y virtual CPU. Desde el punto de vista del procesamiento de Big data lo que nos interesa son las 
+"virtual CPU”. Vamos a explicarlo con un concepto simple para poder entenderlo. Primero entendamos la diferencia entre CPU y núcleo de 
+CPU. Por ejemplo, tenemos un servidor que tiene 6 CPUs, ahora formalmente hablando la CPU no es quien ejecuta las instrucciones de 
+código de las soluciones que los desarrolladores van a implementar, sino, que la ejecutan los núcleos de CPU. Al día de hoy es clásico 
+saber que una CPU es multinúcleo, eso significa que una misma CPU, por ejemplo, puede procesar en este caso cuatro hilos de manera 
+paralela, cuatro programas diferentes. Los núcleos de CPU son los que realmente procesan. ¿Eso qué significa? si tenemos 6 CPUs de 
+cuatro núcleos tenemos 24 núcleos de CPU. Esa es su notación. Ahora y ¿qué pasa en los servidores empresariales? en el mundo del gaming 
+probablemente has escuchado algo relacionado al término overclocking que es forzar el uso de las CPUs para que ejecuten más procesos de 
+manera más rápida. Algo parecido pasa con los servidores empresariales. Hay un factor conocido como "Hyperthreading”. Lo voy a poner 
+simple para poder entenderlo. Hay algunas CPU que dentro de su arquitectura de núcleos de CPU pueden ejecutar hasta 3 hilos en paralelo. 
+¿Que significaría? que si tenemos 6 CPUs de 4 núcleos (uCPU) de tendríamos 24 núcleos de uCPUs, pero cada una de ellas puede ejecutar 
+3 hilos de manera paralela, eso significaría que tendríamos 72 hilos que pueden ejecutarse sobre este servidor, 72 programas diferentes. 
+Aquí hay un potencial problema, si forzamos de esta manera, porque los servidores empresariales lo permiten, podríamos saturar una CPU 
+con 3 hilos concurrentes, ¿qué es lo que va a pasar? esta CPU va a terminar colapsando, porque, estamos usando el 100% de esa potencia. 
+Entonces, a pesar de que sí es cierto que podemos enviarle 3 hilos a un mismo núcleo de CPU, no es lo recomendable, porque, es el 
+límite máximo y va a terminar colapsando. Algunos utilizan un factor seguro, por ejemplo, 1.5, eso significa que esta CPU a veces 
+ejecutará un hilo y a veces se ejecutará 2 si está libre, eso ¿que significaría? tenemos 24 uCPUs con un factor de 1.5 y en total 
+tendríamos 36 hilos de procesamiento. ¿Qué término técnico se le llama a eso? 36 vCPUs "virtual CPUs”. Eso implica que un servidor 
+puede ejecutar hasta 36 programas de manera paralela o que un solo programa puede paralizarse hasta 36 veces más rápido. Les he puesto 
+un ejemplo, digamos que el vendedor de esta CPU dice que puedes ponerle hasta 3 hilos, pero nunca utilices el 100% de esa potencia, se 
+recomienda utilizar el 50%, el 1.5. 
+
+Entonces, ya entendimos la diferencia entre estos 3 términos. Entender esto es muy importante, porque, en los entornos de Big data los 
+procesos son escalables, ¿eso que significa? un proceso sobre una vCPU, digamos que se demora 24 horas, si colocamos ese mismo proceso 
+pero le asignamos 2 vCPUs ira el doble de rápido, si le asignamos 3 vCPUs mismo proceso irá el triple de rápido. Eso significa que se 
+cumple la escalabilidad lineal, mientras más vCPUs tu asignes a tu proceso, en ese mismo factor se incrementará la velocidad de tu 
+solución. También quiero que sepan que en la jerga técnica del día a día a las vCPUs simplemente les llaman CPU, así que, acá por 
+ejemplo tenemos 36 vCPUs, pero, para que los desarrolladores se entiendan y no estén confundiéndose con términos, para ellos simplemente 
+hay 36 CPUs y si se acabó, pero técnicamente hablando el término correcto es vCPU, pero todo el mundo le dice CPU. 
+
+Digamos que en cada servidor que va a tener nuestro Clúster tenemos 100 veces vCPUs, ahora este servidor no funciona por magia, 
+necesita recursos de vCPU para funcionar, ¿cuál es el estándar? en el caso de los nodos Gateway y los nodos Slave, el 20% de las vCPUs 
+estarán asignadas para que el server funcione y el 80% restante estarán asignadas para que los desarrolladores puedan conectarse al 
+Gateway y, por ejemplo, si tenemos 80 vCPUs significa que pueden conectarse hasta 80 desarrolladores de manera concurrente, cada uno 
+tendrá su CPU para poder ejecutar su programa y empezar a enviar comandos. En el nodo maestro, como aquí no se va a procesar nada, el 
+100% de las vCPUs se utilizan para que el server funcione y en los nodos Esclavos pasa lo mismo que en el servidor Gateway, un 20% de 
+las vCPUs se reservan para que el server funcione y el 80% restante son los que los desarrolladores pueden utilizar. 
+
+Respecto a la memoria RAM que es lo que deberemos de saber, pues, ¿qué es lo que va a pasar? sobre la memoria RAM de cada servidor se 
+van a cargar los archivos de datos a procesar, entonces, mientras más grande sea el archivo de datos pues más memoria RAM vas a 
+necesitar. Aquí estará el proceso que procesará este archivo de datos, hará un reporte o hará una red neuronal, hará lo que tenga que 
+hacer. ¿Dónde se ejecutan las líneas de código? eso los ejecutan las vCPUs, mientras más CPU tenga asignado tu proceso, más rápido va a 
+ir. Termina el proceso y hay un OUTPUT. ¿Ese OUTPUT donde se guarda? siempre se guarda primero en memoria RAM y si quieres de ahí ya lo 
+bajas a Disco duro. 
+
+Ahora el problema es y ¿qué pasa por ejemplo si entran 10 GB de datos a procesar y el output es de 200 GB y solamente tenemos 100 GB de 
+RAM? 90 GB se guardarán aquí y se saturó la RAM y los 110 GB restantes se guardarán dentro de memoria virtual, se emulará memoria RAM 
+desde Disco duro. Entonces, hay que entender que elegir una buena cantidad de memoria RAM va a depender del tamaño de archivos de datos 
+que vamos a procesar, porque si no, se va a utilizar memoria virtual, así que, si tus servidores tienen poca memoria RAM, tus procesos 
+van a ir lento. Pero ¿qué significa poca memoria RAM? eso va a depender de los archivos de datos. 
+
+Consideren por favor respecto a la RAM la "reserva”, un 20% de la RAM se reservan en los nodos Gateway y Esclavos para que el server 
+funcione y el 80% restante de la RAM son los que los desarrolladores pueden usar para hacer sus procesos. Como el nodo maestro no 
+procesa nada, ahí sí el nodo maestro utiliza el 100% de la memoria RAM que tenga ese servidor. Este mismo ejemplo de RAM y CPU se puede 
+aplicar para otros recursos computacionales. 
+
+Ahora en el caso del Disco duro aquí cambia un poco la cuestión, ya deberíamos poder entender este ejemplo. Digamos que de alguna 
+manera que aún no conocemos determinamos que cada servidor del Clúster debe de tener 5 TB de almacenamiento, ya sabemos que una cosa es 
+tener 5 TB en un solo disco y otra cosa es tener 5 TB en 5 discos de 1 TB. Nos conviene tener la mayor cantidad de Discos duros en la 
+infraestructura para que las herramientas de Big data puedan paralelizar las escrituras y de esa manera la escritura será 5 veces más 
+rápida, así que, no solamente enfocarnos en la volumetría que se necesitará de Disco duro para cada servidor, sino, tratar de que esté 
+distribuido en muchos Discos duros. 
+
+Otro punto importante es que dentro de un servidor empresarial existen Discos duros para diferentes cosas, por ejemplo, hay un Disco 
+duro en donde está instalado el sistema operativo, generalmente es un Disco duro muy pequeñito, es un SSD para que el servidor se 
+encienda rápidamente. Hay otro Disco duro exclusivo para instalar programas, hay un Disco duro para tener los temporales que generan 
+los programas, hay un Disco duro en donde se guardan los logs, hay un Disco duro en donde está el home de cada usuario, por ejemplo, si 
+hay 80 usuarios cada uno tiene, así como en Windows o en Mac, cada usuario tiene su propio escritorio en donde guarda cosas, igual en 
+los servidores Linux, cada uno tiene su propio home donde guardarán los archivos con los que está trabajando, entonces, si hay 80 a 
+usuarios tendríamos 80 homes, entonces, eso también es un Disco duro aparte. Y luego, están los Discos duros de datos, que es donde ya 
+se guarda la data empresarial, lo que va a vivir dentro del DATA LAKE, los archivos de datos que vamos a procesar en algún momento. 
+Estos Discos duros de hecho pueden ser particiones. ¿A qué me refiero con esto? puede ser solamente un Disco duro que está particionado 
+y cada partición está asignada a diferentes directorios del sistema operativo, así que también puede ser solamente un único Disco duro. 
+¿El SIZING donde se realiza? en el Disco duro de datos. Generalmente, ya los servidores empresariales te dicen cuánto Disco duro 
+necesitan para el sistema operativo, para los programas, los temporales los logs y los home, entonces, eso te lo tendría que decir el 
+que te vende los servidores. Ahora los discos de datos son donde guardamos los archivos de datos a procesar, vamos a procesar las 
+transacciones de 10 años del banco ¿cuánto pesa eso? 10 TB, entonces, hay que subirlo al Clúster de Big data. O estamos en una empresa 
+más pequeña y vamos a procesar solo 1 TB de datos, entonces, necesitaremos menos discos duros. Ahí es donde se realiza el SIZING. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Estándar Hardware para servidores según roles (Infraestructura en el curso de Big data)
+---------------------------------------------------------------------------------------
+
+Ahora que hemos entendido estas consideraciones vamos a hablar del standard hardware según los roles del Clúster. Antes de ver esto 
+quiero que entiendan que esto es solamente un estándar flexible es solamente una guía, no es algo absoluto, porque, puede haber, por 
+ejemplo, servidores Esclavos, el estándar dice de 256 GB de RAM y si tienes servidores de 64 GB de RAM ¿significa que no puedes hacer 
+Big data? Claro que no, si puedes. Esto es solamente una guía referencial. 
+ 
+Hay 2 preguntas que debemos responder: ¿cuántos nodos necesitamos por rol? eso todavía no lo vamos a responder. Lo que sí vamos a 
+responder es y ¿cuál es la capacidad de recursos computacionales según cada rol? por ejemplo, en el nodo Gateway como mínimo se 
+recomienda que tenga 32 GB de RAM y 20 vCPU. El nodo Gateway no almacena datos, así que, no necesita discos de datos, todo se almacena 
+en los nodos Esclavos. Ahora, ¿qué es lo recomendado? lo recomendado es que tenga 128 GB de RAM y 40 vCPU, este es el estándar. 
+
+Ahora respecto al nodo maestro se recomienda que como mínimo tenga 128 GB de RAM y 20 vCPUs y lo recomendado es que tenga 256 GB de 
+RAM y 40 vCPUs. Van a ver el día de mañana en el ejercicio práctico que de hecho podemos ponerle incluso nodos maestros de 32 o 16 GB 
+de RAM y aun así va a funcionar el Clúster. Pero igual les estoy mostrando los estándares. El problema con estos estándares es que no 
+se adecuan a las realidades de cada empresa, por ejemplo, si tú eres una transnacional quizás necesites más potencia, ahora si tú eres 
+solamente una pequeña empresa con un par de sucursales entre diferentes ciudades, quizás 128 sea mucho. Así que como les digo, esto es 
+solamente una guía referencial, pero nosotros vamos a romper esos estándares y adecuarlos a nuestra necesidad. Eso lo vamos a hacer el 
+día de mañana al hacer un despliegue vivo para poder entenderlo y poner una solución sobre ese Clúster.  
+
+Ahora respecto a los nodos Esclavos, el estándar actualmente nos dice que como mínimo esos nodos Esclavos deben de tener 256 GB de RAM, 
+40 vCPUs y 20 TB de Disco duro en HDD, no es necesario que sean SSD. Pero ¿qué es lo recomendado? lo que el presupuesto dé. Aquí es 
+donde tienes que tratar de que los nodos Esclavos sean lo más grandes posible, por eso no hay un recomendado, va a depender realmente 
+de la realidad empresarial, incluso hay servidores que tienen 1 TB de memoria RAM cada uno. 
+
+Respecto a los nodos de Metadata como mínimo se recomienda que tengan 32 GB de RAM y 10 vCPUs y un Disco de datos en donde se almacenan 
+los metadatos de 1 TB en SSD. Lo recomendado son 64 GB de RAM con 20 vCPUS y también 1 TB de SSD. 
+
+Ahora yo les he dicho que el nodo Gateway, Master y Slave, puede ser flexible y se puede adecuar, pero por favor los nodos de metadatos 
+eso sí sigan los estándares. Con el mínimo es suficiente, con 32 GB de RAM, 10 vCPUs y con 1 TB de SSD es suficiente. Tiene que tener 
+esa potencia, no le pongan menos que eso, recuerden que si pierden el nodo de metadatos pierden todo su DATA LAKE, pierden todas las 
+estructuras de los datos. Si hay un estándar que respetar en la infraestructura sería sólo el de nodo de Metadatos, el resto sí es 
+flexible. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Estándar para cantidad de nodos según rol (Infraestructura en el curso de Big data)
+-----------------------------------------------------------------------------------
+
+Ya tenemos entonces las recomendaciones según los estándares. Ahora vamos a conceptualmente a responder la siguiente pregunta: ¿cuántos
+nodos necesitamos para cada rol? ya lo habíamos visto en la pizarra, como mínimo 2 Gateways, porque, es la puerta de entrada al Clúster, 
+si colapsa un Gateway tenemos el otro activado. En el caso de los nodos maestros como mínimo 3, eso es porque los nodos maestros deciden 
+que nodos Esclavos ejecutar, el número uno dice: " … vamos a ejecutar en el server 1 … " el otro nodo maestro dice: " … vamos a ejecutar 
+en el server 3 … " y entonces el tercer nodo maestro hace el desempate y dice: " … ejecutemos en el server 1 … ". En el caso de los 
+nodos de Metadata, también ya sabemos que debemos tener al menos 2 de estos servidores y si uno colapsa, en ese momento instanciar 
+automáticamente otro y hacer la copia de seguridad, porque, si perdemos la Metadata se perdió todo el mapeo de del catálogo de datos. 
+Ya tenemos entonces acá una justificación de qué deberemos de usar según cada como rol como mínimo. 
+
+Ahora y ¿qué pasa con los nodos esclavos? pues eso va a depender del caso. Quiero que noten lo siguiente: cuando estemos trabajando en 
+una empresa siempre se van a trabajar en 3 entornos diferenciados, el entorno de desarrollo, el entorno de calidad y el entorno de 
+producción. En el entorno de desarrollo es donde los desarrolladores se conectan a trabajar. Un desarrollador termina su proceso y dice: 
+" … mi proceso ya está listo … ", lo pasan al Clúster de calidad y el equipo de calidad hace las pruebas para ver si el proceso es 
+correcto. Si el proceso es incorrecto, calidad lo regresa al entorno de desarrollo y el desarrollador corrige las observaciones, hace 
+sus pruebas dentro del Clúster de desarrollo y dice: " … ya hice las correcciones … " y pasan el proceso al Clúster de calidad, el 
+Clúster de quality (QA). Ahora digamos que el de calidad hace las pruebas sobre el proceso y dice: " … ahora sí está bien el proceso … " 
+y ahora sí el proceso pasa al Clúster productivo y el Clúster productivo ya se queda de manera permanente. Noten que los Clústers de 
+desarrollo y de producción son Clústers de paso. Hay un proceso, se termina, se prueba y ya en el Clúster productivo es donde vive de 
+manera permanente. ¿Por qué es importante entender esto? dentro de una empresa generalmente lo que va a crecer en el tiempo en el número 
+de nodos es el Clúster productivo, porque, ahí es donde se van a ir acumulando los procesos, porque, aquí en el Clúster de desarrollo el 
+desarrollador termina de trabajar y listo, el proceso ya no existe ahí. Nuestro enfoque siempre debe estar en ver que el crecimiento del 
+Clúster de producción sea coherente al número de procesos concurrentes que vayan aterrizando a lo largo del tiempo. En cambio, el 
+Clúster de desarrollo y producción al ser temporales esos no crecen tan rápido como si va a serlo el Clúster productivo. De hecho hay 
+un estándar de recomendación al día de hoy, por ejemplo, si estamos en un Clúster de desarrollo o de certificación se recomienda hacer 
+primero un despliegue de 10 servidores Esclavos, solamente desplegar 10 servidores Esclavos, ahora ¿qué potencia va a tener eso? pues va 
+a depender del número de vCPUs. CUANDO HABLEMOS DE LA POTENCIA DE PROCESAMIENTO NUNCA HAY QUE FIJARNOS EN LA MEMORIA RAM, HAY QUE 
+FIJARNOS EN LA CPU ESE ES OTRO ERROR QUE MUCHOS COMETEN. Voy a poner un número fácil digamos que el 100% de la potencia neta es decir 
+cuando se le calcula el 80% y todo lo que explicamos, son 1.000 vCPUs. Ahora en el Clúster de desarrollo y de certificación tu como 
+arquitecto tendrás que definir la estrategia de uso de estos Clústers. Por ejemplo, dirás: " … vamos a asignarle el 5% de la potencia 
+de este Clúster a cada desarrollador … " el 5% de 1.000 vCPUs serían 20 vCPUs para cada desarrollador. Y te dicen: " … oye pero nuestro
+equipo de trabajo es de 40 desarrolladores … " ok, eso ¿qué significa? dividiremos 1.000 entre 40 para saber cuál es el porcentaje y 
+digamos que sale el 2% y el 2% sería (me invento un numero) 10 vCPU para cada desarrollador. Y de esa manera entrarían los 40 
+desarrolladores. Eso es lo importante que en el Clúster de desarrollo en particular tengas la estrategia de cuánta potencia del Clúster 
+va a utilizar el desarrollador y saber cuántos desarrolladores van a ver de manera concurrente. 
+
+Otro punto importante aquí es que, digamos que tenemos 100 desarrolladores y cada uno de ellos hace uso del 2% de la potencia del 
+Clúster y los proyectos de Big data van bien y ahora hay 200 desarrolladores. Eso significa que para seguir manteniendo ese 2% por 
+desarrollador, como se duplicó el número de desarrolladores habría que duplicar el número de servidores para que nuestra estrategia 
+siga siendo del 2%. Por eso se dice que el arquitecto debe de definir cuál es esa estrategia, cuánto puede usar cada desarrollador, el 
+equipo va a crecer, si crece el equipo hay que aumentar servidores para seguir manteniendo el 2%, porque, sino, el Clúster va a terminar 
+colapsando, ya que, hay muchos desarrolladores conectados y entre ellos se van a empezar a quitar recursos y los procesos no se van a 
+empezar a ejecutar. Lo mismo pasa con el Clúster de certificación ¿cuántas son las personas del equipo de calidad que van a estar 
+haciendo pruebas de manera concurrente? 10 personas, 20 personas, 30 personas y deberemos ver qué porcentaje del 100% le toca a cada 
+uno, si del 100% tenemos 20 personas en el equipo de calidad, implicaría que cada uno se lleva el 5% de la potencia del Clúster. Si 
+tenemos 40 personas implicaría que cada uno deberá llevarse 2.5, el 2.5% de la potencia del Clúster. Así que para efectos simples es 
+dividir el 100% entre el número de personas que estarán conectadas de manera concurrente. Ahora hay que traducir eso a números concretos 
+¿qué significa 2.5% de 1.000 CPUs? significa 25 vCPUs, entonces, tienen bastante CPU para poder hacer sus pruebas. Pero ¿qué pasa, por 
+ejemplo, si solamente tienen 2 CPUs? significa que esta infraestructura es muy pequeña, entonces, hay que poner más servidores para que 
+tengan más potencia de procesamiento. Por eso les dije que al final es realmente jugar con los números y ver qué tanta potencia le va a 
+tocar cada desarrollador. Ojo, que aquí estoy hablando del Clúster de desarrollo y de certificación, no estoy hablando del Clúster 
+productivo, porque, ahí cambia la historia. 
+
+En un Clúster productivo es donde ya van a vivir los procesos de manera permanente. Ahora la pregunta es ¿cuántos servidores 
+necesitamos? digamos que hacemos el cálculo y nos sale que necesitamos 100 servidores. Ahora, lo ideal sería poder hacer un despliegue 
+de esos 100 servidores el día uno, pero, recuerda que, digamos que van a ver 1.000 procesos, hiciste tu cálculo de 1.000 procesos y 
+necesitas 100 servidores, pero, eso no significa que el día de mañana los desarrolladores ya terminaron los 100 procesos que se iban a 
+implementar, van a ir avanzándolos por partes, primero harán 2, luego harán otros 5, luego harán 3. Entonces, no es que desde el día 
+uno necesites los 100 servidores. La estrategia que se recomienda es ir colocándolos de 10 en 10, mientras se van haciendo los 
+desarrollos, o sea, si tu cálculo te salió de 100 servidores no despliegues en la nube los 100 servidores directamente, sólo despliega 
+10, porque, si no vas a tener 90 servidores que van a estar encendidos y no van a ser aprovechados. Así que hay que tener una 
+estrategia de despliegue parcial, porque, al día siguiente no van a estar implementados todos los procesos. 
+
+Ahora el problema que nos está quedando es: ya sabemos que en un Clúster productivo, si tenemos 100 servidores los vamos a ir 
+desplegándose de 10 en 10, pero ¿cómo sabemos si necesitamos 100 servidores o 200 servidores o 300 o 400 o 500? eso va a depender de 
+cada empresa. Así que vamos a ver cómo se calcula el número de nodos Esclavos. Básicamente este es el pequeño resumen, una vez entendido 
+el proceso esto ya se entiende fácil, pero, yo lo voy a contar en la pizarra para poder entenderlo en un escenario de la vida real. El 
+punto de partida para hacer el SIZING de infraestructura en el Clúster productivo, va a ser la volumetría de los datos. ¿A qué me 
+refiero con esto? tendremos que construir un Excel de este tipo, en una columna debemos de colocar las fuentes de datos que vamos a 
+cargar al Clúster. Voy a ponerlo simple para poder entenderlo, porque en la vida real van a ser literalmente miles de tablas, archivos, 
+pero, vamos a poner algunas pocas para entender el concepto. Digamos que vamos a cargar la tabla 'persona', la tabla 'empresa', la 
+tabla 'transacción' y un archivo JSON. Esas van a ser las cuatro fuentes de datos que van a vivir en el Clúster. Ahora ¿qué es lo que 
+debemos de saber de cada fuente? generalmente dentro de la empresa ya hay datos históricos acumulados, hay que saber cuál es el peso 
+histórico. Pero, antes de hablar del peso histórico, digamos que esta es una empresa que ha estado trabajando 50 años y en su base de 
+datos hay 50 años de historia. ¿Realmente al Clúster de Big data le tenemos que cargar esos 50 años de historia? y te podrían decir lo 
+siguiente: " … a mí de la historia en el caso de la fuente 'pesona' solamente me interesan los últimos 20 años, en el caso de las 
+'empresas' solamente me interesa cargar los últimos 5 años, en el caso de las 'transacciones' solamente me interesan cargar los últimos 
+5 años, en el caso del archivo semiestructurado me interesan los 3 últimos años … ". Hay que saber cuánta data histórica se va a cargar. 
+Luego de eso, hay que saber cuánto pesa esa data histórica y digamos que todas las fuentes pesan 100 TB.  Ahora, una vez que sabemos 
+cuánto pesa la historia que va a ser cargada, la siguiente pregunta es ¿y hay deltas asociados? es decir, ya cargamos los 20 años de 
+historia, pero al día siguiente en la fuente de datos se van a seguir creando registros. ¿Hay deltas? y la respuesta puede ser: sí, el 
+delta aquí es un día, es decir, al día siguiente te voy a enviar en un archivo de datos los nuevos registros que se han creado en la 
+fuente. En el caso de las 'empresas' digamos que el delta es cada 7 días, en el caso de la tabla 'transacción' digamos que cada día y 
+en el caso del JSON digamos que es cada mes. Ok, ya sabemos, entonces, cuál es el delta. Lo siguiente que deberíamos de hacer es 
+calcular el peso del delta que se va a generar en 1 año, por ejemplo, si en 20 años tenemos 100 TB ¿cuál sería el peso que se va a 
+generar en un año? pues, para la fuente 'persona' serían 100 TB entre 20 años, serían 500 GB diarios. Tendremos que averiguar cuál es 
+ese peso delta por año. De esa manera ¿qué es lo que sabemos? tendremos lo siguiente: para cargar los datos históricos necesitaremos de 
+400 TB de almacenamiento, luego, para que el Clúster pueda funcionar por 1 año, necesitaremos digamos 10 TB en total. Por lo tanto, 
+¿qué es lo que tendríamos? para que el Clúster funcione por 1 año necesitamos los 400 TB de la carga histórica más los 10 TB que se va 
+a generar ese año. Si queremos que el Clúster funcione por 2 años serían los 400 TB más los 10 TB anuales que se van a generar por 
+2 años o sea 20 TB y así sucesivamente. Por tanto, el primer año obtenemos 410 TB, para el segundo año 420, para el tercer año 430 y 
+así sucesivamente. Al final deberemos de tener una tabla de este tipo, el tiempo al menos hasta 5 años y en otro lado la capacidad de 
+almacenamiento que deberá de tener el Clúster para poder guardar los datos que se van a generar a lo largo de cada año. Entonces, ya 
+tenemos la estrategia de cómo va a ir evolucionando la carga de los datos. Una vez que ya tenemos esto, lo siguiente que debemos de 
+hacer es: como mínimo hay que dar un soporte de infraestructura de 1 año y luego ya el siguiente año, pues, iremos aumentando los 
+servidores. Eso significa que para que el Clúster esté funcionando por 1 año necesitaremos 410 TB, por ejemplo, eso es lo que nos ha 
+salido en el cálculo. Pongamos un número redondo para que sea fácil de calcular, digamos que las fuentes de datos que vamos a cargar 
+en total suman 1.000 TB. Ahora ¿cómo lo vamos a distribuir? podríamos hacer lo siguiente: podríamos instanciar 10 servidores, en donde 
+cada servidor va a almacenar 100 TB de datos, esa podría ser una estrategia. Otra podría ser instanciar 100 servidores, en donde cada 
+uno de ellos va almacenar 10 TB de datos. Ahora, quiero que notes salgo muy importante aquí, aquí depende del presupuesto de la empresa, 
+o sea, sí o sí esto es lo que se va a cargar durante 1 año, ahora ¿cómo se distribuye eso? mientras más servidores tengamos nos va a 
+convenir más, pero, mientras más servidores tengamos más costosos será el Clúster. Hay que llevar entonces a negocio una tabla de este 
+tipo. Sí estos 1.000 TB podemos distribuirlos de la siguiente manera: 100 TB en 10 servidores de 256 GB de RAM ¿a cuánto nos sale? 
+iremos a la nube en donde vamos a hacer el despliegue y veremos cuánto está el server de 256 GB y vemos que nos sale 1.000 USD mensuales 
+por servidor. Eso quiere decir que serían 10.000 USD mensuales por los 10 servidores y negocio te dice: " … no es demasiado … " 
+entonces, tú le preguntas: " … y cuál es el presupuesto … ", nuestro presupuesto es de 5.000 USD. De acuerdo, serán 100 TB, es lo que 
+se necesita, es lo que tú quieres procesar. Seguiremos usando 10 servidores para distribuirlo en 10 nodos diferentes de 10 TB, pero, 
+pues usaremos servidores de 128 GB de RAM, ya que, dices que quieres disminuir el presupuesto. Esta es la forma en cómo realmente se 
+hace un despliegue, porque, no es técnico, depende del presupuesto que tenga la empresa. Ahora digamos que estás en un gran banco y te 
+dicen: " … dame tu un número y yo veré si está dentro del presupuesto … ", entonces, tú podrías poner varias alternativas. Otra 
+alternativa sería distribuir esos 1.000 TB en 100 servidores de 256 GB de RAM y saldrían a 100.000 USD mensual. Entonces, como estás 
+dentro de un gran banco te dicen: " … no hay ningún problema, aprobado … ", como que pueden que te digan: " … es demasiado, te puedo 
+aprobar hasta 50.000 USD mensuales … ". Entonces disminuimos la potencia a 128 GB, seguiremos teniendo los 100 servidores, solo que 
+ahora tendrán menos potencia. Esta es la forma real en cómo se hace el SIZING de infraestructura, el punto de partida siempre van a ser 
+los datos, luego tu como arquitecto tendrás que proponer diversas alternativas de cómo distribuir, trata siempre de que los servidores 
+tengan 256 GB de RAM, pero, en la vida real qué es lo que va a pasar dentro de la empresa va a haber limitantes de presupuestos, vas a 
+llevar varias alternativas con diferentes presupuestos, tú ya deberías de conocer la realidad de la empresa. Por ejemplo, 100.000 USD 
+mensuales para un gran banco no es nada, pero, 100.000 USD mensuales para una pequeña empresa sería un exceso, entonces, quizás esto 
+sea un número más realista para tu empresa, eso lo tienes que conocer como arquitecto para que vayas a presentar esa propuesta. Acá lo
+estoy poniendo en pizarra, pero, es claro que hay que ponerlo en un documento bonito y hacer una presentación formal y explicárselo a 
+negocio para que lo entienda. Vean como en ningún momento estoy haciendo el análisis de los procesos que van a ejecutarse dentro del 
+Clúster, porque, qué tal que si en el Clúster todos los procesos van a hacer redes neuronales que consumen muchos recursos 
+computacionales. Lo ideal sería saber cuánto va a consumir cada solución que vamos a implementar, pero, eso de antemano no lo vas a 
+saber, es irreal. Cuántas soluciones, cuál es la potencia que necesita cada solución para funcionar, eso solamente se sabe al momento 
+de desarrollar la solución, no lo puedes saber de antemano. Así que, es una mala práctica partir de la potencia necesaria para las 
+soluciones, siempre se parte de la cantidad de datos, porque, eso sí lo podemos calcular, sabemos cuáles son las fuentes de datos que 
+van a cargarse para hacer las soluciones y el resto ya es en función de la negociación que tú tengas con la gente de negocio y el 
+presupuesto, esa es la realidad. Hacer esto de hecho es difícil, no en el sentido de los cálculos, sino, en el sentido de que negocio 
+te apruebe el presupuesto mensual y esa va a ser la realidad con la que te vas a encontrar. 
+
+Así que en resumen la parte de infraestructura, más que técnica es saber cuántos datos se van a cargar y cuál es el presupuesto que 
+tenemos para hacer ese despliegue y presentarles diferentes maneras de distribuir los datos en los servidores, 1.000 TB pueden ser 
+distribuidos en 10 servidores como que 1.000 TB pueden ser distribuidos en 100 servidores. Por supuesto que, 100 servidores nos van a 
+salir 10 veces más costoso que 10 servidores. En un banco quizás te den el OK para 100 servidores, en una pequeña empresa quizás te 
+digan ok para 10 servidores, eso ya depende de la realidad de cada negocio. 
+
+¿Qué es lo que vamos a ver el día de mañana? vamos a hacer un despliegue de infraestructura para que veas la parte técnica de cómo se 
+hace eso dentro de una empresa en una nube en particular, nosotros vamos a utilizar AZURE y adicionalmente a eso, vamos a hablar de los 
+diferentes tipos de soluciones que pueden existir dentro de esta infraestructura y de las diferentes herramientas tecnológicas que 
+existen y con eso ya tendríamos una visión completa de cómo hacer una definición arquitectónica. También por favor recuerda que todo lo 
+que yo les estoy mostrando aquí debe estar documentado, porque, todo esto se va a construir en documentos. Ahora ¿existe un estándar de 
+documentación? la respuesta es no, cada empresa maneja su propio estándar de documentación y si no lo tiene, es parte del trabajo del 
+arquitecto crear también ese estándar de documentación. Por eso se dice que los puestos de arquitectura en Big data son los puestos 
+mejores pagados porque implican un nivel de responsabilidad muy altos. Si esa arquitectura está mal definida, los proyectos no van a 
+funcionar bien o el día uno quizá empiece a funcionar bien, pero, cuando ya pasen a producción en el día 20 todo empezará a colapsar. 
+Ya el día de mañana veremos un ejemplo real en concreto sobre AZURE para ver esto en práctica. 
+
+-----------------------------------------------------------------------------------------------------------------------------
