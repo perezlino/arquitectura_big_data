@@ -1,0 +1,189 @@
+=======
+CLASE 7
+=======
+
+Vamos a hablar de la parte de soluciones y esto ¿qué implica? ya sabemos cómo colocar los datos que van a procesarse dentro 
+de la arquitectura desde un punto de vista de datos estructurados, semi estructurados y no estructurados. Además, ese movimiento 
+de datos no es algo tan simple como copiar y pegar un archivo, hay muchos patrones de diseños que hemos visto. Pero al final 
+ya tenemos a data lista. De hecho, también hicimos 2 implementaciones una en un ambiente agnóstico y otra en una nube en 
+específico. Una vez que los datos sean capturados sobre la arquitectura ¿qué es lo que se va a hacer? por supuesto que hemos 
+dado muchas definiciones arquitectónicas, pero, ahora es hora de programar, es hora de hacer las soluciones con los datos, nos 
+pueden pedir desde algo tan simple como: “ … oye en función de estas tablas que has capturado, pues, quiero que me hagas un proceso 
+y que me construyas un reporte, por ejemplo, o en función de estas tablas que has capturado, pues, quiero que me hagas un modelo de 
+red neuronal … “. Entonces, dentro de una empresa la parte de soluciones tiene una amplia variedad dependiendo de qué es lo que el 
+negocio nos pida. Al hablar de soluciones tenemos que hablar desde el punto de vista de la arquitectura de 2 cosas:
+
+1.- La infraestructura en donde las soluciones se van a ejecutar. Sin infraestructura pues el código no se ejecuta.
+
+2.- El código y los patrones de diseño de las soluciones. 
+
+Hoy hablaremos de ese primer punto, el tema de la infraestructura y el día de mañana trataremos el segundo punto, el tema de los 
+patrones de diseño según cada solución. Y por supuesto utilizaremos otra nube para ver un ejemplo en vivo para ver cómo se implementan 
+esos patrones arquitectónicos. Mañana lo haremos sobre AZURE. 
+
+Hablemos entonces de la parte de infraestructura. Al hablar de temas de Big data y de Cloud estamos hablando de Clústers elásticos, 
+lo habíamos definido en la pizarra en nuestra primera sesión. 
+
+
+¿Qué era un Clúster elástico? 
+
+Este concepto lo podemos implementar en nube. Quizá el día de hoy necesitamos 5 servidores para procesar la volumetría empresarial que 
+tenga la empresa ese día y mañana, digamos que es Navidad y las ventas se duplican y venden doble de datos a procesar, entonces, como 
+estamos en nube es tan simple como decir: “ … oye dame más servidores y listo … “ y vamos a poder seguir atendiendo el nivel de 
+servicio. En teoría se resume en eso. Por supuesto que hay que entrar en el detalle técnico arquitectónico, en primer lugar, AL HABLAR 
+DE UN CLÚSTER DE INFRAESTRUCTURA PARA BIG DATA TENEMOS QUE SABER QUE EXISTEN DIFERENTES ROLES EN LOS SERVIDORES QUE CONFORMAN EL 
+CLÚSTER. 
+
+
+Servidores Slaves
+-----------------
+
+Generalmente al hablar de qué tan potente es el Clúster, pues, hablamos de los servidores SLAVES, los servidores esclavos, mientras más 
+servidores esclavos tenga tu Clúster, más potencia de procesamiento va a tener. Aquí hay que tener bastante cuidado, esto ya lo vamos a 
+ver a detalle en las PPT, pero lo voy a poner simple para que sea entendible, digamos que cada server tiene 100 GB de RAM, hablemos 
+solo de la RAM para entender el concepto, y tenemos 10 servidores, pues, en total tendríamos una potencia computacional de 1.000 GB de 
+RAM, ese sería un cálculo fácil de definir. Ahora, un desarrollador un Data scientist o un Data engineer podría verlo así de simple, 
+tenemos 10 servers esclavos, entonces, si cada uno tiene 100 GB tendríamos 1000 GB. El tamaño del Clúster está en función de los nodos 
+esclavos y eso está en función de la volumetría que manejen los datos a ser procesados. Voy a poner un ejemplo de cómo se calcula la 
+volumetría, vamos a partir de números fáciles de poder calcular, digamos que la empresa tiene 100.000 GB de datos a procesar en total 
+entre todos los procesos que hay y en función de eso podemos hacer un cálculo para saber el tamaño de su infraestructura. Entonces 
+aplicando ese concepto a la volumetría que tú tienes, pues, podría ser el cálculo de cuál sería el SIZING, esa es la palabra clave. El 
+día de hoy aprenderemos a hacer SIZING de la vista arquitectónica para infraestructura, eso lo vamos a ver el día de hoy. 
+
+Ahora regresando a este primer ejemplo. Un data scientist o un Data engineer, no son los arquitectos, pueden verlo tranquilamente de 
+esa manera, dicen: “ … tenemos 10 servidores de 100 GB de RAM, entonces, tenemos 1.000 GB de RAM … “. Pero no es tan simple, porque, 
+los servidores no funcionan con magia, funcionan con un sistema operativo, generalmente tienen Redhat, Centos o alguna distribución de 
+servidores empresariales. Ellos, por ejemplo, piden 16 GB de RAM para funcionar, además dentro de este servidor van a haber otros 
+programas instalados, el firewall, el antivirus, otras cosas que le van a ir quitando RAM a ese servidor. Para efectos prácticos el 
+estándar desde el punto de vista de la infraestructura, porque, no hay un cálculo detallado que podríamos hacer, pero, el estándar nos 
+dice del 100% de la potencia de cada servidor nosotros debemos asumir que solamente tenemos a nuestra disposición el 80%, eso ¿qué 
+significaría? que si el server tiene 100 GB de RAM solamente vamos a poder usar 80 GB para nuestras soluciones. Tenemos 10 servidores 
+de 80 GB de RAM utilizables, entonces, realmente la potencia de ese Clúster es de 800 GB de RAM. Esta “potencia real” la tienes que 
+definir tú como arquitecto, ESTO SIGNIFICA EL 100% DE LA POTENCIA UTILIZABLE POR EL CLÚSTER DE BIG DATA (Se refiere a los 800 GB de 
+RAM). Ahora, adicionalmente a eso, ya sabemos que cada server solamente podremos utilizar a lo más el 80% de sus recursos 
+computacionales, eso lo debemos traducir a números concretos para decírselo a los desarrolladores y a los Data scientist, tendremos 
+800 GB de RAM como máximo. Ahora hay que hablar de los umbrales peligrosos. De ese 100% disponible que son 800 GB de RAM, digamos que 
+en este momento hay cuatro desarrolladores conectados, uno de ellos toma 100 GB, otro también, otro también y otro también, ahí 
+estaríamos utilizando 400 GB de RAM y estaríamos al 50% del uso de la potencia del Clúster, entonces, todavía tenemos de sobra. Pero 
+vienen más desarrolladores y empiezan a reservar potencia del Clúster para hacer sus soluciones. Digamos que ahora estamos al 80% del 
+uso, cuando se está al 80% del uso de la potencia neta del Clúster (lo que realmente se puede utilizar), cuando los desarrolladores que 
+están trabajando en el Clúster han alcanzado el 80% de la potencia neta de la infraestructura, es señal de que debemos de hacer crecer 
+el Clúster, este se lumbral máximo. Superado ese 80%, digamos ya estamos al 90% de uso, va a terminar colapsando esa infraestructura. 
+En el peor de los casos, en el mejor de los casos va a detener los desarrollos de todos los desarrolladores, porque, el Clúster ya está 
+saturado. Estoy seguro de que varios de ustedes se han encontrado con el caso en donde un proceso monopoliza el uso del Clúster y 
+detiene la ejecución de otros procesos, eso pasa mucho en la vida real dentro de las empresas. Así que como arquitectos nuestro deber 
+es definir ese umbral, cualquier cosa que esté por debajo del 80%, no hay ningún problema, que las personas sigan trabajando como 
+gusten. Pero cuando pasamos ese umbral del 80% del uso, es señal de alerta, eso significa que hay un peligro de posible colapso. ¿Qué 
+es lo que debemos de hacer? aumentar más servidores para llevarlo como mínimo, digamos que aumentamos cuatro servidores, porque, 
+estamos en nube y somos elásticos y ahora tenemos (voy a inventar cualquier número que sea fácil de manejar) ahora tenemos 1.200 GB de 
+RAM y lo que estamos usando ya no es el 80%, sino, que ahora regresamos al 60% y tenemos un 40% libre. ESA ES LA SIGUIENTE 
+RECOMENDACIÓN, CUANDO EL USO DE LA INFRAESTRUCTURA YA ESTÁ EN EL UMBRAL DEL 80% COMO MÍNIMO HAY QUE ESCALAR, ES DECIR, INSTANCIAR 
+NUEVOS SERVIDORES ESCLAVOS QUE GARANTICEN QUE EL USO SEA DE UN 60% UNA VEZ QUE HEMOS AGREGADO MÁS SERVIDORES, COMO MÍNIMO, PUEDE SER 
+MÁS, PERO, COMO MÍNIMO HAY QUE BAJARLO HASTA UN 60%. Vean, entonces, que no es tan simple la definición de los nodos esclavos, hay 
+estándares y buenas prácticas que tenemos que definir en la parte de infraestructura, no es tan simple como instancio servidores a lo 
+que yo crea y que pase lo que tenga qué pasar. 
+
+Otro punto importante, noten que solo estamos hablando de los servidores esclavos, porque, aún hay otros 3 tipos de servidores 
+diferentes para que vean cómo es esto de la infraestructura, hay varios patrones de diseño de los cuales debemos de hablar. 
+
+Otro punto importante respecto a los servidores esclavos es que deberemos de tener una estrategia de uso del Clúster. ¿A qué me refiero 
+con esto? voy a hablar solo de los servidores esclavos, digamos que tenemos del 100% de la potencia neta que sería el 80% de la 
+potencia total. Si este Clúster tiene 1.200 GB de RAM, ya sabemos que a eso le sacamos el 80% y eso sería el 100% de la potencia neta 
+que los desarrolladores pueden usar. Digamos que para que sea fácil el cálculo son 1.000 GB de RAM una vez que sacamos 80%, la potencia 
+total neta es de 1.000 GB. Ahora, hay que tener una estrategia de distribución y uso de recursos ¿a qué me refiero con  esto? tenemos 
+1.000 GB de RAM, ahora sobre el Clúster van a estar los desarrolladores trabajando con sus procesos, pero ¿qué es lo que va a pasar? no 
+es que un desarrollador va a estar solo en el Clúster trabajando, van a haber muchos desarrolladores, entonces, ¿qué es lo que puede 
+pasar? uno de ellos dice: “ … estamos en un Clúster de Big data, entonces, voy a tomar 500 GB de la infraestructura … “ el otro también 
+piensa lo mismo y dice: “ … yo también quiero 500 GB de RAM de la infraestructura … “ y listo, se llevaron el 100% de uso y el resto de 
+los desarrolladores de la empresa ya no pueden trabajar, porque, se cayó en el anti patrón conocido como MONOPOLIZACIÓN DE RECURSOS 
+COMPUTACIONALES, es decir, pocos procesos o pocos desarrolladores tomaron el 100% de la potencia del Clúster. Nuestro trabajo como 
+arquitectos es evitar este problema y tener una estrategia de distribución de recursos. Por ejemplo, podríamos definir lo siguiente: 
+por defecto cada desarrollador solamente puede tomar el 5% de la potencia del Clúster para trabajar, gracias a esto sabemos que 
+¿cuántos desarrolladores como máximo pueden haber dentro del Clúster? si cada uno toma el 5% significa que a lo más pueden haber 20 
+desarrolladores trabajando de manera paralela en la infraestructura. Y si te dicen: “ … no pero nuestro equipo es de 50 personas … “. 
+Entonces, tendremos que asignarle el 2% de la potencia a cada desarrollador y de esa manera puede haber 50 desarrolladores trabajando 
+sobre el Clúster. Acá lo estoy simplificando para entender el concepto pero, ¿qué significa el 2%? siempre hay que llevarlo a números 
+concretos, por ejemplo, si son 1.000 GB significa que cada desarrollador puede tomar 20 GB de RAM del Clúster, eso será mucho o poco, 
+va a depender, va a depender del tipo de solución, pero al menos el día de hoy todavía no estamos hablando de los tipos de solución, de 
+eso vamos a hablar el día de mañana. LO IMPORTANTE ES SABER QUE HAY QUE TENER UNA ESTRATEGIA DE USO DE RECURSOS DEL CLÚSTER, DEFINIR 
+CUÁNTA POTENCIA PUEDE USAR CADA DEVELOPER. 
+
+
+Servidores Gateway
+------------------
+
+Entonces, como hay varios detalles técnicos que como arquitectos debemos definir para la parte de infraestructura. Ahora yo solamente 
+les he hablado de los nodos esclavos, aquí es donde está la potencia de procesamiento del Clúster, pero existen otros roles, por 
+ejemplo, está el rol Gateway que también se le conoce como Edge. Este es un nodo especial en donde los desarrolladores se conectan para 
+comenzar a trabajar, es un servidor Linux clásico. Desde aquí, por ejemplo, programan en Python con Spark, le dan Enter y el comando 
+que han mandado a ejecutar se paraleliza en los diferentes servidores esclavos. El Gateway solamente sirve para que los desarrolladores 
+se conecten y empiecen a enviar comandos. Ahora ¿qué es lo que pasa en una infraestructura de la vida real, en una empresa? El Gateway 
+es el servidor que es la puerta de entrada al Clúster, se recomienda tener varios de estos Gateways ¿por qué? porque si colapsa el 
+Gateway y solo tenemos se pierde la puerta de entrada al Clúster y los desarrolladores no pueden trabajar. La pregunta ahora sería y 
+¿cuántos Gateway se recomienda tener? como mínimo 2 y ¿cuántos desarrolladores pueden estar conectados? eso va a depender del número de 
+CPU, pero de eso hablaremos más a detalle después. 
+
+
+Servidores Master
+-----------------
+
+Ahora, existe otro tipo de rol llamado rol Maestro. el Gateway envía los comandos, pero, ¿quién define la estrategia de paralelización 
+en los nodos esclavos? eso lo definen los nodos maestros. Entonces realmente el Gateway se comunica con el nodo maestro, el nodo maestro 
+recibe el comando y decide en qué servidores paralelizar la ejecución de ese comando. Aquí también hay otro estándar, porque, pasa lo 
+mismo que con el Gateway, si perdemos el nodo maestro, pues, ya no tenemos acceso a los nodos esclavos y no podemos enviar los comandos, 
+así que, hay que tener varios nodos maestros. En el caso de los Gateways como mínimo se recomienda tener 2 Gateways, sin excepción, 
+menos que eso no es una arquitectura empresarial. En el caso de los nodos maestros como mínimo se recomienda tener 3 nodos maestros. 
+Ahora la pregunta es y ¿por qué 3? la respuesta se debe a que, lo voy a poner simple para poder entenderlo, porque, esto depende de la 
+tecnología y del ecosistema con el que se esté trabajando, pero, vamos a ponerlo simple al menos el día de hoy y ya mañana cuando veamos 
+una implementación real lo veremos más a detalle, se recomienda tener 3, porque, recuerden que el nodo maestro balancea la ejecución 
+entre los servidores ¿qué es lo que podría pasar? quizá el primer nodo maestro dice: “… hay que ejecutar el proceso en el server 1 … “ 
+y el segundo nodo maestro dice: “ … no, mejor ejecutemoslos en el server 2, ya que, está más libre … “, entonces, ¿en cual se ejecuta? 
+el tercer nodo maestro entra ahí y analiza ambos casos y vota por uno de ellos y dice: “ … yo creo que en el servidor 1 … “, entonces, 
+hay 2 votos para el servidor 1, un voto para el servidor 2 y el proceso se ejecuta en el servidor 1. Por eso siempre tienen que ser 
+números impares en los nodos maestros, para evitar el problema, porque, si fueran números pares un servidor dice: “ … en el server 1 … “ 
+y el otro dice: “ … en el server 2 … “, entonces, ¿en cual se ejecuta? alguien tiene que romper esa paridad. Hablando empresarialmente, 
+en Clústers empresariales, es suficiente con tener 3 nodos maestros, ya si nos fuéramos a un Clúster de investigación académica, por 
+ejemplo, para computación cuántica, a ahí el estándar cambia, podríamos tener 5 o 7, pero, lo importante es que siempre sean números 
+impares para evitar el problema que acabo de colocar aquí. Esto, por ejemplo, pasa en Spark, pasa con Zookeeper, pasa con muchas 
+tecnologías. 
+
+
+Servidores Metadata
+-------------------
+
+Ahora el otro punto importante, se acuerdan de que hablamos del DATA LAKE y que había una capa de UNIVERSAL en donde los datos estaban 
+estructurados, por ejemplo, aprendimos a convertir data semiestructurada en vistas estructuradas y también aprendimos a convertir una 
+imagen que era data no estructurada en un tensor que era data estructurada. La data estructurada tiene metadata asociada. Ahora, ¿dónde 
+se guarda esa metadata? hay servidores especiales para almacenamiento de metadata, dentro de esos servidores es donde está, por ejemplo, 
+tal directorio está asociado a tal tabla o tal directorio tiene un archivo JSON o tal directorio tiene un tensor. Dentro de ese servidor 
+se asocia tal directorio del sistema de archivos tiene tal tabla estructurada o tal tensor estructurado, ahí está la metadata de los 
+archivos. ¿Qué es lo que pasa en ese servidor? Pues, si pierdes ese server pierdes la metadata, digamos que puedes crear una tabla con 
+3 campos, tenemos un archivo estructurado que tiene el campo nombre, apellido y dirección, esa metadata se guarda dentro de un servidor 
+especial y si pierdes ese servidor perdiste tu metadata. Así que ¿qué es lo que se recomienda en la parte de servidores de 
+almacenamiento de metadatos? tener al menos 2 de estos servidores para qué si colapsa uno tenemos una réplica en el otro, pero, aquí 
+hay un punto muy importante, aquí la metadata es lo más valioso que debemos de cuidar, porque, para poner un ejemplo, digamos que 
+tenemos mala suerte y se malogran los 3 Gateways, bueno no pasa nada, pues, creamos 3 nuevos servidores en la nube y listo, ya están 
+tenemos los Gateways. O lo mismo, se malogran los 3 masters, no pasa nada, volvemos a crear 3 nuevos servidores maestros y les 
+instalamos los servicios maestros. Pero ¿qué pasa si se mueren los 2 de servidores de metadata? Ok, voy a crear 2 nuevos servidores, 
+pero, perdí la metadata, ya no la tengo, no la puedo recuperar. Así que estos servidores son muy sensibles y aquí hay una regla 
+especial: en el caso de los servidores que almacenen metadata el estándar es como mínimo 2. Digamos que tienes mala suerte y justo uno 
+colapsa, bueno, tenemos la réplica, pero, inmediatamente colapse el servidor de metadata, en ese momento dentro de nuestro Clúster 
+elástico se debe de crear otro servidor y hacer la copia desde el servidor activo, hasta que este servidor se recupere, porque, puede 
+ser que nunca se recupere por alguna falla técnica del servidor. pero no importa en caliente hacemos una copia o puede que tengamos 
+suerte y si lo recuperamos, entonces, borramos esa copia adicional que teníamos. Hay que cuidar bastante la metadata, porque, es el 
+punto desde donde parte el gobierno de datos, ahí está el CATÁLOGO DE DATOS, está tal tabla, está tal archivo o tal archivo de imagen 
+se tensorizó, entonces, TODA LA CAPA UNIVERSAL DEL DATA LAKE ES METADATA, hay que cuidar mucho esos servidores. 
+
+Con este primer pequeño resumen quiero que vean entonces que la parte de infraestructura tiene muchos detalles técnicos que hay que 
+entender, vamos a revisar cuatro PPT para entender a detalle toda esta parte técnica, digamos que ya tenemos una noción general, es muy 
+importante, de hecho es un punto clave definir bien la infraestructura, porque, sobre una buena infraestructura van a ejecutarse las 
+soluciones, digamos que traemos a los mejores desarrolladores del mundo, pero, si la infraestructura está mal definida, pues, no van a 
+trabajar bien esas soluciones por más que los desarrolladores usen muy buenos patrones de diseño. Primero, entendamos algunos conceptos 
+ahora sí formalmente hablando en la PPT y una vez entendido esos conceptos, volvamos a la pizarra y vamos a resolver un caso para ver 
+cómo se define la infraestructura y el día de mañana desplegaremos esa infraestructura sobre AZURE y veremos los tipos de soluciones 
+que tenemos y de esa manera bueno ya habremos trabajado con varios de los ecosistemas tecnológicos. Respecto a lo que es GCP, que no lo 
+hemos visto, vamos a hacer un “versus” para mencionarlo con AZURE y entender qué es lo que hay en ese otro ecosistema. Pero, como les 
+dije, los patrones son agnósticos a los ecosistemas. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+

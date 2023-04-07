@@ -1,0 +1,833 @@
+====================================
+CLASE 6 - TRABAJAR EN LA NUBE DE AWS
+====================================
+
+Ahora adicionalmente hay otras cosas que desde el punto de vista arquitectónico vamos a tener que saber y van a estar 
+relacionados con el ecosistema tecnológico, lo cual es la vista tecnológica. ¿A qué me refiero con esto? por ejemplo, 
+yo les había dicho, es claro que va a haber infraestructura en donde se va a estar ejecutando nuestro código y hay que 
+hacer un SIZING de infraestructura, esta es la vista de infraestructura. Adicionalmente a eso, en la vida real dentro 
+de una empresa, pues, van a haber diferentes infraestructuras para diferentes unidades de la organización: para marketing, 
+para ventas, para cobranzas. ¿Eso qué implica? habrá infraestructuras que estarán aisladas entre sí dentro de una misma 
+red. Entonces, desde un punto de vista de infraestructura no es saber simplemente el SIZING (cuántos nodos necesitan mi 
+solución), sino, también que esto va a estar dentro de una red grande y dentro de esta red grande, tendrá una subred, la 
+estrategia de red y probablemente algunas subredes se comunicarán y otras no. Esto por ejemplo lo vamos a ver el día de 
+hoy ya en vivo con una herramienta en particular que es sobre AWS con el VPC, que nos va a permitir aislar partes de 
+infraestructura. ¿Qué otra cosa va a pasar? otro concepto arquitectónico que vamos a ver en vivo el día de hoy y una vez 
+entendido ya lo vamos a definir en los planos de las soluciones es la ELASTICIDAD. Esto se utiliza sobre todo mucho en 
+la parte CLOUD. ¿A qué me refiero con esto? Digamos que el área de marketing generalmente procesa 1 TB de información 
+diaria y la infraestructura para procesar ese TB son en total 10 servidores de 100 gigas de RAM y con eso no tiene ningún 
+problema, puede procesar el TB y la infraestructura le responde en 2 horas y negocio y dice: " … ok, está dentro del 
+rango de tiempo esperado, así que todo está perfecto … ". Pero llegan las fiestas navideñas y el TB de datos que se 
+suponía tenía que venir, pues, ahora es el doble, vienen 2 TB, ¿cuál es el problema? de que el Clúster lo va a poder 
+procesar, no hay ningún problema, la infraestructura lo va a poder procesar, el problema es que ahora se va a demorar 
+mucho más tiempo y negocio te va a decir: " … yo lo necesito en 2 horas, en 4 horas no, porque, ya no puedo hacer mi 
+estrategia de negocio … ". Bueno, no pasa nada, al estar en un entorno nube tenemos el concepto de ELASTICIDAD. ¿Eso que 
+significa? el día de hoy viene el doble de la información, bueno vamos a ponerle entonces el doble de la potencia, eso 
+quiere decir que, en lugar de 10 servidores, utilizaremos 20 servidores, solo por el día de hoy, y de esa manera cumpliremos 
+el nivel de servicio esperado por negocio. Esto arquitectónicamente también tenemos que incluirlo, este concepto se llama 
+ELASTICIDAD, vamos a verlo primero en vivo para ver un despliegue real de esto y ya en la próxima sesión vamos a armar los 
+planos arquitectónicos de todos estos conceptos que estamos mencionando. 
+
+¿Entonces hasta ahora que tenemos? dos conceptos: uno propiamente de la infraestructura y en particular, de las redes, no 
+necesariamente todo va a estar sobre una misma red, van a ver subredes. El otro, esa infraestructura puede que sea ELÁSTICA, 
+según necesidad de negocio podemos crecer o decrecer, por eso se llama ELÁSTICA. Digamos que el día de mañana no viene 1 TB, 
+solamente vienen 500 GB, entonces, con 5 servidores es suficiente y se facturará solamente por el uso de esos 5 servidores. 
+Pasado mañana vienen 4 TB, necesitaremos cuatro veces más potencia, entonces, solo por ese día se pagará cuatro veces más. 
+La arquitectura tiene que ser elástica. 
+
+¿Qué otro concepto importante tenemos que aprender? Desde un punto de vista de gobierno, la arquitectura tiene que saber 
+quién es el OWNER del proceso. ¿Esto qué significa? ¿quién es el dueño asociado a los recursos en donde el proceso se está 
+ejecutando? a qué me refiero con recursos, recursos son el código, los datos que procesa ese código y la infraestructura en 
+donde se ejecuta el código. Todo esto tiene que tener un usuario dueño asociado, a ese usuario se le conoce como el OWNER 
+(propietario). ¿Quién es él OWNER, por ejemplo, negocio te pide un proceso para construir una red neuronal que envíe 
+promociones según el perfil del cliente? hay que definir un usuario OWNER, quién es el dueño. Un mal patrón de diseño en la 
+arquitectura ¿cuál sería? por ejemplo, digamos que pepito@empresa.com es el OWNER de esta infraestructura, los datos y de los 
+recursos. Pero pepito recibe un mejor trabajo y se cambia de trabajo y este correo se desactiva, entonces, la infraestructura, 
+los datos y el código se quedó sin OWNER, porque, ya no existe ese usuario dentro de la lista de directorios de usuarios de la 
+empresa. LO QUE HAY QUE HACER ES CREAR SIEMPRE UN ROL ESPECIAL QUE NO DEPENDA DE UN USUARIO EN PARTICULAR, que sea 
+intercambiable, que el día de hoy este rol OWNER lo tenga pepito, pero, si pepito se va, se cambia el rol a juanito. Esto, por 
+ejemplo, también es un patrón de diseño arquitectónico para la integración con el gobierno, ¿quién es el dueño? aquí también 
+algo muy importante cuando se habla de gobierno de datos en el mundo de Big data, hablar solamente de gobierno de datos ya 
+sería todo un curso aparte, pero, enfoquémonos sólo en la parte de Big data, muchos mal confunden gobierno de datos con 
+solamente los datos, la data que viven en las bases de datos, pero el gobierno de datos implica también, gobierno del código y 
+gobierno de la infraestructura y gobierno de esa integración entre ellos 3. Esto lo vamos a verlo en vivo también para poder 
+entenderlo mejor como un concepto y ya la próxima semana una vez que en vivo hayamos visto todos estos conceptos, ya nos 
+dediquemos exclusivamente a ver los planos arquitectónicos. 
+
+También antes de comenzar quiero que entiendan que existen muchos ecosistemas tecnológicos, ya la próxima semana vamos a ir 
+detallando uno a uno. Básicamente son 5 ecosistemas tecnológicos, HADOOP, AWS, AZURE, GCP y DATABRICKS. Cada uno tiene sus
+Propios juegos de herramientas para hacer diferentes cosas, lo importante es que primero vamos a definir los últimos planos 
+que nos faltan que son esta parte y las soluciones y luego sobre ellos veremos, dependiendo el ecosistema tecnológico (hoy 
+trabajaremos con AWS), con todas esas herramientas tendríamos que hacer esa construcción y si mañana lo queremos hacer con 
+AZURE, pues, los planos arquitectónicos con los patrones de diseño seguirán siendo los mismos, lo que va a cambiar es, bueno, 
+AZURE tiene otras tecnologías, entonces, lo haremos con esas otras tecnologías. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Donde van a vivir los datos y la infraestructura (Ubicación)
+------------------------------------------------------------ 
+
+Vamos a resolver entonces este laboratorio y ya no lo vamos a hacer con algo tan simple como código, vamos a hacerlo con una 
+herramienta AWS. Lo primero que deberías tener es tu cuenta gratuita de AWS. Lo que debes de saber respecto a la parte CLOUD, 
+es que HAY QUE TENER UNA ESTRATEGIA DE DÓNDE VAN A VIVIR LOS DATOS Y LA INFRAESTRUCTURA. Se recomienda que vivan lo más cercano 
+posible a la ubicación física en donde tú estés. Digamos vamos a crear un servidor en la nube en AWS y vamos a subir un archivo 
+de 1 MB. Ese archivo va a ir por internet y aterrizará en ese server, ¿pero el server donde vive? probablemente en la granja de 
+servidores de AWS en Estados Unidos. ¿Cuánto se va a demorar en transferir ese archivo de 1 MB? Probablemente, ni medio minuto, 
+lo hará muy rápido. Pero en la vida real en la empresa vamos a procesar GB y TB y la transferencia de red puede ser un cuello 
+de botella. es por eso que muchos servicios en nube tienen diferentes ubicaciones para que tú selecciones sobre qué lugar 
+quieres trabajar. Por ejemplo, nosotros podríamos trabajar en SAO PAULO, ya que, físicamente está más cercano a lo a lo que 
+vamos a resolver. Ahora realmente para el ejercicio da igual, porque, vamos a subir datos que son muy pequeñísimos, pero, por 
+ejemplo, en AWS tendrías que ir a SAO PAULO. 
+
+Ahora, detalle de la vida real, LOS SERVIDORES EN ESTADOS UNIDOS SON MUCHO MÁS BARATOS QUE LOS SERVIDORES QUE ESTÁN EN OTRAS 
+UBICACIONES. Esto está generalmente relacionado por temas de impuestos, porque, por ejemplo, si viene AWS y quiere poner su 
+granja de servidores de en Brasil, pues la ley le va a pedir que pague impuestos y se le agregue el 18% o lo que tenga que 
+agregarse y bueno, entonces, generalmente en eso se traduce, además, que el costo de administrar algo fuera de Estados Unidos 
+es mayor para Amazon, así que, también tienen que tener en cuenta eso. Generalmente igual se prefiere esto, se prefiere ganar 
+velocidad de transferencia de red a costa del costo adicional que vas a pagar por estar cerca a tu ubicación. Pero si pueden 
+esperar, digamos que un archivo de 1 TB se toma 1 hora en subirse en un servidor de EE.UU y en un servidor de BRAZIL se demora 
+50 minutos, que son 10 minutos más, no habría problema, va a depender también de la velocidad de red que tenga la empresa. Por 
+eso les digo, son varios factores. 
+
+Para efectos prácticos, nosotros vamos a trabajar en "Norte de Virginia". Otro punto importante que debes de saber de la 
+infraestructura es que yo podría crear un server en Estados Unidos, uno en Asia, otro en América del Sur y hacer que los 3 se 
+vean como si estuvieran dentro de una red local y va a funcionar y el Clúster va a funcionar. Por supuesto, que eso es una mala 
+práctica. ¿Por qué? Porque LA INFRAESTRUCTURA TIENE QUE ESTAR CERCANA ENTRE SÍ, así que, al menos si es un proyecto, UN 
+PROYECTO DEBE DE TRABAJAR EN UNA MISMA UBICACIÓN GEOGRÁFICA. Si marketing quiere trabajar en el Norte de Virginia y cobranzas 
+quiere trabajar en Sao paulo, ahí no hay problema, pero, si marketing quiere trabajar parte en Sao paulo y parte en Virginia, 
+eso sí es un problema y es un anti-patrón de diseño, eso también tiene que estar documentado en las PPT. Ahora entendámoslo 
+conceptualmente y veamos en vivo cómo funciona. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Creación de red virtual (VPC)
+-----------------------------
+
+Ya hemos elegido entonces la ubicación en donde vamos a trabajar. Desde el paso 5 vamos a crear esta red virtual que me va a 
+permitir ver toda la infraestructura, los datos y el código, todo lo que yo cree dentro de esta ubicación tiene que verse entre 
+sí como si estuviese dentro de una red local. Para eso en el buscador de servicios vamos a buscar VPC, que es el servicio de 
+recursos aislados en nubes (la VIRTUAL PRIVATE CLOUD) y de esta manera vamos a aislar todos los recursos que yo cree. 
+
+Vamos a crear entonces una red virtual, buscaremos VPC, le daré clic acá, esperaremos unos segundos y si has creado una cuenta 
+gratuita por defecto ya tienes una red virtual creada, si no, la tuvieses, acá te va a aparecer que no existe ninguna red 
+virtual, entonces, no puedes crear nada, primero crea tu red y luego crea los servidores para que se puedan ver dentro de la 
+red. Por lo tanto, si nos aparece un "0" en el panel, debemos: 
+
+1.- Desde el menú VIRTUAL PRIVATE CLOUD --> Ir a la opción "SUS VPC" 
+2.- Dentro de ACCIONES --> Darle clic a CREAR VPC PREDETERMINADA 
+3.- Dar clic en CREAR VPC DETERMINADA 
+
+¿Qué hemos hecho con esto aquí? Básicamente, lo que hemos hecho es, bien, ya tenemos una red para empezar a crear servidores, 
+bases de datos, usuarios, códigos, lo que queramos, para que todo se pueda ver entre sí, por supuesto, que hay estrategias de 
+infraestructura más complejas, ya tenemos la red por defecto en el Norte de Virginia. Cualquier cosa que se cree ahí se va a 
+poder ver. ¿Pero qué es lo que pasa en la vida real? quizá estamos en el Norte de Virginia para el área de marketing, pero, 
+hay un proyecto 1 con sus recursos aislados, otro proyecto 2 con sus recursos aislados, otro proyecto 3, otro proyecto 4 y 
+cada uno con sus recursos aislados, para que no se puedan ver entre sí, porque, quizá alguien cometa un error y mueva algo que 
+no deba mover en otro proyecto y eso es peligroso. Entonces ahí hay que tener una ESTRATEGIA DE SUBREDES. ¿A qué me refiero 
+con esto? desde el punto de vista de arquitectura debemos tener 2 redes: 
+
+● La red general: para que todos los recursos puedan verse y 
+
+● La subred por proyecto: que aíslen a ese proyecto, para que sea imposible que alguien pueda cometer un error en otro proyecto. 
+  Por ejemplo, pertenezco al proyecto 1 y me meto el proyecto 2, sin querer y malogro algo que no debi malograr. 
+
+● Eso lo vamos a detallar en los planos arquitectónicos, por ahora, va a ser simple. Hemos creado la red por defecto. Si esto 
+  fuese una clase de AWS, crearíamos subredes para cada proyecto, quedémonos sólo en la parte de arquitectónica. Ya hemos 
+  entendido que hay una red general y subredes por proyecto. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Creación de un servicio de almacenamiento
+-----------------------------------------
+
+Ahora desde el paso 9, vamos a ir al buscador de servicios y vamos a buscar el servicio de almacenamiento. Se acuerdan que nosotros 
+estábamos utilizando Google Drive para almacenar los datos para entender los arquetipos, pues, obviamente en la vida real no se usa 
+Google Drive, se usa algún servicio de almacenamiento en nube. AWS, por ejemplo, tiene el servicio de almacenamiento S3. 
+
+Otro patrón arquitectónico, así como cada proyecto debe de tener una subred, lo mismo va a pasar con los datos. Digamos que el área 
+de marketing tiene cuatro proyectos, ¿eso que significa? que tiene que tener cuatro áreas de datos separadas, independientes entre sí. 
+En en el caso de AWS a esas áreas se les llama BUCKETS (contenedores). Por ejemplo, vamos a crear el contenedor para almacenar un 
+DATA LAKE: 
+
+1.- Desde la opción BUCKETS --> dar clic a CREAR BUCKET 
+
+Punto importante, este concepto de BUCKET no es propio de AWS, es cross (transversal) a todas las nubes, es un repositorio aislado en 
+donde se suben datos. 
+
+1.1.- Nombre del bucket: el nombre que tu coloques aquí es único a nivel mundial, por ejemplo, si yo coloco simplemente "Alonso", lo 
+      importante es que debe ser único, es un identificador a nivel mundial, nadie más en el mundo debe de tener un nombre de bucket igual, 
+      por lo tanto, tienes que tener una estrategia de nombrado de buckets dentro de tu arquitectura. ¿A qué me refiero con esto? ¿qué es lo 
+      que hacen algunos? digamos que estamos trabajando en la empresa AXY_CBR_0190_nombredelproyecto (Nombre empresa - área de cobranzas - 
+      identificador único que cada área tiene - el nombre del proyecto que quieras poner). Esto también tiene que ser definido desde el día 
+      uno, para que no estén colocando cualquier nombre. Para efectos prácticos, ya que, el día de hoy simplemente queremos ver funcionar la 
+      herramienta, desde el paso 10 vamos a colocar este nombre "storagebigdatauser000armg". 
+
+1.2.- Propiedades de objetos: adicionalmente a eso, todos los repositorios de datos tienen que cumplir al menos 2 condiciones, una de 
+      ellas es tener los "ACL deshabilitados" en un principio. ¿Qué es esto de los ACL? hay una manera estándar de gestionar los permisos que 
+      es cross (transversal) a cualquier nube, esas son las LISTAS DE ACCESO DE USUARIO. Y ¿cuál es el problema? digamos que el estándar es 
+      ACL, pero, cada tecnología tiene su propia forma de limitar los accesos, entonces, qué es lo que te dice AWS: " … a pesar de que puedes 
+      usar los ACL clásicos para decir: tal usuario tiene tal permiso de lectura a tal archivo en tal bucket … " podríamos controlarlo así 
+      con ACL. Pero AWS quiere que utilices su propia tecnología propietaria para para poder delegar permisos de acceso, por eso te propone 
+      deshabilitar ACL estándar y usar la propia tecnología de AWS. Ahora arquitectónicamente hablando podría habilitarlo y trabajar con los 
+      estándares, pero, al menos en las nubes ya particulares no se recomienda eso, es mejor trabajar con la propia solución de delegación de 
+      permisos que ofrezca la nube. 
+
+1.3.- Configuración de bloqueo de acceso público para este bucket (Bloquear todo el acceso público): por supuesto la segunda condición 
+      es que el bucket debe estar bloqueado completamente, porque, si está abierto para que alguien pueda acceder desde internet, pues, eso 
+      es peligrosísimo, hay maneras de poder hackear el acceso a un bucket. 
+
+1.4.- Cifrado predeterminado: un punto adicional que vamos a ver en planos la próxima semana es el el CIFRADO. Generalmente se deben de 
+      cifrar aquellos buckets en donde va a vivir información muy sensible, por ejemplo, números de tarjetas de crédito, tendría sentido 
+      habilitar el cifrado, pero ¿cuál es el problema? habilitar el cifrado va a hacer hasta en un 20% más lento el procesamiento, eso quiere 
+      decir que si un proceso se va a tomar 100 minutos con esos datos, ahora se va a tomar 120 minutos. Así que, esté desactivado en la gran 
+      mayoría de casos va a ser muy útil. Solamente aquella información sensible. 
+
+1.5.- Finalizamos pulsando en CREAR BUCKET
+
+
+Un bucket nos va a ayudar a organizarnos. Se acuerdan que en Google Drive nosotros desde comandos empezábamos a crear la estructura del 
+DATA LAKE, pues dentro de un bucket también podemos crear esa estructura, es un contenedor de archivos y directorios. 
+
+2.- Buscamos el nombre de nuestro bucket y le hacemos clic y vamos a CREAR UNA CARPETA 
+
+2.1.- En total crearemos 4 carpetas: LANDING_TMP, LANDING, UNIVERSAL y SMART. Acá solamente estamos creando la estructura, todavía no 
+      los OWNER. Por ejemplo, tenemos los directorios de un DATA LAKE y también podríamos hacerlo por bucket, un bucket de LANDING_TMP, 
+      otro de LANDING, otro bucket para UNIVERSAL y otro para SMART. Eso ya depende de la estrategia, lo importante es que luego 
+      definiremos quién es el OWNER de cada proyecto. 
+
+2.2.- Ahora para simplificar la explicación, dentro del directorio de LANDING_TMP, por ejemplo, si estamos ingestando los datos como 
+      hicimos la semana pasada, ingestando los datos del servidor "visa" y teníamos que poner la fuente y todo eso. Vamos a omitir eso 
+      para poder avanzar y practicar más rápidamente y directamente dentro de LANDING_TMP, vamos a crear una carpeta llamada TRANSACCIÓN 
+      y ahí dentro va a vivir un archivo de datos, datos transaccionales. Esta es la ENTIDAD TRANSACCIÓN. regresamos a la raíz del 
+      storage y lo mismo vamos a hacer en LANDING, porque cada entidad tiene que ir desde LANDING_TMP, LANDING hasta UNIVERSAL. Creamos 
+      entonces aquí también la carpeta TRANSACCIÓN y por último regresamos a la raíz del storage y en UNIVERSAL vuelvo a crear la carpeta 
+      TRANSACCIÓN, ya sabemos que ahí vivirán los datos limpios y listos para ser consumidos por las soluciones. Como todavía no hemos 
+      hablado del tema arquitectónico de las soluciones, aún desconocemos los patrones para hacer reportería, hacer modelos analíticos o 
+      procesos de tiempo real, regresamos a la raíz y dentro del directorio SMART, que es donde viven las soluciones, vamos a crear algo 
+      muy simple, hay un directorio REPORTE en donde se almacenará un reporte cualquiera, nada complicado. Ya la próxima semana vamos a 
+      hablar arquitectónicamente los diferentes patrones de diseños para las diferentes soluciones que hay en una empresa. 
+
+2.3.- Vamos a regresar a la raíz del storage, entraremos a LANDING_TMP, entraremos a la entidad TRANSACCIÓN (directorio 'transaccion') y 
+      vamos a cargar un archivo de datos:
+
+      CARGAR --> Agregar archivos -->transacciones.data --> Cargar
+
+De esa manera el archivo se habrá cargado, ya lo tenemos dentro de LANDING_TMP. Ahora por supuesto, esto lo hemos hecho manualmente, 
+¿qué es lo que se hace en la vida real? todas las nubes tienen una consola desde la cual tú por medio de un archivo de programación 
+puedes mandar a ejecutar y subir un archivo. Por ejemplo, en un servidor de una empresa instalas la consola, le pones las credenciales 
+de acceso de tu cuenta de AWS y ese servidor puede enviar con un comando de subida archivos de la empresa hacia cierta ruta (por 
+ejemplo: s3://storagebigdatauserbda000armg/landing_tmp/transacción/) que tú definas dentro de tu bucket. En este ejemplo, lo hecho 
+manualmente, pero, ya en la arquitectura lo vamos a tener que definir con el componente que hace el envío, con el cliente AWS. Por 
+ahora solamente entendámoslo funcionalmente cómo es que trabaja. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Creación de un ROL "OWNER"
+--------------------------
+
+2.4.- Ahora que tenemos ya subido el archivo ¿qué es lo que nos está faltando? vimos que también tiene que haber un OWNER, quién es 
+      el dueño. Acá como mínimo, tiene que haber un dueño absoluto, un dueño de todos los recursos. Así como con la red, teníamos una 
+      red la que nos permitía ver todos los recursos y luego ya podíamos crear subredes para aislar los recursos, lo mismo con la 
+      estrategia d ellos owners. Va a haber un OWNER global, digamos que el administrador que puede controlar absolutamente todo. Ese 
+      OWNER debe estar muy protegido. Pero puede haber en la lista de directorios de accesos, usuarios que solamente tienen acceso a 
+      cada parte de los recursos. Dentro de los patrones de diseños clásico que haya un OWNER dueño de todo, asociado a una VPC, donde 
+      se ven todos los recursos y para un proyecto, pues, se aísla en una subred y hay un OWNER solamente para esa subred y ese OWNER 
+      solo puede ver los proyectos de ese recurso. Como mínimo debería hacerse eso, y ya el OWNER debería comenzar a delegar accesos a 
+      otros usuarios. Ahora, ¿cuál es el problema de los OWNERS? digamos que el día de hoy hago OWNER a una persona de la empresa, a 
+      pepito@hotmail.com y el día de mañana ese correo desaparece porque esa persona se va de la empresa, los OWNERS no pueden depender 
+      de usuarios humanos, tienen que ser ROLES, para que si día de hoy "pepito" se va, pues, el ROL del OWNER se cambia a "juanito" y 
+      listo, ya no depende de una persona en particular. Vamos a ver este concepto como se realiza. Recordemos que todo esto lo estamos 
+      entendiendo conceptualmente, porque todo esto debe estar reflejado en los planos arquitectónicos. 
+
+      Vamos a buscar el servicio para administrar el acceso a los recursos disponibles y de hecho en las 3 nube se llama "IAM":
+
+      Buscamos el servicio "IAM" 
+
+Va a permitir administrar quién es OWNER y de qué recursos. Ahora ¿qué es lo que podría hacer? podría ser a NIVEL DE USUARIO, pero eso 
+es una mala práctica, tiene que ser a nivel de ROL, el OWNER va a ser un ROL y algún usuario tomará ese ROL y si ese usuario desaparece, 
+simplemente se cambia ese ROL  a otro usuario. NUNCA PUEDE DEPENDER DE UN USUARIO EN PARTICULAR. 
+
+2.5.- Desde el menú ADMINISTRACIÓN DEL ACCESO --> ROLES --> CREAR ROL --> Servicio de AWS
+
+Ahora aquí nosotros podemos limitar el OWNER que es lo que puede hacer, porque, por ejemplo, si estamos hablando de un proyecto de base 
+de datos, entonces, DynamoDB seria suficiente, el OWNER no tendría que crear más cosas. No hay que confundir el OWNER de los recursos 
+con el administrador de la cuenta, son 2 cosas diferente. Por ejemplo, para lo que nosotros vamos a hacer, el OWNER del proyecto 
+solamente necesita tener acceso a esta herramienta "GLUE": 
+
+2.6.-  Desde el menú ADMINISTRACIÓN DEL ACCESO --> ROLES --> CREAR ROL --> Servicio de AWS --> Glue
+
+La seleccionamos y decimos: el OWNER va a poder manipular datos con esta herramienta GLUE o con cualquier herramienta que tu gustes de 
+AWS. Lo siguiente es definir: y bien, ¿qué puede hacer el OWNER con esa herramienta? Hay muchas políticas ya establecidas, por ejemplo, 
+una de ellas es que el OWNER va a poder utilizar el servicio de GLUE:
+
+2.7.-  Desde el menú ADMINISTRACIÓN DEL ACCESO --> ROLES --> CREAR ROL --> Servicio de AWS --> Glue --> Activamos casilla de 
+       'AWSGlueServiceRole'
+
+Activamos la casilla y vamos a buscar otra política. El servicio de GLUE es el servicio que nos va a permitir orquestar pasos de 
+procesamiento. Ahora ¿qué es lo que vamos a procesar? buscamos también este otro servicio: el OWNER tiene acceso completo al S3 de 
+Amazon, es decir, puede leer todos los datos que haya dentro de los buckets que hayamos creado:
+
+2.8.- Buscamos el servicio 'AmazonS3FullAccess' y activamos la casilla --> Siguiente --> Siguiente
+
+Llegamos a un resumen de las políticas que seleccionamos. Nos mostrará las dos políticas que elegimos. Para la política 
+"AWSGlueServiceRole' es aquella que nos permitirá orquestar pasos de procesamiento y para la política "AmazonS3FullAccess" es aquella 
+que nos permitirá leer los archivos de datos. Esto de orquestar pasos de procesamiento es, primero procesar LANDING, luego procesar 
+UNIVERSAL y luego procesar SMART.  
+
+2.9.- Nombre de rol --> rolbigdatauserbda000 --> Crear un rol
+
+Listo ya tenemos un rol, ya no dependemos de un usuario en particular de la empresa. Todo lo que el proyecto haga dependerá de este rol.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+CREACIÓN DE BASES DE DATOS Y TABLAS
+-----------------------------------
+
+En la sesión anterior habíamos hecho todo con Python, pero en la vida real lo que se utilizan son catálogos de datos. Eso generalmente 
+se expresa como tablas de bases de datos. Se acuerdan que yo les dije, el objetivo en UNIVERSAL es tener la data estructurada y hay 
+diferentes patrones de diseño que habíamos trabajado. Al tener los datos estructurados los podemos ver como tablas. El servicio de 
+tablas en AWS se llama ATHENA. 
+
+2.10.- Buscamos el servicio "ATHENA" (Consulta de datos en S3 con SQL)
+
+Y vamos a poder ver los objetos que yo almacene en mi S3 como tablas. Eso quiere decir que cuando los datos llegan a UNIVERSAL ya los 
+tengo como tablas, así que los puedo procesar con querys SQL. 
+
+Ahora ¿qué es lo que vamos a hacer? vamos a dropear una base de datos si es que existiese "LANDING_TMP" : 
+
+2.11.- DROP DATABASE IF EXISTS LANDING_TMP CASCADE;
+
+Y vamos a crear la base de datos LANDING_TMP asociándole una ubicación dentro del S3 de Amazon:
+
+2.12.- CREATE DATABASE IF NOT EXISTS LANDING_TMP LOCATION 's3://storagebigdatauserbda000armg/landing_tmp'
+
+Esto también es muy importante. Parte de la definición arquitectónica es que los datos estructurados, yo les dije, se van a ver como 
+tablas, entonces, cuáles son los directorios que aceptan datos estructurados, con esto ya tenemos mapeado, esto de acá puede aceptar 
+data estructurada. Entendámoslo el día de hoy conceptualmente, ya en planos arquitectónicos que veremos en la próxima semana todo esto 
+va a estar mejor orquestado, por ahora llevemos la idea general de cómo esto se trabaja en la vida real. 
+
+Ahora también quiero que vean lo siguiente, se supone que en LANDING_TMP los datos viven como archivos de texto plano. Esta tabla 
+'transacción', pues, le hemos subido un archivo que tiene cuatro campos, ID de la persona que hizo la transacción, la empresa en donde 
+se realizó, el monto y fecha de transacción. Le indicamos cuál es el separador y otras cosas más. Ahora un punto importante que también 
+debe estar incluido como definición arquitectónica es la parte de TBLPROPERTIES, el juego de caracteres que soporta los datos, porque, 
+generalmente en el idioma inglés se utiliza el juego de caracteres ASCII, pero, van a ver que en la definición arquitectónica cuando 
+tengamos una definición de un flujo y hay una parte de tabla o de directorio, encima hay que agregarle una anotación que diga cuál es 
+el juego de caracteres, porque, qué es lo que pasa mucho en la vida real, te dejan el archivo de datos a procesar pero no te dicen el 
+juego de caracteres, no te dicen si está en ISO o en UTF-8 y eso es un problema y ¿cuándo sale eso? cuando el desarrollador te dice: 
+" … oye me están saliendo cuadraditos al momento de consultar una tabla, por ejemplo, Raúl que lleva tilde en la u sale Ra y luego un 
+cuadrado y luego no sabe si es problema del archivo o de la tabla y es un problema. Así que esta parte de TBLPROPERTIES también tiene 
+que estar definido como parte de tu solución. Vean como es un poquito ya más complejo, vamos a crear entonces una tabla y le vamos a 
+asociar este directorio para poder ver el archivo de datos como si fuese una tabla. 
+
+2.13.- 
+
+CREATE EXTERNAL TABLE LANDING_TMP.TRANSACCION(
+ID_PERSONA STRING,
+ID_EMPRESA STRING,
+MONTO STRING,
+FECHA STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION 's3://storagebigdatauserbda000armg/landing_tmp/transaccion'
+TBLPROPERTIES(
+	'skip.header.line.count'='1',
+	'store.charset'='ISO-8859-1',
+	'retrieve.charset'='ISO-8859-1'
+);
+
+
+Ahora sí le hago una consulta a esta tabla vemos que efectivamente esa tabla tiene datos, claro porque dentro de ese directorio había 
+datos. Ahora esta es el la zona de LANDING_TMP, ahí se subirá el archivo y luego pasará al LANDING, vamos a crear la zona de LANDING:
+
+2.14.- 
+
+DROP DATABASE IF EXISTS LANDING CASCADE;
+
+Y luego:
+
+CREATE DATABASE IF NOT EXISTS LANDING LOCATION 's3://storagebigdatauserbda000armg/landing';
+
+
+Ahora quiero que noten los siguiente: desde un punto de vista de patrones de diseño arquitectónicos, la capa LANDING se recomienda 
+que esté en un formato conocido como AVRO. La semana pasada todo lo habíamos hecho en PARQUET simplemente para entender la estructura 
+general de cómo se desarrollaba ya una codificación real. Pero la capa LANDING forzosamente tiene que estar en AVRO, porque, es un 
+esquema flexible. A ¿qué me refiero con esto? el día de hoy por ejemplo, digamos que la fuente de datos te envió un archivo con cuatro 
+campos, pero el día de mañana la fuente de datos te envía un archivo con 5 campos, entonces, se evolucionó la estructura. La ventaja de 
+utilizar tablas en formato AVRO es que la metadata del archivo del día de hoy se incrusta dentro del archivo binarizado. Se acuerdan de 
+que en LANDING binarizamos en PARQUET, PARQUET no incluye una cabecera, pero AVRO sí, tiene la data binarizada y encima está la cabecera 
+de definición. De esa manera cuando convertimos los datos de texto plano a binario AVRO, el binario AVRO tiene la data binarizada y 
+encima tiene una cabecera que dice este archivo tiene cuatro campos. Si mañana te dejan un archivo de 5 campos, se binariza la 
+información y ese archivo en su cabecera tiene y este archivo tiene 5 campos. Por eso es que LANDING se recomienda que sea en formato 
+AVRO. Por supuesto que si esto fueran clases de programación habría toda una definición que tendríamos que dar de qué significa esto, 
+pero arquitectónicamente en los planos esto va a ser LANDING es AVRO. Igual se siguen respetando los juegos de caracteres, eso también 
+tiene que estar definido en la parte arquitectónica.
+
+2.15.-
+
+CREATE EXTERNAL TABLE LANDING.TRANSACCION(
+id_persona STRING,
+id_empresa STRING,
+monto STRING,
+fecha STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+WITH SERDEPROPERTIES ('avro.schema.literal '='
+{
+	"name": "TRANSACCION",
+	"type":"record",
+	"fields": [
+		{"name": "id_persona", "type": ["null", "string"], "default": null},
+		{"name": "id_empresa", "type": ["null", "string"], "default": null},
+		{"name": "monto", "type": ["null", "string"], "default": null},
+		{"name": "fecha", "type": ["null", "string"], "default": null}
+	]
+}
+')
+STORED AS AVRO
+LOCATION 's3://storagebigdatauserbda000armg/landing/transaccion'
+TBLPROPERTIES(
+	'store.charset'='ISO-8859-1',
+	'retrieve.charset'='ISO-8859-1'
+);
+
+
+Entonces, al hacer una consulta, digamos que el archivo que te dejó negocio el día de hoy tenía los campos A, B y C y mañana incluyen 
+el campo D. 100 registros en el primer archivo y 100 registros en el segundo archivo, la única diferencia es que el segundo archivo 
+tiene el campo D. Si lanzamos una consulta lo que vamos a ver son los cuatro campos A, B, C y D. Solamente que el primer archivo como 
+no tenía el campo D, todo lo va a mostrar en NULL. Esa es la ventaja de utilizar AVRO. El propio AVRO se encarga de consolidar todos 
+los campos que haya entre los diferentes archivos. 
+
+Como decíamos, el día de mañana ahora te dejan un archivo de 5 campos ¿que implica eso? borrar la tabla, volver a crearla con 5 campos, 
+pero no va a funcionar todavía, ¿por qué? porque AWS te dice: " … oye para que el AVRO funcione hay que hacer el REPAIR TABLE, si no, 
+no va a haber esa actualización. Eso quiere decir, el día de hoy eran cuatro campos y se binarizo bien. El dia de mañana son 5 campos, 
+tienes que dropear la tabla, binariarlo y hacer el REPAIR TABLE. Esto por ejemplo es algo propio de AWS, en AZURE es diferente. 
+
+2.16.- MSCK REPAIR TABLE LANDING.TRANSACCION;
+
+
+Ahora vamos a crear UNIVERSAL. Vamos a dropear la base de datos de UNIVERSAL si es que existiese:
+
+2.17.- DROP DATABASE IF EXISTS UNIVERSAL CASCADE;
+
+
+Vamos a crear la base de datos UNIVERSAL:
+
+2.18.- CREATE DATABASE IF NOT EXISTS UNIVERSAL LOCATION 's3://storagebigdatauserbda000armg/universal;
+
+
+Y vamos a crear una tabla en formato PARQUET con los tipos de datos correctos:
+
+2.19.-
+
+CREATE EXTERNAL TABLE UNIVERSAL.TRANSACCION(
+ID_PERSONA STRING,
+ID_EMPRESA STRING,
+MONTO DOUBLE,
+FECHA STRING
+)
+STORED AS PARQUET
+LOCATION 's3://storagebigdatauserbda000armg/universal/transaccion'
+TBLPROPERTIES(
+	'store.charset'='ISO-8859-1',
+	'retrieve.charset'='ISO-8859-1'
+);
+
+
+¿Por qué se recomienda que en UNIVERSAL esté en PARQUET? porque recuerden que dentro de UNIVERSAL viven los datos ya modelados, lo que 
+los Data modelers definieron, esquemas fijos, no va a ser como en AVRO que quizá la fuente te da 5 campos, mañana 3 campos, pasado 
+mañana 2 campos quizás. Ya es algo estático y PARQUET es muy bueno para trabajar con esquemas fijos. Cuando se trata de esquemas fijos, 
+PARQUET puede procesar los datos hasta 10 veces más rápido que el AVRO. Así que, aquí está perfecto un PARQUET. Aun esta tabla no tiene 
+datos.
+
+Ahora vamos a crear la base de datos SMART:
+
+2.20.- 
+
+DROP DATABASE IF EXISTS SMART CASCADE;
+
+Y luego:
+
+CREATE DATABASE IF NOT EXISTS SMART LOCATION 's3://storagebigdatauserbda000armg/smart';
+
+Y vamos a crear un reporte pequeño, un reporta que va a decir: para cada persona, cuantas  transacciones a hecho esa persona y cuanto 
+dinero suman todas esas transacciones. Por supuesto también con su propio directorio dentro del bucket.
+
+2.21.-
+
+CREATE EXTERNAL TABLE SMART.REPORTE(
+ID_PERSONA STRING,
+CANTIDAD_TRANSACCIONES INT,
+MONTO_TRANSACCIONES DOUBLE
+)
+STORED AS PARQUET
+LOCATION 's3://storagebigdatauserbda000armg/smart/reporte
+TBLPROPERTIES(
+	'store.charset'='ISO-8859-1',
+	'retrieve.charset'='ISO-8859-1'
+);
+
+En esencia, esto es lo que los desarrolladores tendrían que estar haciendo según tu definición arquitectónica. Por supuesto, que 
+primero lo estamos viendo en códigos y ya lo vamos a complementar con los planos para que todo esto quede directamente en una PPT y 
+sepas cómo se hace esa traducción. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ORQUESTACIÓN DE LOS PASOS DE PROCESAMIENTO CON "AWS GLUE"
+---------------------------------------------------------
+
+Ahora vamos a empezar a procesar. En este caso vamos a mostrar la herramienta visual de procesamiento que tiene AWS. Otro punto 
+importante que también quiero que vean es que hay algo llamado CATÁLOGO DE DATOS. El CATÁLOGO DE DATOS es la herramienta que tiene 
+la metadata de la empresa. Acá por ejemplo, dentro de este catálogo de datos (AwsDataCatalog) tenemos la metadata de todas las capas 
+del DATA LAKE, por lo tanto, podemos ver los datos estructurados, no estructurados y semi estructurados. El catálogo de datos es la 
+implementación de lo que el modelador defina, yo les dije, el modelador va a definir las tablas en UNIVERSAL, entonces, ese catálogo 
+de datos ya es la implementación de estas tablas que estamos viendo aquí, es lo que el modelador definió. Ahora con este catálogo de 
+datos se pueden hacer muchas cosas, por ejemplo, una de ellas es hacer temas de LINAJE para ver cómo los procesos van avanzando, para 
+hacer monitoreo. Por supuesto que eso también depende de cada nube, en AWS se llama AwsDataCatalog, AZURE tiene otro, GCP tiene otro, 
+HUAWEI tiene otro, pero al final es lo mismo, es un catálogo de datos en donde se almacena la metadata de todo lo que vamos a creando. 
+PARA PONERLO EN TÉRMINOS TÉCNICOS SIMPLES, AL CREAR UNA TABLA, ESTA TIENE CAMPOS Y TIPOS DE DATOS ASOCIADOS, ESA INFORMACIÓN SE GUARDA 
+EN EL CATÁLOGO DE DATOS. 
+
+Una de las herramientas que nos permite orquestar pasos de procesamiento visualmente en AWS es "AWS GLUE". Vamos a buscar "Aws Glue" 
+en el buscador en servicios y dentro: 
+
+1.- Vamos a ir a la opción de AWS Glue Studio
+
+Acá por ejemplo vemos el catálogo de datos que actualmente tenemos. Dentro:
+ 
+2. Vamos a ir a la opción de CREATE AND MANAGE JOBS --> View Jobs 
+
+Y vamos a crear un JOB de procesamiento. Existen muchos tipos de procesamientos, por ejemplo, podríamos poner código SPARK (SPARK 
+script editor) como lo vamos a ver en unos momentos, pero, ¿qué es lo que pasa muchas veces? cuando movemos los datos de LANDING_TMP 
+a LANDING no es que estemos haciendo una red neuronal o algo complejo, simplemente estamos binarizando, entonces, podemos hacerlo con 
+una herramienta visual que me ponga todo bonito cómo va avanzando el proceso y cómo se van binarizando los datos. Para eso vamos a 
+seleccionar la opción:
+
+3.- Visual with a blank canvas --> Create
+
+Acá vamos a tener una herramienta visual para poder hacer este procesamiento de datos. Ahora, lo primero que tenemos que hacer es 
+mover los datos hacia LANDING, entonces, de nombre le vamos a poner "TO_LANDING". Este paso de procesamientos mueve los datos de 
+LANDING_TMP a LANDING. Ahora, en la fuente de datos: 
+
+4.- SOURCE --> AWS Glue Data Catalog
+
+¿Qué es lo que vamos a procesar? bueno en mi catálogo de datos ya tengo tablas creadas, así que, le digo: " … mi catálogo de datos ya 
+tiene algo … ", le doy clic a esta cajita y le digo en la base de datos LANDING_TMP en la tabla TRANSACCION, hay datos.
+
+5.- Data source properties – Data Catalog --> Data preview --> Database : landing_tmp y Table : transaccion 
+
+Y ¿qué es lo que queremos hacer con esos datos? 
+
+6.- Le doy clic a la cajita que se acaba de agregar que lee la tabla de datos  --> Le doy clic a TRANSFORMAR --> SELECT FIELDS 
+(seleccionar campos) --> seleccionamos TODOS LOS CAMPOS (dado que nuestro objetivo es binarizar)
+
+Ahora indiquemos el destino ¿dónde queremos colocar esos campos? 
+
+7.- Selecciona la cajita del SELECT FIELDS --> Le doy clic en TARGET --> y selecciono mi catálogo de datos (AWS Glue Data Catalog) 
+
+Y le digo: " … quiero escribir esos datos dentro de LANDING, en la tabla TRANSACCIÓN y listo. 
+
+8.- Data source properties – Data Catalog --> Data preview --> Database : landing y Table : transaccion 
+
+Ya tenemos un pequeño flujo. Vean cómo estos pasos son visuales, ¿qué es lo que va a pasar en la vida real? ESTE PRIMER PASO QUE ES 
+BINARIZACIÓN, NO HAY PROCESAMIENTO, traten siempre de seleccionar una herramienta visual, para que sea fácil de gobernar el flujo. 
+Lees, seleccionas, binarizas y nada más y listo. Debe ser algo práctico esa parte de binarización y eso también tiene que quedar dentro 
+del arquetipo, estos 3 pasos. Ok, se lee LANDING_TMP, se selecciona todo, se binariza. 
+
+Ahora acá lo que hemos definido, como yo les dije, una cosa es el código, lo que tú definas y otra cosa es la potencia de 
+infraestructura. El día de hoy, quizás, con un Clúster de 1 Servidor, te dejan un archivo de 1 MB, 1 servidor lo puede hacer, pero, si 
+te dejan un archivo de 20 TB ahí va a cambiar la cosa. Nunca mezclen su código con infraestructura. Vamos a la opción de:
+
+9.- JOB DETAILS --> Indicamos los detalles de infraestructura
+
+Aquí es donde podemos poner el tamaño de su infraestructura. En primer lugar, este flujo visual que hemos hecho por detrás se va a 
+traducir a código SPARK. Así como lo vimos en la sesión anterior, tal cual. Adicionalmente a eso hay que decir y ¿quién es el dueño de 
+este proceso? ya tenemos un dueño del proceso es este de aquí (IAM Role). SPARK es el motor de procesamiento, pero necesito un lenguaje 
+de programación para funcionar, podemos utilizar Python o Scala, vamos a dejarlo con Python, ya que, no estamos procesando nada, solo 
+binarizando. Ahora aquí ya vienen los detalles propios de AWS, que no vamos a entrar tanto, porque, bueno sería una clase AWS, pero lo 
+que sí les puedo decir es que, por ejemplo, tenemos 2 tipos de máquinas para procesar (Worker type: G.1X y G.2X) y aquí es donde tu 
+colocas cuántos servidores requieres (Requested number of workers), quizás el día de hoy necesitas 10, pero mañana vienen 2 TBs y quizás 
+necesites 20, ahí es donde tú controlas ese nivel de paralelización, eso también tiene que estar definido arquitectónicamente. Ahora 
+para que se ejecute rápido, le vamos a poner 2 servidores y dentro de (Job bookmark) hay una explicación técnica de por qué hay que 
+deshabilitar esto, pero bueno no son clases de AWS, así que, deshabilitado por defecto. Esto tiene que ver con versonamiento de código, 
+pero, ya estaríamos saliendo del tema de arquitectura. 
+
+Ok, ya tenemos entonces los detalles de infraestructura: 
+
+10.- Damos clic en SAVE
+
+Listo, ya deberíamos tener el Job preparado. Ahora quiero que sepan que realmente si se van a la parte del script, es código que 
+realmente AWS dice: " … mira hay cosas que la puedes hacer a nivel visual, así que, puedes hacerlo desde ahí, pero al final todo sigue 
+siendo código, así que realmente hemos modificado … ". 
+
+Ahora vamos a ejecutar el proceso: 
+
+11.- Le vamos a dar clic en RUN 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+MONITOREAR PROCESO
+------------------
+
+Y listo, el proceso se está ejecutando. Desde un punto de vista arquitectónico ¿qué es lo que también vamos a tener que definir la 
+próxima semana? en los planos tiene que estar la herramienta de monitoreo. Acá ya le dimos clic en RUN y ¿qué es lo que está pasando? 
+por ejemplo, en el caso de AWS si nos vamos a esta opción: 
+
+1.- Desde el MENU --> Monitoring 
+
+Aquí está su herramienta de monitoreo. Podemos ver, que por ejemplo, aquí ya te da todo un detalle visual, hay un Job que está 
+ejecutándose y si vamos hasta el final acá puedo ver el Job ejecutándose:
+
+2.- Desde la sección JOB RUNS --> Seleccionamos TO_LANDING --> VIEW RUN DETAILS
+
+Acá parece que sí se está ejecutándo con un nivel de paralelización x 2 o por 20 o lo que se necesite ese día según la ELASTICIDAD. 
+Vean como el código es agnóstico a la infraestructura, el código es binarizar. Vimos que lo hemos hecho con una herramienta visual, 
+pero, por detrás sigue siendo código. Siempre apunten a que la capa de LANDING_TMP a LANDING sea con una herramienta visual, ahí no 
+vale la pena codificar y desde una herramienta visual también es más fácil gestionar todo, tiene herramientas de monitoreo y ya es más 
+fácil, hace más fácil el trabajo. 
+
+Ahora, vamos a abrir otra pestaña y entraremos a AWS al servicio de "Athena". Consultaremos la tabla LANDING y se supone que ya debería 
+existir datos en dicha tabla, datos binarizados. Vamos a revisarlos: 
+
+3.- SELECT * FROM LANDING.TRANSACCION;
+
+Y sí efectivamente podemos ver que hay datos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+SELECT, CASTEO Y REJECTAR
+-------------------------
+
+Ahora, otra cosa que también deben de saber es, ok, ya está binarizado en LANDING, ahora vamos a moverlo a UNIVERSAL. ¿Qué significa 
+SELECT, CASTEO y REJECTAR? vamos a omitir la parte del rejectados, para enfocarnos en algunos conceptos nuevos que ya lo veremos 
+reflejados en los diagramas la próxima semana. 
+
+1.- Vamos a regresar a AWS Glue Studio --> Jobs --> Visual with a blank canvas (vamos a volver a crear otro Job visual) --> Create 
+
+De nombre le ponemos "TO_UNIVERSAL" y este es el Job que mueve los datos a UNIVERSAL. EN LA MEDIDA DE LO POSIBLE HAY QUE TRATAR DE 
+HACER ESE MOVIMIENTO CON HERRAMIENTAS VISUALES, en la gran mayoría de datos sobre todo en los estructurados es seleccionar y castear 
+y aplicar reglas de limpieza. EL SELECCIONAR Y CASTEAR LO PODEMOS HACER CON UNA HERRAMIENTA VISUAL, PERO, LAS REGLAS DE LIMPIEZA 
+GENERALMENTE HAY QUE PROGRAMARLAS, entonces, esta parte de la arquitectura debería tener un ecosistema tecnológico que me permita 
+mezclar ambas cosas: una parte hacerla visual pero una parte en que pueda meter mano a código también. Eso AWS lo sabe y ya lo tiene, 
+por ejemplo, vamos a hacerlo aquí. Diré: desde la fuente de datos en mi catálogo de datos:
+
+2.- Source --> AWS Glue Data Catalog
+
+en LANDING que ya tienen los datos pues vamos a procesar transacción:
+
+3.- Data source properties – Data Catalog --> Data preview --> Database : landing y Table : transaccion 
+
+Ahora lo primero que vamos a hacer es seleccionar y castear, entonces: 
+
+4.- Le damos clic a esta cajita (AWS Glue Data Catalog) -->  le haré clic a TRANSFORM --> Apply Mapping 
+
+Le diremos que queremos aplicar un mapeo. ¿Qué implica hacer un mapeo? le doy clic en la cajita "Apply Mapping" y acá diré: 
+
+5.-
+
+Source key	Target key	Data type	Drop
+
+Id_persona	id_persona	string		                    
+Id_empresa	id_empresa	string
+Monto		monto		double	  
+Fecha		fecha		string
+
+
+Lo único que vamos a castear es "monto". El "monto" es un número real así que lo vamos a poner como un Double. Y no hay más que 
+castear. Selecciono y casteo o quizá me puedan decir: " … no necesito el id_persona, el modelador no quiere id_persona, solo quiere 
+los otros campos. También podríamos dropearlo. Supongamos que el modelador nos ha pedido todos los datos y solo castear el campo 
+"monto". Ahora hay que aplicar reglas de limpieza. Visualmente hacer eso puede ser complejo, porque, hay que programar en la gran 
+mayoría de casos, esto las herramientas lo saben. Así que:
+
+6.- Le damos clic a la caja Apply Mapping --> Transform --> SQL
+
+Si se dan cuenta hay una opción "Filter" el problema es que a veces las reglas de limpieza de datos pueden ser muy complejas y es 
+mejor programarlas. Así que para eso podemos hacer uso de la opción "SQL".  Puedo programar con SQL la limpieza de la cajita anterior. 
+La cajita anterior va a colocar los datos en un dataframe llamado "myDataSource", realmente le puedes poner el nombre que tú quisieses 
+y haces referencia en tu código desde aquí. Acá por ejemplo vamos a poner una regla de limpieza muy simple, vamos a seleccionar todos 
+los campos de los que entregue la cajita anterior y ningún campo tiene que ser nulo, todos tienen que tener valores. Ok, ya tengo mi 
+regla de limpieza o podría programarlo tan complejo como yo quisiera. Ya hice la limpieza de datos, luego:
+
+7.- Selecciono la cajita SQL --> Target --> Aws Glue Data Catalog y
+
+Le digo que dentro de mi catálogo de datos lo vamos a guardar en UNIVERSAL y en transacción y listo: 
+
+8.- Data source properties – Data Catalog --> Data preview --> Database : universal y Table : transaccion 
+
+Y listo, ya tenemos la parte desarrollada. Por supuesto que este es un ejemplo simple que les estoy poniendo, porque, hay cosas que 
+van a tener que programarlas con SPARK, eso lo vamos a mostrar en un momento para que vean que también podemos colocar código de SPARK. 
+Pero lo importante es que la herramienta que utilicen para implementar UNIVERSAL en la definición del ecosistema tecnológico, permita 
+parte visual y parte codificación, UNIVERSAL tiene esa naturaleza, como arquitectos en  el ecosistema tecnológico veremos qué 
+herramientas cumplen con esos requisitos.
+
+Ahora, nuevamente, una cosa es la codificación y otra cosa es la infraestructura en donde esa codificación se va a ejecutar, el motor 
+de SPARK, vamos a ponerle solamente 2 servidores y el "Job bookmark" lo deshabilito. Esto no es una clase de AWS, así que, esto no lo 
+vamos a explicar a detalle y quién es el dueño del proceso (IAM Role), para efectos prácticos es este de aquí, pero como bien dijo su 
+compañero podríamos tener una estrategia de que cada capa tenga un dueño diferente o cada entidad que estemos procesando tenga un dueño 
+diferente, ya depende, de la estrategia de la empresa, de eso vamos a hablar ya más a detalle la próxima sesión. Primero veamos en vivo 
+que significa todo eso y ya las PPT se van a entender más fácil conceptualmente. Ya tenemos entonces los servidores reservados le doy 
+clic a guardar y luego ejecutamos:
+
+9.- JOB DETAILS --> Indicamos los detalles de infraestructura --> Save --> Run
+
+10. Monitoreamos --> Desde el MENU --> Monitoring 
+
+Vamos hasta el final:
+
+11.- Desde la sección JOB RUNS --> Seleccionamos TO_UNIVERSAL --> VIEW RUN DETAILS
+
+Ahora, desde la otra pestaña y entraremos a AWS al servicio de "Athena". Consultaremos la tabla UNIVERSAL. Vamos a revisarlos: 
+
+12.- SELECT * FROM UNIVERSAL.TRANSACCION;
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+CAPA SMART
+----------
+
+Y sí efectivamente podemos ver que hay datos. Se procesó de manera correcta. De esto vamos a hablar más la próxima semana, las 
+soluciones. Hasta aquí no hay problema, de hecho, todos los patrones de diseño que hemos aprendido hasta ahora han ido hasta UNIVERSAL. 
+Una vez que llegamos a UNIVERSAL ya viene el proceso creativo de cada proyecto, empiezan a ser su solución, desarrollan, codifican y 
+hacen desde un reporte hasta una red neuronal. Como arquitectos vamos a aprender la próxima semana que nosotros tenemos que tratar de 
+tener las mínimas reglas de definición arquitectónica, porque, si ponemos muchas vamos a interrumpir el proceso creativo de los 
+desarrolladores y eso va enlentecer, van a ver lo que se traduce es el anti patrón de burocracia, le agregamos muchas definiciones y 
+al final lo único que hacemos es entorpecer el desarrollo. Vamos a poner un caso muy simple para que lo puedan entender mejor ya desde 
+el punto de vista arquitectónico la próxima semana vamos a ver todos esos patrones de diseños. Vamos a regresar a al menú "AWS Glue 
+Studio" y vamos a ir nuevamente a "Jobs". Ahora ¿qué es lo que pasa mucho en la vida real, sobre todo con la gente de negocios? te 
+muestran estas interfaces visuales y te dicen que arrastrando y soltando cajitas puedes hacer maravillas. Adicionalmente te dicen 
+también los proveedores: " … oye y mira y ¿qué pasa si necesitas código? pues aquí está la cajita que te permite poner código … " pero 
+muchas veces esa cajita es limitada. Entonces, realmente EN LA CAPA DE SOLUCIONES YA NO HAY QUE USAR HERRAMIENTAS VISUALES, ya que, el 
+desarrollador o el científico de datos se mete a codificar, nada de herramientas visuales, porque, eso interrumpe el proceso creativo, 
+lo limita demasiado. Hasta la capa UNIVERSAL que es donde estamos gobernando el catálogo de datos, no hay problema, pero ya cada 
+proyecto, como les dije, recuerden siempre el concepto DATA MESH, probablemente va a querer aplicar sus propias reglas y va a ser sus 
+propias codificaciones, entonces, tiene que ser más flexible, el proyecto tiene que ser lo suficientemente flexible para que los 
+desarrolladores se sientan libres al momento de trabajar y no se interrumpan con cosas burócraticas. Vamos a poner un ejemplo directo 
+para entenderlo mejor: hagamos un reporte, lo vamos a hacer con SPARK, en ese caso, de hecho, ese reporte lo podría hacer con una 
+herramienta visual, pero, no, quiero utilizar SPARK, quiero codificar:
+
+1.- AWS Glue Studio --> Jobs --> Spark script editor --> Create
+
+Y ya no tenemos una herramienta visual, solamente código. Vamos a copiar y pegar la solución entre "job.init()" (acá  empieza el Job) 
+y "job.commit()" (acá se envía el Job): 
+
+2.-
+
+import sys
+from awsglue.transforms import *
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+
+## @params: [JOB_NAME]
+Args = getResolvedOptions(sys.argv, ['JOB_NAME']
+
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
+job = Job(glueContext)
+job.init(args['JOB_NAME'], args)  
+
+# IMPLEMENTACION DE LA SOLUCION
+
+# Importamos la librería de funciones clásicas
+Import pyspark.sql.functions as f
+
+# Leemos los datos
+dfTransaccion = spark.sql("SELECT * FROM UNIVERSAL.TRANSACCION")
+
+# Procesamos
+dfReporte = dfTransaccion.groupBy(dfTransaccion["ID_PERSONA"]).agg(
+	f.count(dfTransaccion["ID_PERSONA"]),
+	f.sum(dfTransaccion["MONTO"])
+)
+
+# Almacenamos el dataframe como vista temporal
+dfReporte.createOrReplaceTempView("dfReporte")
+
+# Lo guardamos en la tabla
+spark.sql("""
+	INSERT INTO SMART.REPORTE
+	SELECT T.*
+FROM dfReporte T
+""")
+
+# FIN DE LA IMPLEMENTACION
+			
+job.commit()
+
+
+Estos detalles también son muy importantes. Por ejemplo, tiene que estar definido, porque, los desarrolladores dicen, vamos a utilizar 
+GLUE para desarrollar, pero ¿dónde codificó? en algún documento tiene que decir: " … el código tiene que estar entre "job.init()" (acá  
+empieza el Job) y "job.commit()" … " y aquí el developer se pone creativo y todo lo que he aprendido de SPARK lo aplica ahí. Eso 
+también hay que definirlo. 
+
+Con esto ya codificado, nos vamos al detalle de la infraestructura: 
+
+3.- JOB DETAILS
+
+Ahora vamos a poner solamente 2 servidores y vamos a deshabilitar el bookmark. Esto está relacionado con procesos de DevOps, que al 
+menos el día de hoy no es de nuestro interés. Indicamos quién es el dueño del proceso (IAM Role) y luego:
+
+4.- JOB DETAILS --> Save --> Run
+
+5. Monitoreamos --> Desde el MENU --> Monitoring 
+
+Vamos hasta el final:
+
+6.- Desde la sección JOB RUNS --> Seleccionamos TO_SMART --> VIEW RUN DETAILS
+
+Ahora, desde la otra pestaña y entraremos a AWS al servicio de "Athena". Consultaremos la tabla SMART. Vamos a revisarlos: 
+
+7.- SELECT * FROM SMART.REPORTE;
+
+Con esto ¿que hemos visto el día de hoy? hemos dado una definición ya con una nube en particular, por supuesto, que hemos omitido 
+muchísimos detalles, porque, si esto fuese una clase de Big data y de AWS, habrían muchas cosas de las que hablar. Una de ellas es 
+el server que tiene el cliente para empezar a subir los datos, otra de ellas es hemos definido una VPC, pero ahora hay subredes como 
+vieron en las opciones, eso también se puede hacer en AWS, pero arquitectónicamente en los diagramas hay que decir: " … el proyecto 
+va a tener subred con un OWNER principal y ese OWNER va a poder delegar otros usuarios y los flujos están estructurados así, en el 
+ecosistema tecnológico hacia LANDING puede ser una herramienta visual, hacia UNIVERSAL una herramienta visual que permita programar 
+y para SMART completamente programación … " y también hemos aprendido que no deben haber usuarios dueños, tienen que haber roles 
+asociados a los usuarios. 
+
+Otra cosa que también hemos omitido es la orquestación del proceso, porque, aquí tenemos los pasos por separado, pero, luego hay que 
+orquestar esos 3 pasos para que se ejecuten a cierta hora, a eso se le llama la EJECUCIÓN DELTA. El DELTA es diario, semanal, mensual, 
+anual y bimensual, eso también tiene que estar definido desde un punto de vista arquitectónico. Lo que hemos visto el día de hoy 
+solamente ha sido un pequeño, muy pequeño, acercamiento a la parte de AWS para en vivo ver ya una herramienta real. La próxima semana 
+ya vamos a regresar a la parte de PPT y ver cómo todo esto se integra a la definición arquitectónica. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+ORQUESTACIÓN DE LOS JOBS
+------------------------
+
+Vamos a entrar al servicio AWS GLUE, en el caso de AWS esta orquestación se hace por medio de los WORKFLOWS. Lo vamos a hacer simple 
+solamente para que se pueda ver:
+
+1.- Menu AWS Glue --> ETL – Workflows --> Agregar flujo de trabajo
+
+
+¿Qué es lo que vamos a ver la próxima semana? ahora que en vivo hemos ya tenemos la idea de cómo es que realmente se va a trabajar 
+dentro de la empresa , ¿qué es lo que nos queda? 2 cosas: uno, la definición de estos patrones de diseños que incluyen la parte de 
+redes, de infraestructura ELÁSTICA, de orquestación y de selección de herramientas, como vimos, una parte visual, una parte visual y 
+codificación y otra parte codificación y algunos otros detalles que ya en PPT lo vamos a ir definiendo como patrones de diseño. También 
+hemos aprendido que el patrón de diseño es muy bonito, pero a veces van a ver cosas raras como lo que pasó el día de hoy, que para 
+crear una tabla hay que hacer un REPAIR TABLE, porque, simplemente AWS quiso hacerlo así. Entonces, te va a romper tu esquema y para 
+eso hay que hacer pruebas de concepto, un arquitecto no puede autorizar ningún flujo de procesamiento con alguna herramienta si es que 
+no ha hecho una prueba de concepto con volumetría esperada. ¿A qué me refiero con esto? acá yo bonito les he enseñado la herramienta, 
+pero, lo hemos hecho con solamente 1 MB, ahora parte de las pruebas es, ya está bonito sabemos que funciona con 1 MB, eso se llama la 
+prueba END TO END. Pero la prueba de concepto es y ¿cuánto data va a venir en la vida real? 1 TB, ok, vamos a probar ahora el flujo que 
+ya está armado con 1 TB. Por supuesto, que eso también lo vamos a omitir, porque, ya hacerlo se convertirá en una clase de programación 
+y tiene que quedar como definición. Si no pasa ese flujo, el arquitecto no puede autorizar el uso de esa herramienta, esto lo he visto 
+muchísimas veces. El día lunes vamos a definir todo lo que sí es necesario, para decir: " … ok, esto sí funciona … " no es tan simple 
+como decir: "… estas son las tecnologías que el proveedor me ha dicho y ya … ", prueba de concepto, porque a veces hasta la red influye. 
+Una vez que entendamos los últimos planos arquitectónicos vamos a ver los patrones de diseños para las soluciones, existen diferentes 
+tipos de soluciones: reportería, real time, analítica, machine learning, deep learning, ETL, hay patrones de diseños, por supuesto, 
+que esos patrones de diseño ya son más flexibles, porque, si son muy rígidos entorpecemos el trabajo de los desarrolladores. Eso 
+también hay que entenderlo, a veces negocio quiere tener todo tan controlado, que ya empieza a entorpecer el trabajo del developer, 
+así que la capa de soluciones debe de ser flexible. Tú como arquitecto debes de defender esa posición, ya en los diagramas de la 
+próxima semana también aprenderemos. 
+
+-----------------------------------------------------------------------------------------------------------------------------
