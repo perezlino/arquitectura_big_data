@@ -1,0 +1,493 @@
+=======
+CLASE 8
+=======
+
+¿Qué es lo que vamos a ver el día de hoy? ayer hicimos muchas definiciones, dijimos que las soluciones en primer lugar se ejecutan 
+sobre una infraestructura y vimos que hay varios patrones de diseños asociados a esta infraestructura. Lo que vamos a hacer el día 
+de hoy es la implementación en una nube para ver un ejemplo práctico y ver cómo todas esas definiciones se traducen en algo tangible. 
+Adicionalmente, desplegar un Clúster de infraestructura de Big data toma tiempo, puede tomar de 15 a 20 minutos, así que, una vez que 
+le demos clic al botón para que se vaya creando vamos a tener que esperar. Mientras se va desplegando vamos viendo otro tema que es 
+la parte del Real time, porque, lo hemos estado enfocando todo a procesamientos Batch, pero ¿qué pasa si se requiere una arquitectura 
+de tiempo real? entre esos 15 a 20 minutos que se va a ir desplegando el Clúster, vamos a ir viendo los patrones de diseño para la 
+parte de tiempo real. 
+
+Vamos a trabajar en la nube de AZURE. Ya sabemos que todas las nubes tienen un portal. Ahora, ¿qué es lo que voy a hacer? voy a crear 
+un GRUPO DE RECURSOS y dentro van a vivir todos los recursos asociados al proyecto que voy a desplegar. El GRUPO DE RECURSOS en el 
+caso de AZURE, gestiona toda la infraestructura y servicios que tú vas a desplegar. Le voy a dar clic a "Crear" y dentro le voy a 
+poner a algún nombre que yo quiera, este va a ser el grupo de recursos de nombre "grbigdatauserbda000". Por supuesto, que en la vida 
+real dependería del proyecto, CADA PROYECTO TIENE SU PROPIO GRUPO DE RECURSOS, PORQUE, UN PROYECTO EN LA NUBE ESTÁ ASOCIADO A UNA 
+"SUSCRIPCIÓN". Digamos que tenemos 10 áreas en la empresa: marketing, ventas, cobranzas, entre otras. Cada una maneja su propio 
+presupuesto, entonces, tendríamos diferentes suscripciones, para que el costo se cargue en el área determinada o tal vez se cargue 
+solo un proyecto. Así que los grupos de recursos siempre deben tener asociada una suscripción y esa suscripción tiene un OWNER y ese 
+OWNER es quien paga. Ahora, ya dependerá de la estrategia arquitectónica de la empresa de quién va a ser el OWNER de ese proyecto. 
+
+El otro punto importante también es el que sabemos, HAY QUE DESPLEGAR LA INFRAESTRUCTURA LO MÁS CERCANO A NOSOTROS (Region), por 
+ejemplo, yo lo voy a despegar en el sur de Brasil. Luego de eso, le voy a dar clic a "Revisar y crear", todo esta ok y le voy a dar 
+clic a "Crear" y listo, ya tenemos un GRUPO DE RECURSOS. Dentro voy a empezar a crear servicios e infraestructura. 
+
+Ahora voy a regresar al portal de AZURE y voy a seleccionar el recurso CUENTAS DE ALMACENAMIENTO, si no lo encuentras puedes buscarlo 
+desde el buscador. Este es el servicio en AZURE que me permite subir datos. 
+
+Ahora voy a crear una CUENTA DE ALMACENAMIENTO para empezar a subir los datos. Dentro de esta sección lo mismo, puedo asignar yo una 
+suscripción, por ejemplo, digamos cada área va a tener su infraestructura de Big data independiente, pero, hay una infraestructura 
+centralizada en donde está el DATA LAKE en donde se almacenan los datos. Lo vamos a poner en la pizarra para que entienda, tenemos 
+nuestro DATA LAKE, tenemos los datos y llegamos hasta la capa UNIVERSAL y aquí están los datos estructurados y luego el área "ventas" 
+tiene su propio Clúster para procesar estos datos, marketing tiene su propio Clúster para procesar esos datos y así sucesivamente o 
+incluso puede ser por proyecto. Así que sí es posible tener diferentes Clústers de Big data con esta estrategia. Ahora, respecto a las 
+suscripciones, punto de la vida real, y ¿quién va a pagar la infraestructura del área de ventas? Pues, el área de ventas, esta área 
+tendrá su suscripción y ahí se cargará todo lo que tú crees, igual con el área de marketing y así sucesivamente. Pero ¿qué pasa con 
+este punto centralizado, en donde está el DATA LAKE con los datos de la empresa listos para procesar? ¿quién lo paga? eso, por ejemplo, 
+hay que definirlo. Por supuesto, va a ser otra suscripción aparte y hay que definir quién va a ser el OWNER que va a pagar esa 
+suscripción. 
+
+Esto, por ejemplo, ya es una estrategia de la vida real. Generalmente, los datos viven de manera permanente y quienes van a procesar 
+quizás el día de hoy necesiten 10 servidores, crean su Clúster de 10 servidores, procesan los datos que tienen que procesar, se tomarán 
+10 horas en procesar, terminan de procesar y destruyen el Clúster y solamente se quedan con las resultantes. Esa es una estrategia con 
+la cual se trabaja mucho en la vida real, para no tener servidores encendidos de manera permanente. 
+
+Acá vamos a crear simplemente una CUENTA DE ALMACENAMIENTO y seleccionaré la SUSCRIPCIÓN, quien va a ser el encargado de pagar eso y 
+diré que se cree en el GRUPO DE RECURSOS que acabamos de crear hace un momento para que el costo esté asociado a esa suscripción. De 
+nombre le voy a poner "storagebigdatauserbda000", este nombre es un identificador único a nivel mundial, no puede repetirse, porque, 
+por ejemplo ustedes saben que existe el protocolo "http://" pues lo mismo pasa, por ejemplo, con AWS, tiene el protocolo "s3://" para 
+almacenamiento, luego viene algo y ese algo es único, es como si fuese el identificador de una página web, es el identificador de tu 
+cuenta de almacenamiento en donde están tus archivos y luego dentro de tu cuenta de almacenamiento habrá un directorio y habrá un 
+subdirectorio y ahí subirás un archivo. Este nombre "s3://esteNombreTieneQueSerUnico/dir/sub/archivo", tiene que ser único. En el caso 
+de AZURE a las cuentas de almacenamiento se le llama el BLOG STORAGE. Ahora, aquí también tendrías que definir un estándar, primero un 
+prefijo que sea el nombre de la empresa, luego un identificador que indique que cuál es el área responsable o un identificador del 
+proyecto y ya luego el nombre de la cuenta de almacenamiento, solo para poner un ejemplo. Pero eso es algo que también debes de definir 
+al momento de diseñar tu arquitectura. Ahora, misma historia tenemos que desplegar la cuenta de almacenamiento en donde subiremos los 
+datos en el sur de Brasil (REGION). 
+
+Otro punto importante es el RENDIMIENTO. La cuenta de almacenamiento es donde se van a guardar los datos. Para efectos prácticos puedes 
+verlo como el disco duro. Ahora generalmente existen 2 tipos de cuentas de almacenamiento: 
+
+● ESTÁNDAR  (Batch)
+● PREMIUM (Real time)
+
+Para efectos prácticos puedes asumir que las cuentas de almacenamiento "NORMALES" se guarda en discos duros mecánicos y las cuenta de 
+almacenamiento "PREMIUM" en unidades de SSD. Acá te lo dice, por ejemplo, digamos que estamos haciendo un procesamiento en tiempo real, 
+a eso se le llama BAJA LATENCIA (Cuentas PREMIUM se recomiendan para escenarios de latencia baja). Digamos que estamos haciendo 
+procesamientos Batch, entonces, puede ser un rendimiento ESTÁNDAR, un disco duro clásico. El día de ayer se los dije, hay una diferencia 
+al hablar de velocidades, si estamos procesando Batch --> Disco duro estándar, si estamos procesando en Real time tiene que ser SSD 
+Premium. Vamos a dejarlo como un Disco duro estándar. 
+
+Otro punto importante en tu arquitectura es la REDUNDANCIA. Una de las preguntas que hizo uno de sus compañeros el día de ayer, ¿qué es 
+lo que va a pasar en la vida real? acá las nubes te dicen lo siguiente: los datos que tú subas van a estar permanentemente en la nube, 
+pero, voy a poner un ejemplo extremo, digamos que tienes mala suerte y justo el archivo de datos muy importante que subiste a AZURE 
+está en un servidor de un data center de California (Estados Unidos) y hay una gran tormenta y se destruye todo el edificio y se pierde 
+el servidor y, por lo tanto, perdiste tu archivo muy importante y/o simplemente hay una falla de corte eléctrico sobre la región y no 
+tienes acceso por mucho tiempo a ese archivo muy importante. Así que, ¿qué es lo que dice la nube? debes de definir una estrategia de 
+redundancia de datos, la MÍNIMA QUE TE PIDE ES QUE SEA UNA REDUNDANCIA GEOGRÁFICA "GRS", es decir, digamos que estamos trabajando en el 
+sur de Brasil y en el sur de Brasil hay 2 data centers: uno ubicado en un extremo del sur de Brasil y el otro ubicado en el otro 
+extremo del sur de Brasil, si pasa algo en un data center, pues, tienes la copia del archivo en el otro data center. O lo puedes hacer 
+por zonas (REDUNDANCIA DE ZONA "ZRS") digamos un data center en una ciudad de Brasil y otro data center en otra ciudad de Brasil o 
+incluso zona geográfica (REDUNDANCIA DE ZONA GEOGRÁFICA "GZRS") esto se refiere, por ejemplo, es un poco más complejo pero lo voy a 
+poner simple, digamos que hace una copia en Perú, otra copia en Chile y otra copia en Brasil, entonces, si pasa algo en un país, pues, 
+no pasa nada aún tienes acceso a tu archivo y puede parecer extremo, pero, voy a poner un ejemplo, porque, por ejemplo el año pasado 
+harvard dio una conferencia muy interesante sobre esto, ¿qué pasa si por ejemplo en Brasil hay una dictadura y se apropian del internet 
+y tu has desplegado cosas sobre Brasil? Entonces, pierdes el acceso a los datos, por eso existe este nivel, entonces, todo esto está 
+pensado por algo, no es simplemente porque sí. EL MÍNIMO QUE SE RECOMIENDA ES REDUNDANCIA GEOGRÁFICA que esté en 2 data centers 
+diferentes. Nosotros para efectos prácticos vamos a usar el de REDUNDANCIA LOCAL "LRS" ¿esto qué significa? que esté en el mismo data 
+center pero en racks diferentes, por ejemplo, un rack tiene 20 servidores, otro rack tiene otros 20 servidores, entonces, los datos se
+van a duplicar en 2 servidores que están en 2 racks diferentes. 
+
+También hay otras cosas que podríamos activar, por ejemplo, dentro de las OPCIONES AVANZADAS EN LAS CUENTAS DE ALMACENAMIENTO hay algo 
+llamado ESPACIO DE NOMBRES JERÁRQUICOS DE DATA LAKE STORAGE GEN2 que está relacionado con el almacenamiento orientado a arquitecturas 
+del DATA LAKE. Si esto fuese una clase de implementación de un DATA LAKE como lo hacemos en el programa de Big data, daríamos más 
+detalle de esto, pero para ponerlo en términos simples un DATA LAKE tiene que tener técnicas de gobierno de datos, tal persona es tal 
+dueño de tal dato. Para poder dar esas instrucciones, en el caso de AZURE hay que decirle: " … oye por si acaso vamos a aplicar técnicas 
+de DATA LAKE sobre este almacenamiento … " (activar la casilla HABILITAR EL ESPACIO DE NOMBRES JERÁRQUICOS). 
+
+Podríamos seguir configurando más cosas, pero, como mínimo voy a configurar esto y le voy a dar "Revisar y crear" para tener mi cuenta 
+de almacenamiento. Le voy a dar clic a "Crear" para que se despliegue y esperaremos a lo más 1 minuto para tenerla lista. 
+
+Otro punto importante, se acuerdan de que en el caso de AWS yo les dije que debe de existir un OWNER, alguien que sea el dueño de los 
+datos, el dueño de la infraestructura, para que no dependa de un usuario de la empresa, sino, de un rol. Eso pasa en todas las nubes, a 
+eso se le llama IDENTIDAD ADMINISTRADA. Lo habíamos hecho en AWS y aquí también lo vamos a hacer. Voy a navegar sobre el portal y le 
+voy a dar clic a TODOS LOS SERVICIOS, aquí tenemos muchos servicios. Vamos a ir a la categoría IDENTIDAD y dentro voy a escoger 
+IDENTIDADES ADMINISTRADAS. Aquí vamos a hacer lo mismo que con AWS, todo lo que vamos a crear no va a tener un usuario de la empresa, 
+pepito@miempresa.com, él no va a ser el dueño de eso, sino, que va a haber un usuario especial que va a ser el dueño de eso, si pepito 
+se sale de la empresa y su correo deja de existir, pues, simplemente se cambia ese usuario a otra persona, entonces, parte de los 
+patrones es que no se dependa de un usuario de correo, sino, de un rol. Vamos a crear entonces este rol, le voy a dar clic a "Crear" y 
+le voy a indicar quién es el dueño de esta cuenta. Diré lo siguiente: sobre este GRUPO DE RECURSOS:  grbigdatauserbda000, en la REGION: 
+Sur de Brasil, se va a crear un dueño que se va a llamar "bigdatauserbda000". Ahora le doy clic a "Revisar y crear", esperamos unos 
+segundos y con esto ya tenemos definido quién va a ser el dueño de los recursos que empezamos a crear. Acá por ejemplo yo estoy creando 
+todo con la cuenta de Big data academy, pero, digamos que, si esta cuenta deja de existir, pues, no importa, porque, ya hay un dueño 
+asociado al GRUPO DE RECURSOS, depende de este rol, ya no de un correo electrónico. 
+
+Luego de eso voy a regresar al portal de AZURE y dentro de los GRUPOS DE RECURSOS, voy a entrar a mi GRUPO DE RECURSOS 
+("grbigdatauserbda000") y dentro podemos ver las cosas que vamos creando. Podemos ver que está la cuenta de almacenamiento 
+"storagebigdatauser000" y aquí también está el usuario que es dueño de esos recursos ("bigdatauserbda000"). Voy a entrar dentro de la 
+cuenta de almacenamiento y me voy a ir a la sección de CONTROL DE ACCESO (IAM), aquí dentro voy a hacer lo siguiente: voy a ir a la 
+opción ASIGNACIÓN DE ROLES y aquí, por ejemplo, podemos ver quién es EL DUEÑO DE ESTA CUENTA DE ALMACENAMIENTO, EL DUEÑO ES QUIEN LA HA 
+CREADO, pero, por ejemplo, también tengo asociada esta cuenta a mi correo personal. Por supuesto, como les dije no debemos de depender 
+de correos de usuarios, el día que este trabajador se vaya, pues, va a ser un problema y las soluciones van a empezar a tener errores, 
+van a decir: " … no existe un OWNER asignado … " y tú vas a decir: " … ¿qué es lo que está pasando? … ". Esto puede parecer absurdo, 
+pero, pasa mucho dentro de las empresas, alguien crea infraestructuras, se queda asociado un correo y cuando ese trabajador deja de 
+existir en la empresa la nube dice: " … oye no hay dueño, entonces, no puedo ejecutar nada … " y los procesos empiezan a fallar. Ahora, 
+dentro de la pestaña ASIGNACIÓN DE ROLES, vamos a la opción "+Agregar" y decimos lo siguiente: " … oye quiero asignar un rol aquí 
+dentro … "  y teniendo la opción "Rol" seleccionada, buscamos el siguiente rol: "Propietario de datos de Storage Blob". Nos aparece en 
+una lista y le vamos a dar clic. Ahora le doy clic a "Siguiente". Pasamos a la opción "Miembros". En la configuración de "ASIGNAR 
+ACCESO A" le diré que a quién le quiero asignar ese rol, que sea el dueño de los datos, no a un usuario, porque, eso es un anti-patrón, 
+sino, a una IDENTIDAD ADMINISTRADA que yo he creado, elegimos esta última. Luego le doy clic a "Seleccionar miembros" y en la lista de 
+opciones que se nos abre, aparece "Identidades administrada", ahí selecciono a la que creamos hace un momento "bigdatauserbda000" y le 
+doy clic a "Seleccionar" y listo. Damos clic en "Revisar y crear". 
+
+Bien, ya tenemos a alguien que es el dueño de los datos. Ahora, VAMOS A CREAR EL CLÚSTER DE BIG DATA. En el caso de AZURE a esa 
+tecnología se le llama "HDInsight". Es la tecnología propietaria que tiene AZURE para instanciar Clústers de Big data basadas en el 
+ecosistema de Hadoop. Ahora, una vez dentro le diré: "… oye vamos a crear un Clúster … " (selecciono "Crear"), vamos a esperar unos 
+segundos y empezaremos a hacer algunas definiciones. En primer lugar, donde se va a crear el Clúster para cargar el costo del proyecto, 
+pues, en este GRUPO DE RECURSOS: "grbigdatauserbda000", e indicamos también la SUSCRIPCIÓN. ¿Cómo se va a llamar el Clúster? 
+"clusterbigdata001". ¿Dónde va a vivir? pues, estamos trabajando en el "Sur de Brasil". Ahora indicamos el TIPO DE CLÚSTER, aquí 
+también quiero que vean lo siguiente: esto lo voy a explicar también en la parte de tiempo real, nosotros vamos a crear un Clúster 
+genérico de Big data, pero, existen diferentes tipos de soluciones, por ejemplo, si estuviéramos aplicando técnicas de machine learning 
+o de deep learning deberíamos crear un Clúster del tipo "ML SERVICES (R SERVER)". Si estuviésemos haciendo soluciones de procesamiento 
+basado solo en SQL deberíamos crear un Clúster del tipo "HADOOP". Ahora ¿qué es un Clúster genérico? un Clúster genérico es aquel 
+Clúster en donde puedes hacer cualquier cosa menos tiempo real, en ese caso SPARK. Y ¿qué pasa si quieres hacer tiempo real? SPARK 
+tiene un módulo para hacer tiempo real, pero, necesita algunos componentes especiales como KAFKA, de esto hablaré en unos momentos 
+mientras se va creando el Clúster, acá, por ejemplo, tenemos un Clúster para poder hacer procesamiento en tiempo real. Así que 
+dependiendo de la solución las nubes te permiten desplegar ciertos tipos de Clúster. Yo voy a decir: " … quiero un Clúster genérico 
+para hacer de todo, desde procesos Batch hasta temas de Deep learning … ", menos Real time, eso sí no podría hacerlo, eso va a requerir 
+de una infraestructura especial. De acuerdo voy a seleccionar entonces un Clúster basado en SPARK. Luego en VERSION puedo seleccionar 
+cualquier versión de SPARK, vamos a utilizar la que es estándar hoy en día, la versión 2, vean que está habilitada ya la versión 3, 
+pero, de manera preliminar. ¿Qué es lo que habíamos dicho en estas clases de arquitectura? nunca utilicemos dentro de la empresa 
+versiones beta, porque, quien sabe que pueda pasar, debemos seleccionar la última versión estable. Luego como NOMBRE DE USUARIO PARA 
+ACCEDER AL CLÚSTER le voy a poner "admin" y en la contraseña creamos una a gusto. Hablando de esto, paso de la vida real y ¿qué es lo 
+que pasa en la vida real? pues va a haber muchas contraseñas y recuerda que la vista de seguridad es muy importante ¿quién va a 
+gestionar esas contraseñas? no tú como arquitecto, pero, eso lo va a hacer el área de seguridad. Ahora desde un punto de vista técnico 
+¿qué implica esto? que, por ejemplo, hay que tener alguna herramienta de gestión de contraseñas, eso también debería de ser definido 
+dentro de la parte tecnológica. Parte de esa definición profesional como arquitecto es decir: " … y dónde se van a guardar las 
+contraseñas … ", entonces, se tendrá que buscar un software empresarial especial y se comprará ese software. Yo les dije: ¿cómo podemos 
+acceder a un Clúster? se accede desde el Gateway. Desde el Gateway podemos acceder desde la interfaz gráfica con una herramienta visual 
+muy bonita o si queremos desde consola de comandos. Para acceder a la interfaz gráfica utilizaremos este usuario: "admin" (Nombre de 
+usuario de inicio de sesión del clúster). Para acceder a la consola de comandos es este otro usuario: "adminssh" (Nombre de usuario de 
+Secure Shell (SSH)). Podrían llamarse igual, no habría problema. Y le digo que vamos a usar la misma contraseña para las interFacebooks 
+gráficas y para la consola de comando (Activamos la casilla USAR CONTRASEÑA DE INICIO DE SESIÓN DE CLÚSTER PARA SSH). Con todo eso ya 
+definido vuelvo hasta arriba, voy a la pestaña "Almacenamiento" y le digo: " … mira como este es un Clúster de Big data, pues, voy a 
+usar patrones basados en el DATA LAKE, así que, quiero este tipo de tecnología (Tipo de almacenamiento principal: Azure Data Lake 
+Storage Gen2). El Clúster va a procesar datos y va a crear archivos temporales ¿dónde se van a crear esos archivos temporales? dentro 
+de esta cuenta de almacenamiento que creamos hace un momento (Cuenta de almacenamiento principal: storagebigdatauserbda000). Dentro de 
+esta cuenta de almacenamiento vamos a empezar a crear directorios para ordenar nuestros procesos. Cualquier cosa que implique 
+procesamiento dentro del Clúster va a ser colocado dentro de este directorio (Sistema de archivos: "dfs") "dfs" ¿qué significa? 
+distributed file system. Realmente podrías ponerle cualquier nombre, pero, se recomienda que sea este para saber que ahí está el 
+sistema de archivos distribuidos de la infraestructura. Por último y ¿quién es el dueño es el dueño? es este usuario que habíamos 
+creado (Identidad administrada asignada por el usuario: "bigdatauserbda000"). Con eso ya tenemos lo necesario. Ahora vamos a la parte 
+de la potencia. En la pestaña "Configuración y precios", aquí es donde vamos a definir la potencia de los nodos. En primer lugar 
+tenemos: 
+
+● El Nodo Encabezado (Nodo Master + Nodo Gateway)
+● El Nodo Zookeeper
+● El Trabajador (Nodo Slave)
+
+El nodo zookeeper para explicarlo de manera simple, cuando hablemos de Real time vamos a necesitar otra infraestructura y en ocasiones 
+queremos combinar la infraestructura Batch con infraestructura Real time. Para que ambas infraestructuras estén sincronizadas existe 
+una tecnología especial llamada "Zookeeper" que sincroniza infraestructuras diferentes. Para efectos prácticos no hay Sizing de este 
+nodo, pero sí del Máster y del Worker. El Gateway, al menos, en el caso de AZURE se encuentra dentro del Máster. ¿Por qué AZURE lo 
+decidió así? su estrategia fue así, así que dentro del Nodo Encabezado está tanto el Máster como el Gateway. ¿Cuántos nodos esclavos 
+(Nodo Trabajador) vamos a tener? pues mientras más nodos esclavos tengamos mejor. Por ejemplo, podría poner nodos de esta potencia 
+96 vCPUs y 672 GB de RAM y 100 de estos nodos. ¿Cuánto nos costaría por hora este Clúster? 1.200 USD. ¿Cuánta potencia tendríamos? 
+67 TB de memoria RAM. Vean entonces que la infraestructura en nube pues nos da muchísima potencia. ¿Qué es lo que voy a hacer? para que 
+el Clúster se despliegue rápido vamos a poner tamaños pequeños, porque, si no nos quedaríamos horas y horas esperando. Para el Nodo 
+Encabezado le voy a poner un E2 versión 3, solo tiene 2 vCPUs y 16 GB de RAM, es pequeñísimo, y y indicamos que serán 2 nodos. En el 
+caso del Nodo Zookeeper lo voy a dejar con el A2 versión 2 que tiene 2 vCPUS y 4 GB de RAM, encima es gratuito, no nos van a cobrar 
+nada y le indicamos que serán 3 nodos. Forzosamente tiene que tener como mínimo 3, al menos en el caso de AZURE. Ahora en los Nodos 
+Esclavos en donde va a ir la potencia de procesamiento también le voy a poner un E2 versión 3 e indicamos que será 1 solo nodo. También 
+quiero que veas que en las nubes te dan la opción de escalado automático (la casilla de "Escalado automático"), porque, digamos que 
+aquí tenemos 1.000 GB de RAM y tenemos la estrategia de que el 5% de la potencia es usada por cada desarrollador, eso significa que 
+puede haber hasta 20 desarrolladores en el Clúster. Pero ¿qué pasa si de pronto se conectan 10 desarrolladores más? vamos a necesitar 
+más servidores, así que hay que habilitar un Clúster elástico (Tipo de escalabilidad automática: "Según la carga") y aquí podríamos 
+configurar un máximo y un mínimo de nodos trabajadores. Yo voy a deshabilitar esto del escalado para evitar que demore el despliegue y 
+con esto ya tenemos todo configurado. Le voy a dar clic a "Revisar y crear". Nos dice: " … ok, todo está bien definido … " y le voy a 
+dar clic a "Crear" y esto se va a demorar de 15 a 20 minutos. 
+
+
+Se acuerdan de que creamos el estándar DATA LAKE en AWS, eso también lo podemos hacer dentro de AZURE. Voy a entrar al GRUPO DE 
+RECURSOS, voy a entrar a la CUENTA DE ALMACENAMIENTO ("storagebigdatauserbda000") y voy a entrar a la opción "Contenedores". Noten que 
+encontramos el CONTENDOR "dfs". Regresando al punto, dentro de CONTENEDORES yo podría hacer lo siguiente: VAMOS A CREAR EL DATA LAKE 
+dentro de nuestra cuenta de almacenamiento. Voy a crear un contenedor llamado LANDINGTMP. Ahora voy a crear otro contenedor llamado 
+LANDING. Luego voy a crear otro contenedor llamado UNIVERSAL y finalmente voy a crear otro contenedor llamado SMART. Vean entonces que 
+para efectos prácticos cambian las tecnologías, pero los patrones se siguen manteniendo. Ahora, digamos que queremos procesar un 
+archivo de transacciones genérico, ¿qué es lo que debería hacer? dentro del contenedor LANDINGTMP creo la entidad "transacción" y 
+dentro de ese directorio depositaré el archivo de datos en texto plano que voy a procesar. Luego, regreso a la a la raíz del storage y 
+dentro de LANDING también creo el directorio "transacción" y aquí al archivo lo tendré que binarizar o estructurar o hacer las técnicas 
+de limpieza que hemos aprendido. Luego en UNIVERSAL dependiendo de si son datos estructurados, semiestructurados o no estructurados, ya 
+sabemos que hay técnicas para modelar los datos y acá vivirá transacción (también creamos el directorio "transacción"), la entidad 
+transacción ya modelada y binarizada y lista para que las soluciones las procesen. Y finalmente dentro de SMART es donde viven las 
+soluciones y acá, por ejemplo, voy a poner algo muy genérico, un directorio llamado "reporte" en donde el output del procesamiento 
+dejará un reporte, dentro del directorio habrá varios archivos de datos del reporte y y ya alguien desde una interfaz gráfica se 
+conectará a este directorio, sacará los datos y los pintará en su reporte. Por supuesto que este es un ejemplo muy puntual para 
+entender el concepto, si esto fuese una clase de programación o una clase de AZURE, ya se detallaría más, porque, no solamente es 
+crear, sino, hay que ver el Data factory para hacer los movimientos que es la tecnología propietaria que tiene AZURE. Ahora, para que 
+entiendan bien el punto de partida, dentro de LANDINGTMP, dentro de "transacción", diría: " … vamos a cargar el archivo de datos a 
+procesar … ", lo voy a seleccionar y, por ejemplo, les he dejado un pequeño archivo, "transacciones.data", le doy cargar y listo, ahí 
+tenemos el archivo de datos y podríamos empezar a procesarlo como lo hicimos en AWS. También, otro punto importante que deben de 
+entender es, voy a regresar a la raíz del storage y en CONTENEDORES tenemos el DATA LAKE, yo les dije que generalmente en la vida real 
+tienen una estrategia de este tipo, por un lado, está el DATA LAKE en donde están los datos limpios y listos para procesar, es decir, 
+tenemos la capa en LANDINGTMP,  LANDING y UNIVERSAL, también tenemos la capa SMART en donde van a vivir las soluciones. Ahora, eso es 
+simplemente datos almacenados, pero ¿quiénes los procesan? los Clústers de Big data. Acá, por ejemplo, tenemos el sistema de archivos 
+distribuidos de un Clúster de Big data (dentro de CONTENEDORES habíamos creado el contenedor "dfs"). Digamos que terminamos de procesar 
+el archivo de transacciones y ya lo tenemos en UNIVERSAL y ya no necesitamos el Clúster, pues, simplemente destruimos el Clúster y 
+destruimos el contenedor "dfs", para que solamente nos cobren por el uso que hayamos hecho del Clúster. Esa es una técnica que se 
+aplica mucho en la vida real dentro de las empresas para guardar solamente datos inputs y resultantes finales y solamente usar la 
+infraestructura cuando se necesita, terminamos de utilizarla y se destruye la infraestructura. Luego, si queremos seguir utilizando la 
+infraestructura bueno volvemos a crear el Clúster. También vimos un ejemplo parecido en AWS, para mover los datos decíamos: el Clúster 
+va a tener cierto tamaño de su potencia, le dábamos clic se creaba el Clúster, se ejecutaba el proceso, terminaba el proceso y se 
+destruía el Clúster. Esto también es muy importante, porque, hay que tratar de ahorrar lo más que se pueda los costos. También otro 
+punto importante, es que voy a entrar dentro del contenedor que conforma el Clúster (entramos a "dfs"), aquí estamos viendo que ya se 
+están empezando a crear los directorios. Voy a agregar un directorio especial manualmente dentro del Clúster llamado "objects" (creamos 
+el directorio "objects" dentro del contenedor "dfs"). En este directorio es donde colocaremos los objetos que el Clúster va a procesar, 
+¿a qué me refiero con esto? digamos que en UNIVERSAL tenemos la tabla 'empresa', 'persona' y 'transaccion' y queremos procesar eso para 
+hacer un reporte. El contenedor UNIVERSAL físicamente hablando podría vivir en el Sur de Brasil y el contenedor "dfs" físicamente 
+hablando podría vivir en los Estados Unidos, entonces, cuando hablemos de nubes siempre recuerden de que puede ser que las ubicaciones 
+físicas sean diferentes a las ubicaciones lógicas, ¿qué es lo que se tiene que hacer? si se van a procesar datos del contenedor 
+UNIVERSAL hay que colocarlos dentro del Clúster (dentro del contenedor "dfs"). Dentro del Clúster, dentro de la carpeta "objects" 
+deberíamos tener algo como esto, una carpeta llamada "inputs" (si no está, la creamos). Ahí colocaremos los datos que el Clúster va a 
+procesar. Ahora, una vez que finalice el procesamiento, los datos van a estar en el Clúster en una carpeta llamada, por ejemplo, 
+"outputs" (dentro de la carpeta "objects", si no está, la creamos). Ahora, también en ocasiones queremos colocar scripts de 
+procesamientos dentro del Clúster, así que, voy a crear un tercer directorio llamado "scripts" (dentro del directorio "objects" 
+también). Esta es una forma también de ordenar el procesamiento en los datos y parte de tu trabajo como arquitecto es definir esa 
+forma. Por ejemplo, en AZURE lo podríamos hacer así o quizá podrías crear un estándar que maneje la empresa, en lugar del directorio 
+"objects", que se llame "nombreEmpresa" y luego dentro, un directorio que es el nombre del área que va a procesar los datos y dentro 
+recién están estos directorios ("inputs", "outputs" y "scripts"), entonces, marketing tiene su propio 'inputs', 'outputs' y 'scripts' 
+y cobranza tiene su propio 'inputs', 'outputs' y 'scripts'  A esto se llama definir una TAXONOMÍA. Ahora, ¿qué colocaríamos dentro de 
+"inputs"? aquí ya si esto fuese una clase de AZURE o de programación con Big data lo haríamos con Data factory que es la herramienta 
+para empezar a procesar, limpiar y binarizar los datos. Pero, dentro de "inputs" manualmente voy a crear un directorio llamado 
+"transaccion" y voy a entrar y subiré el archivo de datos de transacciones (transacciones.data) le doy clic a cargar y listo. Esto por 
+supuesto lo tiene que hacer un proceso automático con Data factory que es la herramienta de movimiento de datos y limpieza y 
+binarización dentro de Azure. Pero hacer todo eso nos tomaría 3 horas y solamente queremos conocer de patrones de diseños, así que, al 
+final el archivo se movería aquí ya binarizado. Ahora, voy a regresar a la raíz del contenedor, dentro de "objects", dentro de 
+"outputs", el Clúster hará lo que tenga que hacer con esos datos y voy a agregar un directorio llamado "reporte", le doy clic a guardar 
+y dentro de este directorio se dejará el reporte que el Clúster habrá terminado de procesar. Una vez que el Clúster termine de 
+procesar, moveremos el reporte a la capa SMART y con eso alguna herramienta de interfaz gráfica como Power bi o Tableau se conectará al 
+directorio "reporte" y ya verá los datos. 
+
+Al momento de crear el Clúster, yo les dije, EXISTEN DIFERENTES CLÚSTERS YA PRE CONFIGURADOS CON LAS TECNOLOGÍAS PARA HACER DESDE 
+PROCESAMIENTOS DE ETL HASTA TÉCNICAS DE MACHINE LEARNING Y DEEP LEARNING y yo les dije, el tipo de Clúster más genérico que existe el 
+día de hoy es uno basado en SPARK. SPARK es una tecnología de procesamiento genérico que te permite programar sobre Clústers de Big 
+data en tu lenguaje de programación favorito, puedes programar Java, Scala, Python, .net,  con Node JS. En general, hay muchos 
+conectores, así que la ventaja de utilizar un Clúster basado en SPARK, es que no tienes que aprender algún nuevo lenguaje de 
+programación, elige tu lenguaje favorito y programa con el API oficial. Algo parecido a lo que hicimos en la clase que utilizamos 
+Google Collab. 
+
+Como les dije, hay tantas tecnologías de Big data, tantos ecosistemas, tantas configuraciones diferentes, que sería realmente imposible 
+ver todas. Siempre hay diferentes alternativas, por ejemplo, también podríamos utilizar AZURE SYNAPSE, como también podríamos utilizar 
+DATABRICKS. Solamente para que lo puedan ver, voy a entrar a el portal nuevamente y digamos que quiero crear un Clúster de Big data 
+pero no quiero utilizar HDInsight, en su lugar, quiero utilizar DATABRICKS. Pues, simplemente en el buscador buscamos AZURE DATABRICKS 
+y acá puedo crear un área de trabajo y empezar a configurar la potencia que quiero que tenga el Clúster de Big data basado en 
+DATABRICKS. Así que sí podríamos utilizar diferentes tecnologías, diferentes ecosistemas. Recuerden que en la vida real existen 
+muchísimos, algunos hasta propietarios a los cuales no puedes acceder hasta que los compres o sea que pongas dinero. Lo importante son 
+los patrones, pero, si conoces otras tecnologías se adapta esos patrones a esas tecnologías. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Arquitectura de procesamiento de Real – time
+--------------------------------------------
+
+Ahora y ¿qué pasa con el procesamiento de Real time? esa es otra historia, ahí vamos a necesitar una infraestructura especial y aquí 
+es cuando hablamos de procesamiento de Real time. Desde un punto de vista arquitectónico, todo lo que hemos definido en patrones 
+estándares y buenas prácticas se siguen cumpliendo, es exactamente igual. Lo único nuevo que hay que definir es la velocidad en que 
+esos patrones van a procesar los datos y esto ¿en que se traduce? va a haber una infraestructura especial de procesamiento para este 
+flujo de datos, con los mismos patrones de diseño, pero con otra infraestructura. Además, hay un patrón adicional que vamos a tener 
+que agregar conocido como MICRO-BATCH. Para eso hay que entender el concepto de tormenta de datos. Primero lo voy a explicar con un 
+ejemplo simple y luego vamos a ver el patrón de diseño completo. Nosotros sabemos que dentro de una computadora común, pues, 
+probablemente tengamos solamente una CPU y como dijimos el día de ayer las instrucciones de código intercalan su procesamiento dentro 
+de esta CPU, así que, los 3 programas que están abiertos en tu computadora no están ejecutándose simultáneamente, sino que, van 
+intercalando sus instrucciones, solo que esta CPU es tan rápida que pareciese que van de manera simultánea. A eso se le llama 
+PSEUDO-PARALELISMO. Parece que es paralelo, pero no lo es. ¿Cuándo sería un paralelismo real? pues, por ejemplo, si tu computadora 
+tuviera varias CPUs o varios núcleos de CPUs, en ese caso cada una recibiría un programa, ahora sí se están ejecutando en paralelo. 
+Esto es muy importante para el procesamiento de tiempo real. 
+
+Hablemos de servidores, acá por ejemplo tenemos un servidor empresarial, ya sabemos que un 20% de ese servidor va a estar destinado 
+para que funcione el sistema operativo, el firewall y quién sabe qué tiene instalado y el 80% restante es para que los desarrolladores 
+usen sus CPUs. Acá, por ejemplo, tenemos 6 CPUs disponibles y 10 procesos paralelos, eso significa que van a haber procesos que van a 
+estar ejecutándose sobre una misma CPU y, por lo tanto, van a estar intercalando sus líneas de código y se va a producir el anti-patrón 
+de Big data llamado PSEUDO-PARALELISMO, ese es un problema, porque, va a hacer que los códigos se ejecuten de manera lenta, el 
+PSEUDO-PARALELISMO ESTÁ PROHIBIDO EN EL BIG DATA. Ahora, también sabemos que un proceso en entornos de Big data es paralelizable, 
+mientras más CPUs pongamos, más rápido va a ir el proceso, si con 2 CPUs este proceso toma 2 horas, pues, con 4 CPUs ahora va a tomar 
+tan solo 1 hora. Se supone que así funcionan las infraestructuras de Big data, pero, eso solo es válido si no hay PSEUDO-PARALELISMO, 
+porque, ¿qué pasa si en una misma CPU están compitiendo los procesos? pues, ya no puedes escalar y la infraestructura no va a trabajar 
+bien. Conceptualmente si lo escalamos a un Clúster es lo mismo, digamos que queremos paralelizar el proceso 3 en un factor de X12, 
+utilizando 12 CPUs y cada server solamente tiene 6 CPUs disponibles, entonces, tendríamos que distribuir el proceso en diferentes 
+servidores del Clúster, pero lo importante es que no haya pseudo-paralelismo, que por ahí algún proceso no utilice la misma CPU que 
+otro proceso ya está utilizando. EN LOS PROCESOS BATCH, SIN EXCEPCIÓN, TODAS LAS TECNOLOGÍAS DE CUALQUIER ECOSISTEMA DE BIG DATA QUE 
+TÚ UTILICES HADOOP, AWS, AZURE, GCP, DATABRICKS, HUAWEI O CUALQUIER ECOSISTEMA, GARANTIZA QUE NO VA A HABER PSEUDO-PARALELISMO, ES 
+IMPOSIBLE, YA LO GARANTIZA, PERO, SOLAMENTE PARA LOS PROCESOS BATCH. Lo voy a poner muy simple, digamos que este proceso P3 (de la 
+lámina de la PPT "Funcionamiento de un proceso BATCH), el desarrollador le dijo: " … dame 4 vCPUs … ", entonces, la tecnología que hay 
+por detrás que puede ser SPARK, HADOOP, HIVE, IMAPALA o quién sabe qué tecnología de Big data dice: " … ok, voy a reservar las 
+4 CPUs … " y ya ningún desarrollador va a poder usar esas CPUs. Así que, no hay ningún problema, se garantiza que solamente habrá un 
+hilo de procesamiento por CPU, por eso no hay mucho problema en los procesos Batcheros. Además, la naturaleza de un proceso Batch 
+también es la siguiente: hay una hora de inicio y de fin, digamos que empieza la 1:00 de la mañana y el archivo de datos está listo a 
+las 2:00 de la mañana, le toma 1 hora en procesarse. Termina de procesarse y la tecnología de Big data libera esas CPUs para que otro 
+proceso ya pueda tomarlos. En Batch no hay problema, el anti-patrón de pseudo-paralelismo no va a pasar. El problema está en los 
+procesos de tiempo real. Voy a poner un ejemplo conceptual simple para poder entenderlo y luego lo vamos a traducir a un patrón de 
+diseño ya completo. Digamos que estamos ingestando comentarios desde Facebook, ahora, un comentario de Facebook tú lo puedes hacer a 
+las 3:00 de la tarde como que lo puedes hacer a las 3:00 de la mañana, entonces, si el proyecto está ingestando comentarios desde 
+Facebook para hacer analítica de sentimientos y ver si están hablando bien o mal de nuestro producto, pues, ese comentario quién sabe 
+en qué momento lo puede hacer, no es que Facebook te dice: " … vas a poder comentar de 9 a 6 de la tarde y de ahí ya no se puede 
+comentar … ", no es así, está permanentemente abierto. Generalmente, los procesos de tiempo real ya no tienen ninguna hora de inicio y 
+de fin, son permanentes, eso ¿qué significa? que, si tú le asignas cierta cantidad de CPUs a ese proceso, ya se quedan asociadas a 
+ese proceso permanentemente y no las puedes liberar. Adicionalmente, ¿qué es lo que pasa? hay otro anti-patrón conocido como 
+MONOPOLIZACIÓN DE REAL TIME. Esto ¿a qué se refiere? hay un concepto llamado STORM DATA O TORMENTA DE DATOS. Volvamos al ejemplo de 
+Facebook que conceptualmente todos lo podemos entender, en Facebook no es que va a haber una persona comentando, por segundo van a 
+haber cientos de miles de comentarios que van a ir lloviendo dentro de los servidores, por eso se llama TORMENTA DE DATOS, es como 
+una gran tormenta, cada comentario es pequeñísimo es como una lluvia, pero no va a venir solamente una gota, sino, que van a venir 
+cientos de miles de estas transacciones por segundo. ¿Qué es lo que va a pasar? pues digamos que estamos haciendo analítica de 
+sentimientos y las transacciones van a empezar a ser procesadas en cualquier CPU y van a ver CPUs que van a tener varios hilos de 
+procesamiento y, por lo tanto, se va a producir el anti-patrón de PSEUDO-PARALELISMO y vas a monopolizar el Clúster, eso ¿qué 
+significa? que el proceso 3 solamente está usando todas las CPUs del Clúster y el resto de procesos ya no van a funcionar y es más 
+van a monopolizarlo de manera permanente, entonces, eso es un problema. Cuando hablemos de Real time eso es lo que va a pasar, si no 
+tienes una estrategia de arquitectura es probable que ese proceso monopolice el 100% del Clúster y no permita que ningún otro proceso 
+se ejecute. Por supuesto hay una solución para esto, en esencia, digamos que conceptualmente es simple, en lugar de enviar la tormenta 
+de datos de tiempo real, ni bien llegan esos datos, vamos a construir un componente especial de encolamiento que va a estar 
+especializado en recibir la TORMENTA DE DATOS, digamos que vienen 100.000 transacciones por segundo, este componente va a vivir en una 
+infraestructura diferente a la infraestructura de procesamiento. Esas transacciones no se van a guardar en disco duro, se van a guardar 
+en memoria RAM y se van a guardar en el orden en que lleguen. El componente de encolamiento por 1 segundo soportará la tormenta de 
+datos, vienen 100.000 transacciones y durante ese segundo, desde las 6:00 en punto hasta las 6:00 con 1 segundo, va a almacenar en la 
+RAM todo lo que llueva. Digamos que llovieron 100.000 transacciones y luego la sacará de la RAM y se las mandará al Clúster de 
+procesamiento en un archivo de datos para que lo pueda procesar y de esa manera diremos: vamos a utilizar 2 CPUs para procesar este 
+archivo de datos de 100.000 transacciones. Luego desde las 6:00 y 1 segundo a las 6:00 y 2 segundos, capturará todas las transacciones 
+que llueven en ese segundo y mandará nuevamente a procesar otro archivo de datos con todas las transacciones que hayan llovido en ese 
+segundo y así sucesivamente. Este componente especial de encolamiento va a vivir en otra infraestructura y gracias a esto podemos 
+hacer lo siguiente: digamos que el archivo de datos con las 100.000 transacciones con 1 CPU se está demorando 10 segundos en procesarse 
+y negocio pide bajarlo a 5 segundos. ¿Cómo? pues simplemente que no lo procese 1 CPU, sino, que lo procese 2 CPUs y como es un proceso 
+de Big data escalable hay garantía que este archivo de datos se parte en 2 y se procesa en cada CPU. Digamos que aun así es mucho y lo 
+quieren en 2 segundos, tendríamos que hacerlo 5 veces más rápido, entonces, asignamos 5 CPUs ese proceso de tiempo real. Y de esta 
+manera ya tenemos controlada la tormenta de datos, el truco es poner este componente de encolamiento y a ese patrón de diseño se le 
+conoce como MICRO-BATCH. Ahora, por supuesto que es un poco más complejo de definir y aquí también quiero que entiendan algo muy 
+importante, aquí están viendo la definición arquitectónica de ese patrón de diseño, pero este patrón de diseño ya es algo avanzado, 
+tendríamos que saber algo de programación para poder entender al 100% el potencial de este patrón. De todas maneras, lo voy a explicar 
+a alto nivel para que lo podamos entender y además quiero que sepas que este patrón se adapta a cualquier tipo de procesamiento de 
+datos, es muy raro ver variaciones de esta definición arquitectónica. Voy a poner nuevamente el ejemplo de Facebook para que 
+conceptualmente todos lo podamos entender, incluso si no sabemos programar, porque, recuerden que somos arquitectos no somos 
+desarrolladores. La fuente de datos es Facebook y los datos que queremos ingestar son los comentarios que las personas realizan sobre 
+Facebook. Ya sabemos que el componente de encolamiento va a soportar la tormenta de datos durante 1 segundo y luego lo entregará al 
+componente de procesamiento en un archivo de datos. Pero ¿cómo se envían los datos desde la fuente a la cola de peticiones? para eso 
+hay que ingestar la data, eso es obvio, hay que tener 2 subcomponentes de ingesta: uno que se conecte a la fuente de datos y extraiga 
+la data y otro que recibe esos datos que hemos extraído y los escribe en el componente de encolamiento. Básicamente, este 
+(SOURCE + SOURCE CLIENT) hace el Control + C y este (PRODUCER + COLA DE PETICIONES) hace el Control + B, copiar y pegar. ¿Por qué se 
+dividen en 2 componentes? porque, por ejemplo, el cliente de la fuente de datos en este caso debería ser el cliente oficial de Facebook, 
+es decir el API Graph de Facebook, que nos permite extraer datos desde Facebook. Si estuviéramos haciendo streaming de YouTube, pues, 
+sería otra tecnología, sería el API oficial de YouTube, entonces, el SOURCE CLIENT sería otra cosa, igual con Twitter o con Instagram o 
+con TikTok, etc. cada fuente de datos en tiempo real tiene su propio API de extracción de datos. Empresarialmente hablando también, por 
+ejemplo, si nos queremos conectar a los servidores de Visa. Entonces el componente de SOURCE CLIENT se implementa la tecnología de 
+extracción de datos de la fuente de datos. Una vez que ya tenemos los datos extraídos hay que escribirlo en la COLA DE PETICIONES. El 
+componente que escribe los datos en el encolamiento se le llama PRODUCER, por eso están bien separados. 
+
+Otro punto importante, es que hay que saber que estos componentes van a vivir en alguna infraestructura, generalmente, viven en 
+MICROSERVICIOS. Lo voy a explicar también conceptualmente alto nivel para entenderlo. Así como existen tecnologías de Big data para 
+procesamientos masivos, existen tecnologías para procesamientos algo más pequeños, por ejemplo, los MICROSERVICIOS. Si se dan cuenta 
+aquí no estamos haciendo una red neuronal o un reporte, estamos haciendo un CTRL + C y CTRL + V, entonces, esta unidad de procesamiento 
+(SOURCE CLIENT + PRODUCER) no va a requerir 2 TB de memoria RAM, probablemente con 2 GB de RAM es suficiente para que funcione este 
+pequeño programa que va a tener esos 2 módulos, así que, en un microservicio puede ir. Aquí estoy simplificando el concepto de 
+microservicio para entender más la parte arquitectónica, porque los MICROSERVICIOS literalmente sirven para muchísimas cosas. Ahora 
+¿qué es lo que va a pasar? digamos que con 2 GB de RAM podemos capturar 10.000 transacciones por segundo, ahora se espera que, para los 
+datos que estamos ingestando, van a venir 50.000 transacciones por segundo. Si cada una de estas instancias ejecutándose en un 
+microservicio puede procesar 10.000 transacciones y van a venir 50.000 ¿cuántas de esas instancias necesitamos trabajando de manera 
+paralela? pues si vienen 50.000 necesitaremos 5 instancias y de esa manera la tormenta de datos se va a balancear en esas 5 instancias 
+que vamos a tener, que nos van a permitir hacer el CTRL + C y CTRL + V, mover datos. Esto generalmente vive en microservicios. Y ¿qué 
+pasa si el día de mañana es Navidad y todos van a comentar a Facebook para hacer saludos y empezar a escribir comentarios sobre la 
+Navidad y pasamos de 50.000 ahora a 100.000? la buena noticia es que, recordemos que estamos en nube, así que estos MICROSERVICIOS 
+también son elásticos, si viene el doble de transacciones, pues levantamos el doble de MICROSERVICIOS y de esa manera la cola de 
+peticiones va a recibir esa TORMENTA DE DATOS. De esa manera hemos hecho el copiar y pegar, pero todavía no hemos procesado los datos. 
+Luego en el proceso de ENCOLAMIENTO debemos definir el tiempo de procesamiento, yo había puesto 1 segundo, pero depende de qué 
+significa el tiempo real, voy a poner otro ejemplo conceptual fácil de entender, digamos que estamos haciendo un análisis de evolución 
+del precio del dólar, entonces, queremos ver cómo evoluciona el dólar por segundo, generalmente, los análisis de ese tipo se hacen por 
+hora, cada hora vemos cómo está el precio del dólar, entonces, para alguien que está haciendo un análisis del precio de dólar, tiempo 
+real va a significar 1 hora. Ahora, pongamos un caso algo grave, digamos que estamos haciendo un programa para personas que están 
+pasando por problemas difíciles y van a tomar una decisión extrema y eso hay que evitarlo al momento, entonces, ¿qué es tiempo real en 
+ese caso? al segundo que alguien comente algo extraño en Facebook y de hecho Facebook lo tiene, entonces, ahí tiempo real significa 
+1 segundo, porque, literalmente es salvar una vida. Entonces vean que este término de tiempo real es muy relativo, eso depende del caso 
+de negocio. Pero en el componente de encolamiento tu ya configuras que significa ese tiempo real, puede ser 1 segundo o puede ser una 
+hora, dependiendo del caso de negocio. Lo importante es que cuando pase ese tiempo te lo va a entregar en un archivo de datos. ¿Quién 
+es el componente arquitectónico encargado de extraer el archivo de datos desde la cola de peticiones? ese componente que extrae los 
+datos en un archivo se llama CONSUMER. Luego ese archivo de datos es enviado al Clúster de procesamiento, que es el Clúster que nosotros 
+estamos instanciando y se empieza a procesar con todos los patrones que hemos aprendido. 
+
+Ahora aquí también hay algo muy importante, este componente arquitectónico (PROCESAMIENTO) desde el punto de vista de la infraestructura 
+es el Clúster de Big data que estamos montando, pero este componente que está encargado de recibir la tormenta de datos (COLA DE 
+PETICIONES) es otro Clúster diferente. Hay una tecnología estándar llamada KAFKA, pero, por ejemplo, en el caso de AWS ellos tienen su 
+tecnología propietaria llamada KINESIS. En el caso de AZURE se llama EVENT HUB, en el caso de GCP se llama PUB SUB y así sucesivamente. 
+Así que si queremos hacer procesamiento en tiempo real eso va a implicar una cola de peticiones en donde se van a encolar los datos de 
+la tormenta de datos y eso desde un punto de vista de infraestructura es un Clúster con algún tipo de tecnología orientado a la captura 
+en tiempo real de datos. 
+
+Ahora que hemos entendido este patrón de diseño, si se dan cuenta solamente va a variar la tecnología con la que queremos procesar los 
+datos, por ejemplo, digamos que estamos procesando datos de Facebook, la fuente es Facebook, pues el API oficial de Facebook es el 
+Source Client, el Producer lo podemos hacer en Python, como estos son MICROSERVICIOS podríamos utilizar Docker, va a la a la 
+infraestructura de Kafka, con Python hacemos el Consumer que extrae los datos y se lo mandamos al Clúster de SPARK para procesar. O 
+digamos que estamos haciendo procesamiento de geolocalización como lo que hacen Uber o Waze, que constantemente están enviando la 
+latitud y la longitud de en donde se encuentran los vehículos, entonces, la fuente de datos serían los teléfonos celulares, el Source 
+client sería la aplicación que vive dentro de esos teléfonos celulares y empiezan a enviar la geolocalización. Noten que el patrón de 
+diseño no muestra distribución física, físicamente hablando este componente está dentro de los celulares, solamente estamos enfocándonos 
+en los componentes, no como físicamente viven esos componentes. Luego el Producer lo podemos hacer en Java y bueno ahí ya va a depender 
+del mix tecnológico que tú quieras utilizar. 
+
+En síntesis, procesar en tiempo real, el truco es usar una cola de peticiones para soportar la tormenta de datos, esto se traduce en 
+una infraestructura especial. Y en la infraestructura de procesamiento de Big data, él va a recibir el archivo de datos y podemos 
+aplicarle todos los patrones de diseño que hemos aprendido hasta el momento. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Acá ya se completó el despliegue del Clúster AZURE y vamos a continuar con esto y vamos a ver también la parte con de tiempo real, al 
+menos desde un punto de vista tecnológico a alto nivel para entender la arquitectura. Ahora voy a regresar a la raíz del portal de 
+AZURE y acá, por ejemplo, tenemos el Clúster de Big data ("clusterbigdata001"). Dentro de este Clúster, tenemos acá el acceso a Jupyter, 
+que es una interfaz gráfica de desarrollo, voy a darle clic y me va a pedir el usuario y contraseña que definí al momento de crear el 
+Clúster, lo voy a ingresar vamos a esperar a que se loguee y acá, por ejemplo, tenemos acceso a esta interfaz. Por supuesto que esto 
+no es un curso de programación, pero voy a poner solamente un ejemplo simple para que se entienda. Acá por ejemplo voy a crear un 
+notebook Pyspark para procesar SPARK con Python y le voy a poner un nombre a mi proceso "reporte", le doy clic a "ok" y bueno aquí ya 
+hablaríamos del tema de programación, voy a copiar y pegar directamente todo el código: 
+
+# Importamos el objeto para instanciar una sesión
+from pyspark.sql import SparkSession
+
+# Instanciamos una session
+# Dependiendo de la potencia del cluster, tomara hasta 3 minutos en asignarle recursos
+Spark = SparkSession.builder.getOrCreate()
+
+# Leemos los datos que procesaremos
+dfTransaccion = spark.read.format("csv").option("header", "true").option("delimiter", "|").load("/objects/inputs/transaccion")
+
+# Almacenamos el dataframe como vista temporal
+dfTransaccion.createOrReplaceTempView("dfTransaccion")
+
+# Procesamos el dataframe
+dfReporte = spark.sql("""
+SELECT
+	T.ID_PERSONA ID_PERSONA,
+	COUNT(T.ID_PERSONA) CANTIDAD_TRANSACCIONES,
+	SUM(T.MONTO) MONTO_TRANSACCIONES
+FROM
+	dfTransaccion T
+GROUP BY
+	T.ID_PERSONA
+""")
+
+# Guardamos el resultado en un directorio temporal del cluster
+dfReporte.write.mode("overwrite").format("parquet").save("/objects/outputs/reporte")
+
+
+Aquí, por ejemplo, nos estamos conectando a SPARK. Luego, estamos leyendo el archivo de datos que hay dentro de, se acuerdan de que en 
+el Clúster creamos los directorios objects/inputs, si colocamos el archivo de datos que vamos a procesar. Luego, lo procesamos y dentro 
+de outputs está el directorio 'reporte' y ahí lo guardará. Le voy a dar CTRL + ENTER para ejecutar y pues aquí y creará la sesión de 
+SPARK ejecutará el código y ya estamos programando. También dentro de esta variable es donde los desarrolladores van a empezar a decir: 
+dame 2 CPUs, dame 10 CPUs, dame el 5% de la potencia del Clúster o dame el 20% o lo que se necesite. Por supuesto que eso ya se 
+convertiría en una clase de SPARK o de programación, pero, lo importante es que veas que ya estamos en el punto en que podemos empezar 
+a programar, ya desplegamos el Clúster de Big data, por supuesto que está algo lento, porque es pequeño, pero en la vida real con los 
+patrones de diseño que vimos, ya sabemos que podemos instanciar los Clústers según la volumetría de los datos que vamos a procesar. 
+
+Bueno que se quede pensando ahí por un momento, mientras va pensando voy a aprovechar para mostrarles una tecnología de Real time, acá
+por ejemplo, tenemos EVENT HUBS. Lo voy a hacer conceptualmente, esto no es una clase de ni de AZURE ni de programación Real time, 
+solamente quiero que lo vean para entenderlo. Aquí es donde yo les dije van a ver como MICROSERVICIOS que van a ir capturando los datos 
+¿cuántos queremos? en la opción de "Unidades de procesamiento". Ahora también hay tipos de pricing indiferente, por ejemplo, estamos en 
+un caso extremo en donde van a venir millones de transacciones por segundo, hay maneras de definir eso ya sobre AZURE tendríamos que 
+entender estos conceptos de PU y TU, que básicamente se refiere a las unidades de procesamiento que tenemos disponibles, pero quiero 
+que veas que ya eso lo haría el experto en AZURE y tú como arquitecto defines los patrones de diseño y como brazo técnico tendrías que 
+tener a alguien que sepa de AZURE para hacer esa traducción a AZURE. Recuerda que existen subtipos de arquitectos, por ejemplo, uno 
+especializado completamente en AZURE, uno especializado completamente en mi SPARK, uno especializado completamente en HADOOP, uno 
+especializado solamente en la parte de REAL-TIME. Eso ya va a depender de tus habilidades técnicas, pero digamos que este es un curso 
+global de arquitectura en donde se ven todos los patrones que existen al día de hoy. 
+
+Como consejo, si estás practicando y ya terminaste de hacer lo que tenías qué hacer destruye el GRUPO DE RECURSOS, eso por supuesto que 
+dentro de una empresa no se hace, solamente debes hacerlo cuando estés practicando. 
+
+-----------------------------------------------------------------------------------------------------------------------------
